@@ -2262,10 +2262,14 @@ function actMentorMatch() {
       if (accessToken) {
         // URL 해시 제거
         window.history.replaceState({}, document.title, window.location.pathname);
-        // 토큰 설정 후 사용자 정보 요청
-        Kakao.Auth.setAccessToken(accessToken);
-        fetchKakaoUser();
+        // 토큰 저장 후 사용자 정보 요청
+        localStorage.setItem('rbu_token', accessToken);
+        fetchKakaoUser(accessToken);
       }
+    } else {
+      // 이전에 저장된 토큰으로 복원 시도
+      const savedToken = localStorage.getItem('rbu_token');
+      if (savedToken) fetchKakaoUser(savedToken);
     }
   });
 
@@ -2285,19 +2289,26 @@ function actMentorMatch() {
     if (avatar) document.getElementById('kakao-avatar').src = avatar;
   }
 
-  function fetchKakaoUser() {
-    Kakao.API.request({
-      url: '/v2/user/me',
-      success: function(res) {
-        const nickname = res.kakao_account?.profile?.nickname
-                      || res.properties?.nickname || '사용자';
-        const avatar   = res.kakao_account?.profile?.profile_image_url
-                      || res.properties?.profile_image || '';
-        localStorage.setItem('rbu_nickname', nickname);
-        localStorage.setItem('rbu_avatar', avatar);
-        showUserInfo(nickname, avatar);
-      },
-      fail: function(err) { console.error('사용자 정보 실패:', err); }
+  function fetchKakaoUser(token) {
+    fetch('https://kapi.kakao.com/v2/user/me', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      const nickname = res.kakao_account?.profile?.nickname
+                    || res.properties?.nickname || '사용자';
+      const avatar   = res.kakao_account?.profile?.profile_image_url
+                    || res.properties?.profile_image || '';
+      localStorage.setItem('rbu_nickname', nickname);
+      localStorage.setItem('rbu_avatar', avatar);
+      showUserInfo(nickname, avatar);
+    })
+    .catch(function(err) {
+      console.error('사용자 정보 실패:', err);
+      // 토큰 만료 시 저장된 정보 삭제
+      localStorage.removeItem('rbu_token');
+      localStorage.removeItem('rbu_nickname');
+      localStorage.removeItem('rbu_avatar');
     });
   }
 
@@ -2315,6 +2326,7 @@ function actMentorMatch() {
 
   function kakaoLogout() {
     try { Kakao.Auth.setAccessToken(undefined); } catch(e) {}
+    localStorage.removeItem('rbu_token');
     localStorage.removeItem('rbu_nickname');
     localStorage.removeItem('rbu_avatar');
     document.getElementById('kakao-login-btn').style.display = 'flex';
