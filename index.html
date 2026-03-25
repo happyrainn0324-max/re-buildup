@@ -2254,19 +2254,18 @@ function actMentorMatch() {
     const savedAvatar   = localStorage.getItem('rbu_avatar');
     if (savedNickname) showUserInfo(savedNickname, savedAvatar || '');
 
-    // 리다이렉트 후 code 파라미터 처리
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    if (code) {
-      // URL에서 code 제거
-      window.history.replaceState({}, document.title, window.location.pathname);
-      // access_token으로 사용자 정보 가져오기
-      Kakao.Auth.authorize({ redirectUri: REDIRECT_URI });
-    }
-
-    // 이미 토큰 있으면 사용자 정보 바로 불러오기
-    if (Kakao.Auth.getAccessToken && Kakao.Auth.getAccessToken()) {
-      fetchKakaoUser();
+    // URL 해시에서 access_token 파싱 (리다이렉트 후 처리)
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      const hashParams = new URLSearchParams(hash.replace('#', ''));
+      const accessToken = hashParams.get('access_token');
+      if (accessToken) {
+        // URL 해시 제거
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // 토큰 설정 후 사용자 정보 요청
+        Kakao.Auth.setAccessToken(accessToken);
+        fetchKakaoUser();
+      }
     }
   });
 
@@ -2307,10 +2306,10 @@ function actMentorMatch() {
       alert('카카오 SDK 로딩 중입니다. 잠시 후 다시 시도해주세요.');
       return;
     }
-    // SDK 2.7.x 최신 방식 — 팝업으로 로그인 후 토큰 받기
+    // token 방식: access_token을 URL 해시로 바로 받음 (서버 불필요)
     Kakao.Auth.authorize({
       redirectUri: REDIRECT_URI,
-      prompt: 'select_account'
+      responseType: 'token'
     });
   }
 
