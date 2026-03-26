@@ -411,6 +411,43 @@
 
 <section style="padding:60px 0;background:var(--bg);">
   <div class="section-inner" style="max-width:1200px;margin:0 auto;">
+
+    <!-- 🌱 출석 도장 카드 -->
+    <div class="card fadeUp fadeUp-1" style="padding:32px;margin-bottom:32px;overflow:hidden;position:relative;">
+      <!-- 배경 장식 -->
+      <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;background:linear-gradient(135deg,#D1FAE5,#A7F3D0);opacity:0.35;pointer-events:none;"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
+        <div>
+          <p style="font-size:18px;font-weight:800;margin-bottom:4px;">🌱 회복-성장 출석 도장</p>
+          <p style="font-size:13px;color:var(--muted);">매일 체크인할수록 새싹이 아름다운 꽃나무로 자랍니다!</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="stamp-count-badge" style="background:linear-gradient(135deg,#10B981,#34D399);color:#fff;font-size:13px;font-weight:800;padding:6px 14px;border-radius:99px;">0 / 8 일</span>
+          <button onclick="stampReset()" style="padding:6px 12px;border-radius:10px;border:1.5px solid var(--border);background:transparent;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;" title="초기화">↺</button>
+        </div>
+      </div>
+
+      <!-- 나무 성장 SVG -->
+      <div style="display:flex;justify-content:center;margin-bottom:28px;">
+        <div id="tree-svg-wrap" style="width:180px;height:180px;display:flex;align-items:center;justify-content:center;">
+          <!-- JS로 교체됨 -->
+        </div>
+      </div>
+      <p id="tree-msg" style="text-align:center;font-size:14px;font-weight:700;color:#10B981;margin-bottom:24px;min-height:22px;"></p>
+
+      <!-- 도장 8칸 -->
+      <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:24px;" id="stamp-grid">
+        <!-- JS로 생성 -->
+      </div>
+
+      <!-- 출석 버튼 -->
+      <button id="stamp-btn" onclick="doStamp()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#10B981,#34D399);border:none;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:all 0.2s;box-shadow:0 4px 14px #10B98133;">
+        🌿 오늘 출석 도장 찍기
+      </button>
+      <p id="stamp-already-msg" style="display:none;text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">오늘은 이미 도장을 찍었어요 ✅</p>
+    </div>
+
     <div class="card fadeUp fadeUp-2" style="padding:36px;">
       <div style="margin-bottom:24px;">
         <p style="font-size:18px;font-weight:800;margin-bottom:6px;">오늘의 회복 체크인 ✅</p>
@@ -1030,39 +1067,67 @@
       <div id="strength-step2" style="display:none;">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
           <div style="width:52px;height:52px;border-radius:14px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:24px;">📝</div>
-          <div><p style="font-weight:800;font-size:20px;">자기소개서 작성</p><p style="font-size:13px;color:#F59E0B;font-weight:600;">STEP 2 · 강점을 바탕으로 나를 소개해요</p></div>
+          <div><p style="font-weight:800;font-size:20px;">자기소개서 작성</p><p style="font-size:13px;color:#F59E0B;font-weight:600;">STEP 2 · 나의 이야기를 자기소개서로 완성해요</p></div>
         </div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.7;">선택한 강점을 바탕으로 4가지 항목을 채워보세요. 완성되면 자기소개서가 자동으로 만들어집니다!</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.7;">선택한 강점을 토대로 항목을 채우면 나만의 진로 회복 자기소개서가 자동으로 완성됩니다!</p>
 
         <!-- 선택된 강점 태그 -->
-        <div style="background:#FFFBEB;border-radius:12px;padding:12px 14px;margin-bottom:16px;border:1.5px solid #FDE68A;">
-          <p style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:6px;">✨ 내가 선택한 강점</p>
-          <p id="cv-strength-tags" style="font-size:13px;font-weight:700;color:#78350F;line-height:1.8;"></p>
+        <div style="background:#FFFBEB;border-radius:12px;padding:12px 16px;margin-bottom:20px;border:1.5px solid #FDE68A;">
+          <p style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:6px;">✨ 내가 선택한 강점 키워드</p>
+          <p id="cv-strength-tags" style="font-size:14px;font-weight:700;color:#78350F;line-height:1.8;"></p>
         </div>
 
-        <!-- 4가지 입력 항목 -->
-        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px;">
-          <div>
-            <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;">👤 이름과 꿈 (지금 생각하는 것으로 OK!)</label>
-            <input id="cv-name" placeholder="예: 김회복, 콘텐츠 크리에이터가 되고 싶어요" oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--fg);font-size:14px;font-family:inherit;box-sizing:border-box;"/>
+        <!-- 자기소개서 입력 항목 -->
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px;">
+
+          <!-- 기본 정보 -->
+          <div style="padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);">
+            <p style="font-size:12px;font-weight:700;color:#F59E0B;margin-bottom:12px;letter-spacing:0.05em;">① 기본 정보</p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">👤 이름과 꿈</label>
+                <input id="cv-name" placeholder="예: 김회복, 콘텐츠 크리에이터가 되고 싶어요" oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:14px;font-family:inherit;box-sizing:border-box;"/>
+              </div>
+              <div>
+                <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">🎯 관심 분야 또는 희망 직업</label>
+                <input id="cv-field" placeholder="예: 미디어·콘텐츠, 상담·교육, 디자인..." oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:14px;font-family:inherit;box-sizing:border-box;"/>
+              </div>
+            </div>
           </div>
-          <div>
-            <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;">💪 나의 강점 경험 (강점이 발휘된 구체적인 순간)</label>
-            <textarea id="cv-exp" placeholder="예: 친구가 힘들 때 먼저 연락해서 들어준 적이 많아요. 그 덕분에 주변에서 고민 상담을 자주 받습니다." oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--fg);font-size:13px;resize:none;height:80px;font-family:inherit;box-sizing:border-box;"></textarea>
+
+          <!-- 강점 경험 -->
+          <div style="padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);">
+            <p style="font-size:12px;font-weight:700;color:#F59E0B;margin-bottom:12px;letter-spacing:0.05em;">② 강점이 드러난 경험</p>
+            <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">💪 강점이 발휘된 구체적인 순간</label>
+            <textarea id="cv-exp" placeholder="예: 친구가 힘들 때 먼저 연락해서 끝까지 들어준 적이 많아요. 그 덕분에 주변에서 고민 상담을 자주 받습니다." oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:13px;resize:none;height:85px;font-family:inherit;box-sizing:border-box;line-height:1.7;"></textarea>
           </div>
-          <div>
-            <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;">🌱 버텨온 경험 (힘들었지만 극복한 일)</label>
-            <textarea id="cv-recovery" placeholder="예: 중학교 때 전학을 가서 적응이 어려웠지만, 먼저 말을 걸고 친구를 사귀면서 극복했어요." oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--fg);font-size:13px;resize:none;height:80px;font-family:inherit;box-sizing:border-box;"></textarea>
+
+          <!-- 회복 경험 -->
+          <div style="padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);">
+            <p style="font-size:12px;font-weight:700;color:#10B981;margin-bottom:12px;letter-spacing:0.05em;">③ 회복·극복 경험</p>
+            <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">🌱 힘들었지만 버텨낸 경험</label>
+            <textarea id="cv-recovery" placeholder="예: 중학교 때 전학을 가서 적응이 어려웠지만, 먼저 말을 걸고 친구를 사귀면서 결국 극복했어요." oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:13px;resize:none;height:85px;font-family:inherit;box-sizing:border-box;line-height:1.7;"></textarea>
           </div>
-          <div>
-            <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;">🎯 앞으로의 목표 (어떤 사람이 되고 싶은지)</label>
-            <input id="cv-goal" placeholder="예: 사람들의 이야기를 콘텐츠로 만들어 위로를 전하는 크리에이터가 되고 싶어요." oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--fg);font-size:14px;font-family:inherit;box-sizing:border-box;"/>
+
+          <!-- 진로 목표 -->
+          <div style="padding:16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);">
+            <p style="font-size:12px;font-weight:700;color:#6366F1;margin-bottom:12px;letter-spacing:0.05em;">④ 진로 목표</p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">🚀 앞으로의 목표 (어떤 사람이 되고 싶은지)</label>
+                <input id="cv-goal" placeholder="예: 사람들의 이야기를 콘텐츠로 만들어 위로를 전하는 크리에이터가 되고 싶어요." oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:14px;font-family:inherit;box-sizing:border-box;"/>
+              </div>
+              <div>
+                <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">💌 이 길을 선택하는 이유 (한 문장)</label>
+                <input id="cv-reason" placeholder="예: 내가 힘들었던 경험이 누군가에게 힘이 될 수 있다고 믿기 때문이에요." oninput="cvCheck()" style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:14px;font-family:inherit;box-sizing:border-box;"/>
+              </div>
+            </div>
           </div>
         </div>
 
         <div style="display:flex;gap:8px;">
           <button onclick="strengthGoStep1()" style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">← 강점 다시 선택</button>
-          <button id="cv-generate-btn" onclick="cvGenerate()" disabled style="flex:2;padding:12px;border-radius:12px;background:linear-gradient(135deg,#F59E0B,#FBBF24);border:none;color:#fff;font-size:14px;font-weight:700;cursor:not-allowed;opacity:0.4;font-family:inherit;transition:all 0.2s;">자기소개서 완성하기</button>
+          <button id="cv-generate-btn" onclick="cvGenerate()" disabled style="flex:2;padding:12px;border-radius:12px;background:linear-gradient(135deg,#F59E0B,#FBBF24);border:none;color:#fff;font-size:14px;font-weight:700;cursor:not-allowed;opacity:0.4;font-family:inherit;transition:all 0.2s;">✍ 자기소개서 완성하기</button>
         </div>
       </div>
 
@@ -1070,19 +1135,45 @@
       <div id="strength-step3" style="display:none;">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
           <div style="width:52px;height:52px;border-radius:14px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:24px;">📄</div>
-          <div><p style="font-weight:800;font-size:20px;">나의 자기소개서</p><p style="font-size:13px;color:#F59E0B;font-weight:600;">STEP 3 · 완성!</p></div>
+          <div><p style="font-weight:800;font-size:20px;">나의 진로 회복 자기소개서</p><p style="font-size:13px;color:#F59E0B;font-weight:600;">STEP 3 · 완성!</p></div>
         </div>
-        <div id="cv-result" style="background:linear-gradient(135deg,#FFFBEB,#FEF9C3);border-radius:16px;padding:22px;border:1.5px solid #FDE68A;margin-bottom:16px;line-height:1.9;">
-          <p style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:14px;letter-spacing:0.05em;">자기소개서</p>
-          <p id="cv-result-text" style="font-size:14px;color:#1a1a1a;line-height:2;white-space:pre-line;"></p>
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid #FDE68A;">
-            <p style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:6px;">핵심 강점 키워드</p>
-            <p id="cv-result-tags" style="font-size:13px;color:#78350F;font-weight:700;"></p>
+
+        <!-- 자기소개서 본문 -->
+        <div id="cv-result" style="background:linear-gradient(135deg,#FFFBEB,#FEF9C3);border-radius:16px;padding:24px;border:1.5px solid #FDE68A;margin-bottom:16px;">
+          <!-- 헤더 -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #FDE68A;">
+            <p style="font-size:15px;font-weight:800;color:#92400E;">진로 회복 자기소개서</p>
+            <span id="cv-result-name-badge" style="font-size:12px;font-weight:700;color:#92400E;background:#fff;padding:4px 12px;border-radius:99px;border:1px solid #FDE68A;"></span>
+          </div>
+          <!-- 강점 태그 -->
+          <div style="margin-bottom:16px;">
+            <p style="font-size:11px;font-weight:700;color:#92400E;margin-bottom:8px;letter-spacing:0.05em;">✨ 핵심 강점</p>
+            <p id="cv-result-tags" style="font-size:13px;color:#78350F;font-weight:700;line-height:1.8;"></p>
+          </div>
+          <!-- 본문 단락들 -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="background:#fff8;border-radius:10px;padding:14px 16px;border-left:3px solid #F59E0B;">
+              <p style="font-size:11px;font-weight:700;color:#F59E0B;margin-bottom:6px;">💪 강점 경험</p>
+              <p id="cv-result-exp" style="font-size:13px;color:#1a1a1a;line-height:1.9;"></p>
+            </div>
+            <div style="background:#fff8;border-radius:10px;padding:14px 16px;border-left:3px solid #10B981;">
+              <p style="font-size:11px;font-weight:700;color:#10B981;margin-bottom:6px;">🌱 회복·극복 경험</p>
+              <p id="cv-result-recovery" style="font-size:13px;color:#1a1a1a;line-height:1.9;"></p>
+            </div>
+            <div style="background:#fff8;border-radius:10px;padding:14px 16px;border-left:3px solid #6366F1;">
+              <p style="font-size:11px;font-weight:700;color:#6366F1;margin-bottom:6px;">🚀 진로 목표</p>
+              <p id="cv-result-goal" style="font-size:13px;color:#1a1a1a;line-height:1.9;"></p>
+            </div>
+          </div>
+          <!-- 마무리 문장 -->
+          <div style="margin-top:14px;padding:14px;background:#fff;border-radius:10px;border:1px solid #FDE68A;">
+            <p id="cv-result-closing" style="font-size:13px;color:#92400E;font-weight:600;line-height:1.8;font-style:italic;"></p>
           </div>
         </div>
+
         <div style="display:flex;gap:8px;">
-          <button onclick="strengthGoStep2()" style="flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">수정하기</button>
-          <button onclick="strengthReset()" style="flex:1;padding:11px;border-radius:12px;border:none;background:#FFFBEB;color:#92400E;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">처음부터 다시</button>
+          <button onclick="strengthGoStep2()" style="flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ 수정하기</button>
+          <button onclick="strengthReset()" style="flex:1;padding:11px;border-radius:12px;border:none;background:#FFFBEB;color:#92400E;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">↺ 처음부터</button>
         </div>
       </div>
 
@@ -1098,13 +1189,28 @@
         <p style="color:var(--muted);font-size:14px;">아래 버튼을 눌러 오늘의 미션을 뽑아보세요 🎲</p>
       </div>
       <div id="act-mission-done-area" style="display:none;margin-bottom:16px;">
+
+        <!-- ✍ 써보기 칸 -->
+        <div style="margin-bottom:14px;">
+          <p style="font-size:13px;font-weight:700;color:#9D174D;margin-bottom:8px;">✍ 미션 후기를 써보세요</p>
+          <textarea id="act-mission-note" placeholder="어떻게 했나요? 느낀 점, 어려웠던 점, 새롭게 알게 된 것 등 자유롭게 적어보세요." oninput="actMissionNoteCheck()" style="width:100%;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--fg);font-size:13px;resize:none;height:110px;font-family:inherit;box-sizing:border-box;line-height:1.7;transition:border-color 0.2s;" onfocus="this.style.borderColor='#EC4899'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+            <span id="act-mission-note-count" style="font-size:11px;color:var(--muted);">0자</span>
+          </div>
+        </div>
+
+        <!-- 완료 체크 -->
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15px;font-weight:600;padding:14px;background:var(--muted-bg);border-radius:12px;">
           <input type="checkbox" id="act-mission-check" onchange="actMissionComplete()" style="width:20px;height:20px;accent-color:#EC4899;cursor:pointer;"/>
           미션 완료했어요! 🎉
         </label>
-        <div id="act-mission-badge" style="display:none;margin-top:10px;padding:14px 16px;background:#FFF1F2;border-radius:12px;border-left:4px solid #EC4899;">
-          <p style="font-size:14px;font-weight:700;color:#9D174D;">🏅 미션 완료 배지 획득!</p>
-          <p style="font-size:13px;color:var(--muted);margin-top:4px;">이 경험이 나의 진로 포트폴리오에 기록됩니다.</p>
+        <div id="act-mission-badge" style="display:none;margin-top:10px;padding:16px;background:#FFF1F2;border-radius:12px;border-left:4px solid #EC4899;">
+          <p style="font-size:14px;font-weight:700;color:#9D174D;margin-bottom:6px;">🏅 미션 완료 배지 획득!</p>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">이 경험이 나의 진로 포트폴리오에 기록됩니다.</p>
+          <div id="act-mission-note-saved" style="display:none;padding:12px;background:#fff;border-radius:10px;border:1px solid #FECDD3;">
+            <p style="font-size:11px;font-weight:700;color:#EC4899;margin-bottom:4px;">📝 나의 미션 후기</p>
+            <p id="act-mission-note-text" style="font-size:13px;color:var(--fg);line-height:1.7;white-space:pre-wrap;"></p>
+          </div>
         </div>
       </div>
       <button onclick="actMissionDraw()" style="width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,#EC4899,#F472B6);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">🎲 미션 뽑기!</button>
@@ -1153,6 +1259,278 @@
 
   </div>
 </div>
+
+<script>
+/* ============================================================
+   🌱 출석 도장 — 8단계 성장 나무
+   localStorage: stamp_dates (JSON 배열), stamp_count (숫자)
+   ============================================================ */
+
+/* 8단계 SVG 정의 */
+const TREES = [
+  /* 0단계: 씨앗 */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="95" r="10" fill="#8B6914"/>
+    <ellipse cx="60" cy="93" rx="7" ry="5" fill="#A0822A"/>
+    <text x="60" y="118" font-size="11" text-anchor="middle" fill="#6B7280" font-family="sans-serif">씨앗 🌰</text>
+  </svg>`,
+
+  /* 1단계: 새싹 */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="57" y="72" width="6" height="22" rx="3" fill="#6B4F1A"/>
+    <ellipse cx="60" cy="68" rx="10" ry="14" fill="#22C55E"/>
+    <ellipse cx="54" cy="74" rx="7" ry="10" fill="#16A34A" transform="rotate(-30 54 74)"/>
+    <ellipse cx="66" cy="74" rx="7" ry="10" fill="#16A34A" transform="rotate(30 66 74)"/>
+    <text x="60" y="108" font-size="11" text-anchor="middle" fill="#6B7280" font-family="sans-serif">새싹 🌱</text>
+  </svg>`,
+
+  /* 2단계: 조금 자란 새싹 */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="56" y="65" width="8" height="28" rx="4" fill="#7A5C20"/>
+    <ellipse cx="60" cy="58" rx="14" ry="18" fill="#22C55E"/>
+    <ellipse cx="50" cy="66" rx="9" ry="12" fill="#16A34A" transform="rotate(-30 50 66)"/>
+    <ellipse cx="70" cy="66" rx="9" ry="12" fill="#16A34A" transform="rotate(30 70 66)"/>
+    <text x="60" y="108" font-size="11" text-anchor="middle" fill="#6B7280" font-family="sans-serif">새싹이 자라요 🌿</text>
+  </svg>`,
+
+  /* 3단계: 작은 나무 */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="54" y="60" width="12" height="35" rx="5" fill="#7A5C20"/>
+    <!-- 아래 잎 -->
+    <ellipse cx="60" cy="72" rx="22" ry="14" fill="#16A34A"/>
+    <!-- 위 잎 -->
+    <ellipse cx="60" cy="52" rx="17" ry="22" fill="#22C55E"/>
+    <text x="60" y="108" font-size="11" text-anchor="middle" fill="#6B7280" font-family="sans-serif">작은 나무 🌲</text>
+  </svg>`,
+
+  /* 4단계: 자란 나무 */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="52" y="55" width="16" height="40" rx="6" fill="#6B4E1A"/>
+    <ellipse cx="60" cy="70" rx="28" ry="16" fill="#15803D"/>
+    <ellipse cx="60" cy="54" rx="22" ry="26" fill="#22C55E"/>
+    <ellipse cx="60" cy="38" rx="15" ry="18" fill="#4ADE80"/>
+    <text x="60" y="108" font-size="11" text-anchor="middle" fill="#6B7280" font-family="sans-serif">자란 나무 🌳</text>
+  </svg>`,
+
+  /* 5단계: 성장하는 나무 */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="51" y="52" width="18" height="42" rx="7" fill="#5C4215"/>
+    <ellipse cx="60" cy="72" rx="32" ry="18" fill="#15803D"/>
+    <ellipse cx="60" cy="55" rx="26" ry="28" fill="#22C55E"/>
+    <ellipse cx="60" cy="35" rx="18" ry="22" fill="#4ADE80"/>
+    <!-- 작은 열매들 -->
+    <circle cx="50" cy="42" r="4" fill="#FCD34D"/>
+    <circle cx="70" cy="38" r="4" fill="#FCD34D"/>
+    <circle cx="60" cy="28" r="3.5" fill="#FCD34D"/>
+    <text x="60" y="108" font-size="11" text-anchor="middle" fill="#6B7280" font-family="sans-serif">성장 중 🌳✨</text>
+  </svg>`,
+
+  /* 6단계: 튼튼한 나무 */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="50" y="50" width="20" height="44" rx="8" fill="#4A3410"/>
+    <!-- 가지 -->
+    <line x1="60" y1="60" x2="35" y2="50" stroke="#5C4215" stroke-width="5" stroke-linecap="round"/>
+    <line x1="60" y1="58" x2="85" y2="48" stroke="#5C4215" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="60" cy="70" rx="34" ry="19" fill="#14532D"/>
+    <ellipse cx="60" cy="53" rx="28" ry="30" fill="#16A34A"/>
+    <ellipse cx="60" cy="32" rx="20" ry="24" fill="#22C55E"/>
+    <ellipse cx="38" cy="50" rx="13" ry="16" fill="#4ADE80"/>
+    <ellipse cx="82" cy="48" rx="13" ry="16" fill="#4ADE80"/>
+    <text x="60" y="108" font-size="11" text-anchor="middle" fill="#6B7280" font-family="sans-serif">튼튼한 나무 💪</text>
+  </svg>`,
+
+  /* 7단계: 거의 완성 */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="49" y="48" width="22" height="46" rx="9" fill="#3D2A0E"/>
+    <line x1="60" y1="58" x2="30" y2="46" stroke="#4A3410" stroke-width="6" stroke-linecap="round"/>
+    <line x1="60" y1="56" x2="90" y2="44" stroke="#4A3410" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="60" cy="70" rx="36" ry="20" fill="#14532D"/>
+    <ellipse cx="60" cy="52" rx="30" ry="32" fill="#15803D"/>
+    <ellipse cx="60" cy="30" rx="22" ry="26" fill="#22C55E"/>
+    <ellipse cx="33" cy="47" rx="14" ry="17" fill="#16A34A"/>
+    <ellipse cx="87" cy="45" rx="14" ry="17" fill="#16A34A"/>
+    <!-- 꽃봉오리 -->
+    <circle cx="60" cy="16" r="8" fill="#FDE68A" stroke="#F59E0B" stroke-width="1.5"/>
+    <circle cx="42" cy="24" r="6" fill="#FDE68A" stroke="#F59E0B" stroke-width="1.5"/>
+    <circle cx="78" cy="22" r="6" fill="#FDE68A" stroke="#F59E0B" stroke-width="1.5"/>
+    <text x="60" y="108" font-size="11" text-anchor="middle" fill="#6B7280" font-family="sans-serif">거의 완성! 🌸</text>
+  </svg>`,
+
+  /* 8단계: 꽃이 피어난 나무 (완성) */
+  `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="49" y="48" width="22" height="46" rx="9" fill="#3D2A0E"/>
+    <line x1="60" y1="56" x2="28" y2="43" stroke="#4A3410" stroke-width="6" stroke-linecap="round"/>
+    <line x1="60" y1="54" x2="92" y2="41" stroke="#4A3410" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="60" cy="68" rx="36" ry="20" fill="#14532D"/>
+    <ellipse cx="60" cy="50" rx="30" ry="32" fill="#15803D"/>
+    <ellipse cx="60" cy="28" rx="22" ry="26" fill="#16A34A"/>
+    <ellipse cx="31" cy="44" rx="14" ry="17" fill="#15803D"/>
+    <ellipse cx="89" cy="42" rx="14" ry="17" fill="#15803D"/>
+    <!-- 꽃들 — 중앙 -->
+    <circle cx="60" cy="14" r="5" fill="#FDE68A"/>
+    <circle cx="53" cy="11" r="4" fill="#FCA5A5"/><circle cx="67" cy="11" r="4" fill="#FCA5A5"/>
+    <circle cx="55" cy="19" r="4" fill="#FCA5A5"/><circle cx="65" cy="19" r="4" fill="#FCA5A5"/>
+    <circle cx="60" cy="14" r="4" fill="#FBBF24"/>
+    <!-- 꽃들 — 왼쪽 -->
+    <circle cx="33" cy="32" r="4" fill="#FDE68A"/>
+    <circle cx="27" cy="29" r="3.5" fill="#F9A8D4"/><circle cx="39" cy="29" r="3.5" fill="#F9A8D4"/>
+    <circle cx="29" cy="36" r="3.5" fill="#F9A8D4"/><circle cx="37" cy="36" r="3.5" fill="#F9A8D4"/>
+    <circle cx="33" cy="32" r="3" fill="#FBBF24"/>
+    <!-- 꽃들 — 오른쪽 -->
+    <circle cx="87" cy="30" r="4" fill="#FDE68A"/>
+    <circle cx="81" cy="27" r="3.5" fill="#C4B5FD"/><circle cx="93" cy="27" r="3.5" fill="#C4B5FD"/>
+    <circle cx="83" cy="34" r="3.5" fill="#C4B5FD"/><circle cx="91" cy="34" r="3.5" fill="#C4B5FD"/>
+    <circle cx="87" cy="30" r="3" fill="#FBBF24"/>
+    <!-- 반짝이 -->
+    <text x="18" y="20" font-size="10" fill="#FCD34D" font-family="sans-serif">✦</text>
+    <text x="98" y="18" font-size="10" fill="#FCD34D" font-family="sans-serif">✦</text>
+    <text x="10" y="42" font-size="8" fill="#FCA5A5" font-family="sans-serif">✦</text>
+    <text x="104" y="38" font-size="8" fill="#C4B5FD" font-family="sans-serif">✦</text>
+    <text x="60" y="108" font-size="11" text-anchor="middle" fill="#10B981" font-family="sans-serif" font-weight="700">🌸 꽃이 피었어요!</text>
+  </svg>`
+];
+
+const TREE_MSGS = [
+  '씨앗을 심었어요 🌰  — 첫 발걸음을 응원해요!',
+  '새싹이 돋아났어요 🌱  — 시작이 반이에요!',
+  '조금씩 자라고 있어요 🌿  — 꾸준함이 힘이에요!',
+  '작은 나무가 됐어요 🌲  — 뿌리가 단단해지고 있어요!',
+  '나무가 쑥쑥 자라고 있어요 🌳  — 정말 잘하고 있어요!',
+  '튼튼하게 성장 중이에요 💪  — 반 이상 왔어요!',
+  '꽃봉오리가 맺혔어요 🌸  — 거의 다 왔어요!',
+  '거의 완성됐어요! 🎋  — 마지막 한 번만 더!',
+  '🌸 꽃이 활짝 피었어요! 8일 개근 달성! 대단해요! 🎉'
+];
+
+/* ── 초기화 ── */
+function initStamp() {
+  var data   = getStampData();
+  var count  = data.count;
+  renderStampGrid(count);
+  renderTree(count);
+  updateStampBadge(count);
+
+  var today = todayStr();
+  var stamped = data.dates.indexOf(today) >= 0;
+  document.getElementById('stamp-btn').style.display        = stamped ? 'none' : 'block';
+  document.getElementById('stamp-already-msg').style.display = stamped ? 'block' : 'none';
+}
+
+/* ── 도장 찍기 ── */
+function doStamp() {
+  var data  = getStampData();
+  var today = todayStr();
+
+  if (data.dates.indexOf(today) >= 0) return; // 이미 찍음
+  if (data.count >= 8) return;                // 이미 완성
+
+  data.dates.push(today);
+  data.count = Math.min(data.count + 1, 8);
+  saveStampData(data);
+
+  /* 애니메이션 */
+  var btn = document.getElementById('stamp-btn');
+  btn.textContent = '✅ 도장 찍었어요!';
+  btn.style.background = 'linear-gradient(135deg,#34D399,#6EE7B7)';
+
+  setTimeout(function() {
+    renderStampGrid(data.count);
+    renderTree(data.count);
+    updateStampBadge(data.count);
+    btn.style.display         = 'none';
+    document.getElementById('stamp-already-msg').style.display = 'block';
+  }, 600);
+}
+
+/* ── 초기화(리셋) ── */
+function stampReset() {
+  if (!confirm('출석 기록을 초기화할까요?')) return;
+  saveStampData({ count: 0, dates: [] });
+  var btn = document.getElementById('stamp-btn');
+  btn.style.display         = 'block';
+  btn.textContent           = '🌿 오늘 출석 도장 찍기';
+  btn.style.background      = 'linear-gradient(135deg,#10B981,#34D399)';
+  document.getElementById('stamp-already-msg').style.display = 'none';
+  initStamp();
+}
+
+/* ── 도장 칸 렌더 ── */
+function renderStampGrid(count) {
+  var grid = document.getElementById('stamp-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (var i = 1; i <= 8; i++) {
+    var done = i <= count;
+    var cell = document.createElement('div');
+    cell.style.cssText = [
+      'aspect-ratio:1',
+      'border-radius:14px',
+      'display:flex',
+      'align-items:center',
+      'justify-content:center',
+      'font-size:22px',
+      'transition:all 0.3s',
+      done
+        ? 'background:linear-gradient(135deg,#D1FAE5,#A7F3D0);border:2px solid #10B981;box-shadow:0 2px 8px #10B98133;'
+        : 'background:var(--muted-bg,#F3F4F6);border:2px dashed #D1D5DB;'
+    ].join(';');
+    cell.textContent = done ? '🌿' : i.toString();
+    if (!done) { cell.style.fontSize = '13px'; cell.style.color = '#9CA3AF'; cell.style.fontWeight = '700'; }
+    grid.appendChild(cell);
+  }
+}
+
+/* ── 나무 SVG 렌더 ── */
+function renderTree(count) {
+  var wrap = document.getElementById('tree-svg-wrap');
+  var msg  = document.getElementById('tree-msg');
+  if (!wrap || !msg) return;
+
+  /* 나무 단계: 0(씨앗)~8(꽃) */
+  var stage = Math.min(count, 8);
+
+  /* 완성 시 전체 배경 반짝이 효과 */
+  if (stage === 8) {
+    wrap.style.filter = 'drop-shadow(0 0 12px #FCD34D88)';
+  } else {
+    wrap.style.filter = 'drop-shadow(0 2px 6px #10B98133)';
+  }
+
+  wrap.innerHTML = TREES[stage];
+  msg.textContent = TREE_MSGS[stage];
+  msg.style.color = stage === 8 ? '#F59E0B' : '#10B981';
+}
+
+/* ── 배지 숫자 갱신 ── */
+function updateStampBadge(count) {
+  var el = document.getElementById('stamp-count-badge');
+  if (!el) return;
+  el.textContent = count + ' / 8 일';
+  if (count === 8) {
+    el.style.background = 'linear-gradient(135deg,#F59E0B,#FBBF24)';
+  }
+}
+
+/* ── localStorage 헬퍼 ── */
+function getStampData() {
+  try {
+    var raw = localStorage.getItem('rbu_stamp');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { count: 0, dates: [] };
+}
+function saveStampData(data) {
+  try { localStorage.setItem('rbu_stamp', JSON.stringify(data)); } catch(e) {}
+}
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+
+/* 페이지 로드 시 실행 */
+document.addEventListener('DOMContentLoaded', initStamp);
+
+</script>
 
 <script>
 // -- 활동 모달 제어 --
@@ -1248,6 +1626,72 @@ function actDiagReset() {
 }
 
 // -- 2. 스토리 로그 --
+
+/* 탭 전환 */
+function storyTab(n) {
+  [1,2,3].forEach(function(i) {
+    var panel = document.getElementById('story-panel-' + i);
+    var tab   = document.getElementById('stab-' + i);
+    if (!panel || !tab) return;
+    if (i === n) {
+      panel.style.display = 'block';
+      tab.style.background   = '#10B981';
+      tab.style.borderColor  = '#10B981';
+      tab.style.color        = '#fff';
+      tab.style.fontWeight   = '700';
+    } else {
+      panel.style.display = 'none';
+      tab.style.background  = 'var(--bg)';
+      tab.style.borderColor = 'var(--border)';
+      tab.style.color       = 'var(--muted)';
+      tab.style.fontWeight  = '600';
+    }
+  });
+}
+
+/* 저장 버튼 활성화 체크 */
+function storyCheckAll() {
+  var v1 = (document.getElementById('story-input-1') || {value:''}).value.trim();
+  var v2 = (document.getElementById('story-input-2') || {value:''}).value.trim();
+  var v3 = (document.getElementById('story-input-3') || {value:''}).value.trim();
+  var btn = document.getElementById('act-story-btn');
+  if (!btn) return;
+  var ok = v1.length > 0 && v2.length > 0 && v3.length > 0;
+  btn.disabled = !ok;
+  btn.style.opacity = ok ? '1' : '0.4';
+  btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
+}
+
+/* 저장 */
+function actStorySave() {
+  var v1 = document.getElementById('story-input-1').value.trim();
+  var v2 = document.getElementById('story-input-2').value.trim();
+  var v3 = document.getElementById('story-input-3').value.trim();
+  if (!v1 || !v2 || !v3) { alert('세 가지 모두 작성해주세요!'); return; }
+  document.getElementById('story-done-1').textContent = v1;
+  document.getElementById('story-done-2').textContent = v2;
+  document.getElementById('story-done-3').textContent = v3;
+  /* 패널 숨기고 완료 화면 표시 */
+  [1,2,3].forEach(function(i) {
+    document.getElementById('story-panel-' + i).style.display = 'none';
+  });
+  document.querySelector('#act-story > div[style*="display:flex;gap:6px"]') && (document.querySelector('#act-story > div[style*="display:flex;gap:6px"]').style.display = 'none');
+  document.getElementById('act-story-done').style.display = 'block';
+}
+
+/* 초기화 */
+function storyReset() {
+  ['story-input-1','story-input-2','story-input-3'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('act-story-done').style.display = 'none';
+  /* 탭 버튼 행 복원 */
+  var tabRow = document.querySelector('#act-story > div[style*="display:flex;gap:6px"]');
+  if (tabRow) tabRow.style.display = 'flex';
+  storyTab(1);
+  storyCheckAll();
+}
+
 let actMoodVal = '';
 function actMood(btn, val) {
   actMoodVal = val;
@@ -1298,6 +1742,7 @@ function strengthGoStep1() {
 }
 function cvCheck() {
   var n = document.getElementById('cv-name').value.trim();
+  var f = (document.getElementById('cv-field')||{value:''}).value.trim();
   var e = document.getElementById('cv-exp').value.trim();
   var r = document.getElementById('cv-recovery').value.trim();
   var g = document.getElementById('cv-goal').value.trim();
@@ -1306,23 +1751,41 @@ function cvCheck() {
   btn.disabled = !ok; btn.style.opacity = ok ? '1' : '0.4'; btn.style.cursor = ok ? 'pointer' : 'not-allowed';
 }
 function cvGenerate() {
-  var name = document.getElementById('cv-name').value.trim();
-  var exp = document.getElementById('cv-exp').value.trim();
+  var name     = document.getElementById('cv-name').value.trim();
+  var field    = (document.getElementById('cv-field')||{value:''}).value.trim();
+  var exp      = document.getElementById('cv-exp').value.trim();
   var recovery = document.getElementById('cv-recovery').value.trim();
-  var goal = document.getElementById('cv-goal').value.trim();
-  var tags = document.getElementById('cv-strength-tags').textContent;
-  var parts = [
-    '안녕하세요, ' + name + '입니다.',
-    '저는 ' + exp,
-    '살아오면서 어려운 순간도 있었습니다. ' + recovery,
-    '이러한 영향으로 저는 더욱 성장할 수 있었고, 앞으로 ' + goal,
-    '저의 강점을 바탕으로 꾼준히 성장하는 사람이 되겠습니다.'
-  ];
-  var text = parts.join('\n\n');
+  var goal     = document.getElementById('cv-goal').value.trim();
+  var reason   = (document.getElementById('cv-reason')||{value:''}).value.trim();
+  var tags     = document.getElementById('cv-strength-tags').textContent;
+
+  /* 이름에서 성명만 추출 (쉼표 앞) */
+  var nameOnly = name.split(/[,，]/)[0].trim();
+
+  /* 강점 경험 단락 */
+  var expPara = '저는 ' + exp + ' 이러한 경험을 통해 ' + (tags ? tags.split(/[·,]/).slice(0,2).map(function(s){return s.trim();}).join(', ') + ' 등의 강점을 발휘해왔습니다.' : '저만의 강점을 키워왔습니다.');
+
+  /* 회복 경험 단락 */
+  var recoveryPara = '살아오면서 ' + recovery + ' 이 과정에서 포기하지 않고 버텨낸 경험이 지금의 저를 더 단단하게 만들었습니다.';
+
+  /* 목표 단락 */
+  var goalPara = '앞으로 ' + goal + (field ? (' ' + field + ' 분야에서') : '') + ' 이를 실현해나가고 싶습니다.' + (reason ? (' ' + reason) : '');
+
+  /* 마무리 */
+  var closing = '"회복의 경험이 저의 가장 큰 자산입니다. ' + nameOnly + '은(는) 이 강점을 바탕으로 꾸준히 성장하는 사람이 되겠습니다."';
+
+  /* 결과 렌더 */
   document.getElementById('strength-step2').style.display = 'none';
   document.getElementById('strength-step3').style.display = 'block';
-  document.getElementById('cv-result-text').textContent = text;
-  document.getElementById('cv-result-tags').textContent = tags;
+
+  var nameBadge = document.getElementById('cv-result-name-badge');
+  if (nameBadge) nameBadge.textContent = nameOnly;
+
+  document.getElementById('cv-result-tags').textContent    = tags;
+  document.getElementById('cv-result-exp').textContent     = expPara;
+  document.getElementById('cv-result-recovery').textContent = recoveryPara;
+  document.getElementById('cv-result-goal').textContent    = goalPara;
+  document.getElementById('cv-result-closing').textContent = closing;
 }
 function strengthReset() {
   document.getElementById('strength-step1').style.display = 'block';
@@ -1331,7 +1794,7 @@ function strengthReset() {
   document.querySelectorAll('#act-strength [data-s]').forEach(function(b) {
     b.style.background = 'var(--bg)'; b.style.borderColor = 'var(--border)'; b.style.fontWeight = '400';
   });
-  ['cv-name','cv-exp','cv-recovery','cv-goal'].forEach(function(id) {
+  ['cv-name','cv-field','cv-exp','cv-recovery','cv-goal','cv-reason'].forEach(function(id) {
     var el = document.getElementById(id); if (el) el.value = '';
   });
   var msg = document.getElementById('strength-count-msg');
@@ -1342,14 +1805,42 @@ function strengthReset() {
 
 // -- 4. 미션 챌린지 --
 const actMissions = [
-  { icon:'✏', text:'오늘 가장 좋았던 순간을 3줄로 써보기', time:'10분' },
-  { icon:'🔎', text:'관심 직업을 가진 유튜버 영상 1개 보기', time:'20분' },
-  { icon:'(말)', text:'내가 잘한다고 생각하는 것 3가지 적기', time:'15분' },
-  { icon:'(사진)', text:'오늘 내가 만든 것 or 한 일 사진 찍기', time:'5분' },
-  { icon:'(마이크)', text:'꿈의 직업에 대해 1분간 말해보기', time:'5분' },
-  { icon:'(책)', text:'관심 분야 책 or 블로그 1개 읽기', time:'30분' },
-  { icon:'(지도)', text:'내가 살고 싶은 미래 지도 그려보기', time:'20분' },
-  { icon:'(악수)', text:'가족 또는 친구에게 감사한 점 전달하기', time:'10분' },
+  /* 회복 · 감정 */
+  { icon:'✏️', text:'오늘 가장 좋았던 순간을 3줄로 써보기', time:'10분' },
+  { icon:'💌', text:'과거의 힘들었던 나에게 응원 편지 쓰기', time:'15분' },
+  { icon:'🎵', text:'기분을 표현하는 노래 1곡 골라 가사 적기', time:'10분' },
+  { icon:'🌈', text:'오늘 감정을 색깔로 표현하고 이유 쓰기', time:'10분' },
+  { icon:'🙏', text:'내 삶에서 감사한 것 5가지 적기', time:'10분' },
+  { icon:'😤', text:'요즘 가장 힘든 점 솔직하게 써보기', time:'15분' },
+  /* 자기 탐색 */
+  { icon:'💡', text:'내가 잘한다고 생각하는 것 3가지 적기', time:'15분' },
+  { icon:'🔍', text:'나를 한 단어로 표현하고 그 이유 쓰기', time:'10분' },
+  { icon:'🧩', text:'어릴 때 가장 좋아했던 놀이·활동 기억하기', time:'10분' },
+  { icon:'⚡', text:'내가 시간 가는 줄 모르고 빠져든 경험 쓰기', time:'15분' },
+  { icon:'🪞', text:'나의 장점 3가지와 단점 1가지 솔직히 쓰기', time:'15분' },
+  { icon:'🌟', text:'"내가 가장 빛났던 순간"을 1장면 구체적으로 쓰기', time:'15분' },
+  /* 경험 · 도전 */
+  { icon:'📸', text:'오늘 내가 만든 것 또는 한 일 사진 찍기', time:'5분' },
+  { icon:'🎤', text:'꿈의 직업에 대해 1분간 혼자 말해보기', time:'5분' },
+  { icon:'📖', text:'관심 분야 기사·블로그 1개 읽고 한 줄 요약', time:'20분' },
+  { icon:'🗺️', text:'10년 후 내 하루 일과를 구체적으로 써보기', time:'20분' },
+  { icon:'🍳', text:'평소에 해보고 싶었던 것 하나 오늘 5분 시도하기', time:'5분' },
+  { icon:'🎨', text:'관심 직업을 그림이나 마인드맵으로 그려보기', time:'20분' },
+  /* 관계 · 소통 */
+  { icon:'🤝', text:'가족 또는 친구에게 감사한 점 직접 전달하기', time:'10분' },
+  { icon:'💬', text:'신뢰하는 어른 1명에게 진로 고민 털어놓기', time:'20분' },
+  { icon:'📨', text:'존경하는 사람에게 가상 편지 써보기', time:'15분' },
+  { icon:'👂', text:'친구 고민 10분 동안 끝까지 들어주기', time:'10분' },
+  /* 진로 탐색 */
+  { icon:'🔎', text:'관심 직업인의 유튜브 영상 1개 보기', time:'20분' },
+  { icon:'📝', text:'관심 있는 직업 3가지와 그 이유 적기', time:'15분' },
+  { icon:'🏢', text:'가고 싶은 회사·기관 홈페이지 둘러보기', time:'15분' },
+  { icon:'🎓', text:'관심 학과·전공을 검색하고 커리큘럼 살펴보기', time:'20분' },
+  { icon:'🌐', text:'국내외 흥미로운 직업 1개 새로 발견하기', time:'15분' },
+  /* 성장 · 루틴 */
+  { icon:'📅', text:'이번 주 실천할 작은 목표 1개 세우기', time:'10분' },
+  { icon:'🏃', text:'15분 산책하며 떠오른 생각 메모하기', time:'15분' },
+  { icon:'🌙', text:'오늘 배운 것 또는 깨달은 것 1줄로 기록하기', time:'5분' },
 ];
 function actMissionDraw() {
   const m = actMissions[Math.floor(Math.random() * actMissions.length)];
@@ -1360,10 +1851,40 @@ function actMissionDraw() {
   document.getElementById('act-mission-done-area').style.display = 'block';
   document.getElementById('act-mission-check').checked = false;
   document.getElementById('act-mission-badge').style.display = 'none';
+  /* 써보기 칸 초기화 */
+  var noteEl = document.getElementById('act-mission-note');
+  if (noteEl) noteEl.value = '';
+  var countEl = document.getElementById('act-mission-note-count');
+  if (countEl) countEl.textContent = '0자';
+}
+function actMissionNoteCheck() {
+  var noteEl = document.getElementById('act-mission-note');
+  var countEl = document.getElementById('act-mission-note-count');
+  if (!noteEl || !countEl) return;
+  var len = noteEl.value.length;
+  countEl.textContent = len + '자';
+  countEl.style.color = len > 0 ? '#EC4899' : 'var(--muted)';
 }
 function actMissionComplete() {
-  document.getElementById('act-mission-badge').style.display =
-    document.getElementById('act-mission-check').checked ? 'block' : 'none';
+  var checked = document.getElementById('act-mission-check').checked;
+  var badge = document.getElementById('act-mission-badge');
+  badge.style.display = checked ? 'block' : 'none';
+  if (checked) {
+    var note = (document.getElementById('act-mission-note') || {value:''}).value.trim();
+    var savedArea = document.getElementById('act-mission-note-saved');
+    var savedText = document.getElementById('act-mission-note-text');
+    if (note && savedArea && savedText) {
+      savedText.textContent = note;
+      savedArea.style.display = 'block';
+    } else if (savedArea) {
+      savedArea.style.display = 'none';
+    }
+    /* 포트폴리오 결과 반영 */
+    var missionCard = document.getElementById('act-mission-card');
+    var missionText = missionCard ? missionCard.querySelector('p[style*="font-weight:700"]') : null;
+    var text = missionText ? missionText.textContent : '미션 완료';
+    if (typeof pfAddMission === 'function') pfAddMission(text, note);
+  }
 }
 
 // -- 5. 포트폴리오 빌더 --
@@ -1415,8 +1936,8 @@ function actMentorMatch() {
   <div class="section-inner">
     <div class="section-title">
       <div class="badge" style="background:#22C55E18;color:#22C55E;border:1px solid #22C55E33;">Interactive Career Design</div>
-      <h2>나만의 진로 포트폴리오</h2>
-      <p>진단을 통한 기록과 강점발견, 미션수행을 통해 나만의 진로 포트폴리오를 완성해보세요.</p>
+      <h2>진로 회복 포트폴리오</h2>
+      <p>진단을 통한 기록과 강점발견, 미션수행을 통해 나의 진로 회복 포트폴리오를 완성해보세요.</p>
     </div>
 
     <!-- Tab Nav -->
@@ -1427,143 +1948,141 @@ function actMentorMatch() {
       <button class="tab-pill" onclick="switchTab('mission')">🎯 미션</button>
     </div>
 
-    <!-- DIAGNOSIS TAB -->
+    <!-- ══════════════ DIAGNOSIS TAB ══════════════ -->
     <div id="tab-diagnosis" class="tab-content active">
       <div class="card" style="padding:32px;">
-        <p style="font-weight:800;font-size:20px;margin-bottom:8px;">진단 테스트 샘플</p>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:32px;">슬라이더를 조절해 현재 상태를 점검해보세요.</p>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;">
-          <div style="text-align:center;">
-            <div style="width:100px;height:100px;border-radius:50%;border:8px solid #22C55E22;background:conic-gradient(#22C55E 208.8deg,#F1F5F9 0deg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative;" id="resilience-circle">
-              <div style="width:72px;height:72px;border-radius:50%;background:var(--card-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;position:absolute;">
-                <span style="font-size:20px;">💚</span>
-                <span style="font-size:16px;font-weight:800;color:#22C55E;" id="r-circle-val">58</span>
-              </div>
-            </div>
-            <p style="font-weight:700;margin-bottom:12px;">회복탄력성</p>
-            <input type="range" min="0" max="100" value="58" oninput="updateSlider('r',this.value)" style="accent-color:#22C55E;" />
-          </div>
-          <div style="text-align:center;">
-            <div style="width:100px;height:100px;border-radius:50%;border:8px solid #3B82F622;background:conic-gradient(#3B82F6 234deg,#F1F5F9 0deg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative;" id="emotion-circle">
-              <div style="width:72px;height:72px;border-radius:50%;background:var(--card-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;position:absolute;">
-                <span style="font-size:20px;">💙</span>
-                <span style="font-size:16px;font-weight:800;color:#3B82F6;" id="e-circle-val">65</span>
-              </div>
-            </div>
-            <p style="font-weight:700;margin-bottom:12px;">감정 안정도</p>
-            <input type="range" min="0" max="100" value="65" oninput="updateSlider('e',this.value)" style="accent-color:#3B82F6;" />
-          </div>
-          <div style="text-align:center;">
-            <div style="width:100px;height:100px;border-radius:50%;border:8px solid #6366F122;background:conic-gradient(#6366F1 151.2deg,#F1F5F9 0deg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative;" id="career-circle">
-              <div style="width:72px;height:72px;border-radius:50%;background:var(--card-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;position:absolute;">
-                <span style="font-size:20px;">💜</span>
-                <span style="font-size:16px;font-weight:800;color:#6366F1;" id="c-circle-val">42</span>
-              </div>
-            </div>
-            <p style="font-weight:700;margin-bottom:12px;">진로 준비도</p>
-            <input type="range" min="0" max="100" value="42" oninput="updateSlider('c',this.value)" style="accent-color:#6366F1;" />
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;font-size:22px;">🩺</div>
+          <div>
+            <p style="font-weight:800;font-size:18px;margin-bottom:2px;">회복탄력성 진단</p>
+            <p style="font-size:13px;color:var(--muted);">상단 활동 메뉴 → 회복탄력성 진단에서 진행</p>
           </div>
         </div>
-        <div style="margin-top:28px;padding:20px;border-radius:16px;background:var(--muted-bg);border:1px solid var(--border);">
-          <p style="font-weight:700;margin-bottom:8px;">📊 진단 결과 요약</p>
-          <p style="color:var(--muted);font-size:14px;line-height:1.8;" id="diagnosis-summary">
-            현재 <strong style="color:#22C55E;">강점: 회복탄력성</strong>에서 잠재력이 보입니다. 추천 활동: "미션 챌린지"로 작은 성공 경험 쌓기
-          </p>
+        <div style="padding:16px 20px;border-radius:14px;background:var(--muted-bg);border:1px solid var(--border);margin-bottom:4px;">
+          <p style="font-size:13px;color:var(--muted);line-height:1.8;" id="diagnosis-summary">회복탄력성 진단을 완료하면 결과가 여기에 표시됩니다.</p>
+        </div>
+        <button onclick="togglePf('diag')" id="pf-diag-btn"
+          style="width:100%;margin-top:16px;padding:13px;border-radius:14px;border:1.5px solid #22C55E;background:transparent;color:#166534;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;">
+          <span>📋 진단 포트폴리오 결과 보기</span><span id="pf-diag-arrow">▼</span>
+        </button>
+        <div id="pf-diag-panel" style="display:none;margin-top:16px;padding:20px 24px;border-radius:16px;background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:1.5px solid #22C55E44;">
+          <p style="font-size:13px;font-weight:700;color:#166534;margin-bottom:16px;">📋 내 진단 포트폴리오 결과</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+            <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #22C55E22;">
+              <p style="font-size:11px;color:#6B7280;margin-bottom:6px;">회복탄력성</p>
+              <p style="font-size:26px;font-weight:800;color:#22C55E;" id="pf-r-val">58</p>
+              <div style="height:7px;background:#E5E7EB;border-radius:4px;margin-top:8px;overflow:hidden;"><div id="pf-r-bar" style="height:100%;width:58%;background:#22C55E;border-radius:4px;transition:width 0.5s;"></div></div>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #3B82F622;">
+              <p style="font-size:11px;color:#6B7280;margin-bottom:6px;">감정 안정도</p>
+              <p style="font-size:26px;font-weight:800;color:#3B82F6;" id="pf-e-val">65</p>
+              <div style="height:7px;background:#E5E7EB;border-radius:4px;margin-top:8px;overflow:hidden;"><div id="pf-e-bar" style="height:100%;width:65%;background:#3B82F6;border-radius:4px;transition:width 0.5s;"></div></div>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #6366F122;">
+              <p style="font-size:11px;color:#6B7280;margin-bottom:6px;">진로 준비도</p>
+              <p style="font-size:26px;font-weight:800;color:#6366F1;" id="pf-c-val">42</p>
+              <div style="height:7px;background:#E5E7EB;border-radius:4px;margin-top:8px;overflow:hidden;"><div id="pf-c-bar" style="height:100%;width:42%;background:#6366F1;border-radius:4px;transition:width 0.5s;"></div></div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #22C55E22;">
+            <p style="font-size:12px;font-weight:700;color:#166534;margin-bottom:6px;">🧭 종합 분석</p>
+            <p id="pf-diag-analysis" style="font-size:13px;color:#374151;line-height:1.8;"></p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- STORY TAB -->
+    <!-- ══════════════ STORY TAB ══════════════ -->
     <div id="tab-story" class="tab-content">
       <div class="card" style="padding:32px;">
-        <p style="font-weight:800;font-size:20px;margin-bottom:8px;">스토리 로그 📖</p>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">오늘 버틴 순간, 감사한 일, 작은 성공을 자유롭게 적어보세요.</p>
-        <input type="text" placeholder="오늘의 한 줄 제목" style="width:100%;padding:14px 18px;border-radius:14px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:15px;font-family:inherit;font-weight:600;margin-bottom:14px;outline:none;" />
-        <textarea id="story-text" placeholder="예: 오늘은 상담 선생님과 이야기하면서 내가 생각보다 오래 버텨왔다는 걸 알게 되었다." oninput="updateStoryCount()" style="width:100%;min-height:160px;padding:14px 18px;border-radius:14px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:14px;font-family:inherit;line-height:1.8;outline:none;"></textarea>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span class="badge" style="background:#64748B18;color:#64748B;border:1px solid #64748B33;font-size:12px;padding:4px 12px;">비공개</span>
-            <span class="badge" style="background:#64748B18;color:#64748B;border:1px solid #64748B33;font-size:12px;padding:4px 12px;">상담자 공유</span>
-            <span style="font-size:13px;color:var(--muted);" id="story-count">0자</span>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:22px;">📖</div>
+          <div>
+            <p style="font-weight:800;font-size:18px;margin-bottom:2px;">회복 스토리 기록</p>
+            <p style="font-size:13px;color:var(--muted);">활동 메뉴 → 스토리 로그 / 오늘의 회복 체크인에서 작성</p>
           </div>
-          <button class="btn btn-primary" id="save-btn" onclick="saveStory()">기록 저장하기</button>
+        </div>
+        <div style="padding:16px 20px;border-radius:14px;background:var(--muted-bg);border:1px solid var(--border);margin-bottom:4px;">
+          <p style="font-size:13px;color:var(--muted);line-height:1.8;">활동에서 작성한 회복·경험·성장 이야기와 오늘의 체크인 일기가 포트폴리오로 정리됩니다.</p>
+        </div>
+        <button onclick="togglePf('story')" id="pf-story-btn"
+          style="width:100%;margin-top:16px;padding:13px;border-radius:14px;border:1.5px solid #3B82F6;background:transparent;color:#1E40AF;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;">
+          <span>📋 기록 포트폴리오 결과 보기</span><span id="pf-story-arrow">▼</span>
+        </button>
+        <div id="pf-story-panel" style="display:none;margin-top:16px;padding:20px 24px;border-radius:16px;background:linear-gradient(135deg,#F8FAFC,#EFF6FF);border:1.5px solid #3B82F644;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <p style="font-size:13px;font-weight:700;color:#1E40AF;">📋 내 회복 스토리 포트폴리오</p>
+            <span id="pf-story-count-badge" style="background:#3B82F6;color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;">0개</span>
+          </div>
+          <div id="pf-story-list" style="display:flex;flex-direction:column;gap:10px;"></div>
         </div>
       </div>
     </div>
 
-    <!-- STRENGTH TAB -->
+    <!-- ══════════════ STRENGTH TAB ══════════════ -->
     <div id="tab-strength" class="tab-content">
       <div class="card" style="padding:32px;">
-        <p style="font-weight:800;font-size:20px;margin-bottom:8px;">숨겨진 강점 찾기 ✨</p>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">일상 경험을 진로 자산으로 바꾸는 과정입니다. 해당되는 경험을 선택해보세요.</p>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;">
-          <button class="strength-btn active-strength" onclick="selectStrength(this,'게임')" style="padding:20px 16px;border-radius:18px;border:2px solid #6366F1;background:#6366F118;color:#6366F1;font-weight:700;cursor:pointer;font-size:14px;line-height:1.6;font-family:inherit;">🎮 게임을 오래 해본 경험이 있다</button>
-          <button class="strength-btn" onclick="selectStrength(this,'알바')" style="padding:20px 16px;border-radius:18px;border:2px solid var(--border);background:transparent;color:var(--fg);font-weight:500;cursor:pointer;font-size:14px;line-height:1.6;font-family:inherit;">💼 아르바이트를 해본 적이 있다</button>
-          <button class="strength-btn" onclick="selectStrength(this,'SNS')" style="padding:20px 16px;border-radius:18px;border:2px solid var(--border);background:transparent;color:var(--fg);font-weight:500;cursor:pointer;font-size:14px;line-height:1.6;font-family:inherit;">📱 SNS에 글이나 영상을 올려본 적이 있다</button>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:22px;">✨</div>
+          <div>
+            <p style="font-weight:800;font-size:18px;margin-bottom:2px;">강점 분석</p>
+            <p style="font-size:13px;color:var(--muted);">활동 메뉴 → 숨겨진 강점 찾기에서 선택 및 작성</p>
+          </div>
         </div>
-        <div style="padding:24px;border-radius:18px;background:#EEF2FF;border:1px solid #6366F133;" id="strength-result-box">
-          <p style="color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">발견된 강점</p>
-          <p style="font-size:22px;font-weight:800;color:#6366F1;" id="strength-result">전략적 사고 · 집중력 · 문제 해결력</p>
-          <p style="color:var(--muted);font-size:14px;margin-top:10px;line-height:1.8;">이 강점들은 진로 포트폴리오의 핵심 자산이 될 수 있어요. 포트폴리오 빌더에서 정리해보세요.</p>
+        <div style="padding:16px 20px;border-radius:14px;background:var(--muted-bg);border:1px solid var(--border);margin-bottom:4px;">
+          <p style="font-size:13px;color:var(--muted);line-height:1.8;">강점 활동에서 선택한 키워드와 자기소개서 작성 내용을 바탕으로 강점 포트폴리오가 생성됩니다.</p>
+        </div>
+        <button onclick="togglePf('strength')" id="pf-strength-btn"
+          style="width:100%;margin-top:16px;padding:13px;border-radius:14px;border:1.5px solid #F59E0B;background:transparent;color:#92400E;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;">
+          <span>📋 강점 포트폴리오 결과 보기</span><span id="pf-strength-arrow">▼</span>
+        </button>
+        <div id="pf-strength-panel" style="display:none;margin-top:16px;padding:20px 24px;border-radius:16px;background:linear-gradient(135deg,#FFFBEB,#FEF9C3);border:1.5px solid #F59E0B44;">
+          <p style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:14px;">📋 내 강점 포트폴리오 결과</p>
+          <div id="pf-strength-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;min-height:32px;align-items:center;"></div>
+          <div id="pf-strength-analysis" style="display:none;flex-direction:column;gap:12px;">
+            <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #FDE68A;">
+              <p style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:10px;">✨ 강점 분포 분석</p>
+              <div id="pf-strength-bars" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #FDE68A;">
+              <p style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:8px;">📝 자기소개서 작성 내용</p>
+              <div id="pf-strength-career" style="font-size:13px;color:#374151;line-height:1.8;"></div>
+            </div>
+          </div>
+          <div id="pf-strength-empty" style="text-align:center;padding:16px 0;">
+            <p style="font-size:13px;color:#9CA3AF;">활동 메뉴에서 강점 찾기를 진행하면 결과가 여기에 표시됩니다.</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- MISSION TAB -->
-    <div id="tab-mission" class="tab-content-grid">
-      <div class="card card-hover" style="padding:28px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-size:36px;">🎨</div>
-          <span class="badge" style="background:#6366F118;color:#6366F1;border:1px solid #6366F133;font-size:12px;">기초</span>
+    <!-- ══════════════ MISSION TAB ══════════════ -->
+    <div id="tab-mission" class="tab-content">
+      <div class="card" style="padding:32px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="width:48px;height:48px;border-radius:14px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;font-size:22px;">🎯</div>
+          <div>
+            <p style="font-weight:800;font-size:18px;margin-bottom:2px;">미션 챌린지 기록</p>
+            <p style="font-size:13px;color:var(--muted);">활동 메뉴 → 미션 챌린지에서 참여</p>
+          </div>
         </div>
-        <p style="font-weight:800;font-size:18px;margin-bottom:8px;">3일 콘텐츠 제작 챌린지</p>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">크리에이터 분야와 연결된 짧은 실천형 프로젝트</p>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="color:#22C55E;">✓</span> 실패보다 경험을 중시하는 미션</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="color:#22C55E;">✓</span> 결과보다 과정 기록 중심</div>
+        <div style="padding:16px 20px;border-radius:14px;background:var(--muted-bg);border:1px solid var(--border);margin-bottom:4px;">
+          <p style="font-size:13px;color:var(--muted);line-height:1.8;">미션을 완료하고 후기를 작성하면 미션 보고서가 자동으로 생성됩니다.</p>
         </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;">미션 시작하기</button>
-      </div>
-      <div class="card card-hover" style="padding:28px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-size:36px;">🎤</div>
-          <span class="badge" style="background:#6366F118;color:#6366F1;border:1px solid #6366F133;font-size:12px;">중간</span>
+        <button onclick="togglePf('mission')" id="pf-mission-btn"
+          style="width:100%;margin-top:16px;padding:13px;border-radius:14px;border:1.5px solid #EC4899;background:transparent;color:#9D174D;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;">
+          <span>📋 미션 포트폴리오 결과 보기</span><span id="pf-mission-arrow">▼</span>
+        </button>
+        <div id="pf-mission-panel" style="display:none;margin-top:16px;padding:20px 24px;border-radius:16px;background:linear-gradient(135deg,#FFF1F2,#FFE4E6);border:1.5px solid #FCA5A544;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <p style="font-size:13px;font-weight:700;color:#9D174D;">📋 내 미션 완료 보고서</p>
+            <span id="pf-mission-count-badge" style="background:#EC4899;color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;">0개</span>
+          </div>
+          <div id="pf-mission-list" style="display:flex;flex-direction:column;gap:10px;"></div>
         </div>
-        <p style="font-weight:800;font-size:18px;margin-bottom:8px;">1주 직업 인터뷰 미션</p>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">탐색 분야와 연결된 짧은 실천형 프로젝트</p>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="color:#22C55E;">✓</span> 실패보다 경험을 중시하는 미션</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="color:#22C55E;">✓</span> 결과보다 과정 기록 중심</div>
-        </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;">미션 시작하기</button>
-      </div>
-      <div class="card card-hover" style="padding:28px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-size:36px;">💡</div>
-          <span class="badge" style="background:#6366F118;color:#6366F1;border:1px solid #6366F133;font-size:12px;">중간</span>
-        </div>
-        <p style="font-weight:800;font-size:18px;margin-bottom:8px;">가상 창업 아이디어 설계</p>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">창업 분야와 연결된 짧은 실천형 프로젝트</p>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="color:#22C55E;">✓</span> 실패보다 경험을 중시하는 미션</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="color:#22C55E;">✓</span> 결과보다 과정 기록 중심</div>
-        </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;">미션 시작하기</button>
-      </div>
-      <div class="card card-hover" style="padding:28px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-size:36px;">💬</div>
-          <span class="badge" style="background:#6366F118;color:#6366F1;border:1px solid #6366F133;font-size:12px;">심화</span>
-        </div>
-        <p style="font-weight:800;font-size:18px;margin-bottom:8px;">돌봄·상담 역할 체험</p>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">대인관계 분야와 연결된 짧은 실천형 프로젝트</p>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="color:#22C55E;">✓</span> 실패보다 경험을 중시하는 미션</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);"><span style="color:#22C55E;">✓</span> 결과보다 과정 기록 중심</div>
-        </div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;">미션 시작하기</button>
       </div>
     </div>
+
   </div>
 </section>
 
@@ -1814,12 +2333,18 @@ function actMentorMatch() {
     document.querySelectorAll('.tab-content-grid').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
 
-    const target = document.getElementById('tab-' + key);
+    var target = document.getElementById('tab-' + key);
     if (target) target.classList.add('active');
 
-    const pills = document.querySelectorAll('.tab-pill');
-    const map = { diagnosis: 0, story: 1, strength: 2, mission: 3 };
-    if (pills[map[key]]) pills[map[key]].classList.add('active');
+    var pills = document.querySelectorAll('.tab-pill');
+    var map = { diagnosis: 0, story: 1, strength: 2, mission: 3 };
+    if (pills[map[key]] !== undefined) pills[map[key]].classList.add('active');
+
+    /* 탭 전환 시 해당 포트폴리오 자동 렌더 */
+    if (key === 'story')    renderStoryPortfolio();
+    if (key === 'strength') renderStrengthPortfolio();
+    if (key === 'mission')  renderMissionPortfolio();
+    if (key === 'diagnosis') updateDiagAnalysis();
   }
 
   // Diagnosis sliders
@@ -1829,52 +2354,249 @@ function actMentorMatch() {
     if (type === 'r') {
       rVal = val;
       document.getElementById('r-circle-val').textContent = val;
-      document.getElementById('resilience-circle').style.background = `conic-gradient(#22C55E ${val*3.6}deg, #F1F5F9 0deg)`;
+      document.getElementById('resilience-circle').style.background = 'conic-gradient(#22C55E ' + (val*3.6) + 'deg, #F1F5F9 0deg)';
     } else if (type === 'e') {
       eVal = val;
       document.getElementById('e-circle-val').textContent = val;
-      document.getElementById('emotion-circle').style.background = `conic-gradient(#3B82F6 ${val*3.6}deg, #F1F5F9 0deg)`;
+      document.getElementById('emotion-circle').style.background = 'conic-gradient(#3B82F6 ' + (val*3.6) + 'deg, #F1F5F9 0deg)';
     } else if (type === 'c') {
       cVal = val;
       document.getElementById('c-circle-val').textContent = val;
-      document.getElementById('career-circle').style.background = `conic-gradient(#6366F1 ${val*3.6}deg, #F1F5F9 0deg)`;
+      document.getElementById('career-circle').style.background = 'conic-gradient(#6366F1 ' + (val*3.6) + 'deg, #F1F5F9 0deg)';
     }
     updateDiagnosisSummary();
+    var pr = document.getElementById('pf-r-val'); if(pr) pr.textContent = rVal;
+    var pe = document.getElementById('pf-e-val'); if(pe) pe.textContent = eVal;
+    var pc = document.getElementById('pf-c-val'); if(pc) pc.textContent = cVal;
+    var br = document.getElementById('pf-r-bar'); if(br) br.style.width = rVal+'%';
+    var be = document.getElementById('pf-e-bar'); if(be) be.style.width = eVal+'%';
+    var bc = document.getElementById('pf-c-bar'); if(bc) bc.style.width = cVal+'%';
+    updateDiagAnalysis();
   }
 
   function updateDiagnosisSummary() {
-    const strength = rVal >= 60 ? '회복탄력성' : eVal >= 60 ? '감정 안정도' : '진로 탐색 의지';
-    const activity = cVal < 50 ? '"미션 챌린지"로 작은 성공 경험 쌓기' : '"포트폴리오 빌더"로 경험 정리하기';
+    var strength = rVal >= 60 ? '회복탄력성' : eVal >= 60 ? '감정 안정도' : '진로 탐색 의지';
+    var activity = cVal < 50 ? '"미션 챌린지"로 작은 성공 경험 쌓기' : '"포트폴리오 빌더"로 경험 정리하기';
     document.getElementById('diagnosis-summary').innerHTML =
-      `현재 <strong style="color:#22C55E;">강점: ${strength}</strong>에서 잠재력이 보입니다. 추천 활동: ${activity}`;
+      '현재 <strong style="color:#22C55E;">강점: ' + strength + '</strong>에서 잠재력이 보입니다. 추천 활동: ' + activity;
   }
 
-  // Story
+  function updateDiagAnalysis() {
+    var el = document.getElementById('pf-diag-analysis');
+    if (!el) return;
+    var top = rVal >= eVal && rVal >= cVal ? '회복탄력성' : eVal >= cVal ? '감정 안정도' : '진로 준비도';
+    var topVal = top==='회복탄력성' ? rVal : top==='감정 안정도' ? eVal : cVal;
+    var low = rVal <= eVal && rVal <= cVal ? '회복탄력성' : eVal <= cVal ? '감정 안정도' : '진로 준비도';
+    el.innerHTML = '나의 가장 높은 역량은 <strong style="color:#22C55E;">' + top + ' (' + topVal + '점)</strong>이에요. 상대적으로 <strong style="color:#F59E0B;">' + low + '</strong>을 더 키워가면 균형잡힌 성장이 가능해요. 꾸준한 미션 참여와 스토리 기록이 도움이 됩니다!';
+  }
+
+  /* 아코디언 토글 */
+  function togglePf(key) {
+    var panel = document.getElementById('pf-'+key+'-panel');
+    var arrow = document.getElementById('pf-'+key+'-arrow');
+    var btn   = document.getElementById('pf-'+key+'-btn');
+    if (!panel) return;
+    var open = panel.style.display === 'none' || panel.style.display === '';
+    panel.style.display = open ? 'block' : 'none';
+    if (arrow) arrow.textContent = open ? '▲' : '▼';
+    var colors = {diag:'#22C55E18',story:'#3B82F618',strength:'#6366F118',mission:'#EC489918'};
+    if (btn) btn.style.background = open ? (colors[key]||'transparent') : 'transparent';
+    if (open && key === 'diag') updateDiagAnalysis();
+  }
+
+  /* 기록 저장 */
+  /* ══ 기록 포트폴리오 ══
+     실제 소스: story-input-1/2/3 (활동 모달 스토리), diary-1/2/3 (회복 체크인 일기)
+     + pfStories (포트폴리오 탭 직접 저장) */
+  var pfStories = [];
+
   function updateStoryCount() {
-    const len = document.getElementById('story-text').value.length;
-    document.getElementById('story-count').textContent = len + '자';
-    document.getElementById('save-btn').textContent = '기록 저장하기';
-    document.getElementById('save-btn').className = 'btn btn-primary';
+    var len = (document.getElementById('story-text')||{value:''}).value.length;
+    var el = document.getElementById('story-count'); if(el) el.textContent = len + '자';
+    var btn = document.getElementById('save-btn');
+    if(btn){ btn.textContent='기록 저장하기'; btn.className='btn btn-primary'; }
   }
   function saveStory() {
-    document.getElementById('save-btn').textContent = '✓ 저장됨';
-    document.getElementById('save-btn').className = 'btn btn-outline';
+    var titleEl = document.getElementById('story-title');
+    var textEl  = document.getElementById('story-text');
+    var title   = (titleEl ? titleEl.value.trim() : '') || '직접 입력한 기록';
+    var text    = textEl ? textEl.value.trim() : '';
+    if (!text) { alert('내용을 입력해주세요.'); return; }
+    var btn = document.getElementById('save-btn');
+    if(btn){ btn.textContent='✓ 저장됨'; btn.className='btn btn-outline'; }
+    pfStories.push({ title: title, text: text, date: new Date().toLocaleDateString('ko-KR'), src: '직접 입력' });
+    renderStoryPortfolio();
+    if (titleEl) titleEl.value = '';
+    if (textEl)  textEl.value = '';
+    var sc = document.getElementById('story-count'); if(sc) sc.textContent = '0자';
   }
 
-  // Strength
-  const strengthMap = {
-    '게임': '전략적 사고 · 집중력 · 문제 해결력',
-    '알바': '책임감 · 의사소통 · 상황 대처력',
-    'SNS': '콘텐츠 기획력 · 표현력 · 트렌드 감각',
-  };
-  function selectStrength(btn, key) {
-    document.querySelectorAll('.strength-btn').forEach(b => {
-      b.style.border = '2px solid var(--border)';
-      b.style.background = 'transparent';
-      b.style.color = 'var(--fg)';
-      b.style.fontWeight = '500';
+  function renderStoryPortfolio() {
+    var list  = document.getElementById('pf-story-list');
+    var badge = document.getElementById('pf-story-count-badge');
+    if (!list) return;
 
+    /* 실제 콘텐츠에서 데이터 수집 */
+    var entries = [];
+
+    /* 1) 활동 모달 — 스토리 로그 (story-input-1/2/3) */
+    var s1 = (document.getElementById('story-input-1')||{value:''}).value.trim();
+    var s2 = (document.getElementById('story-input-2')||{value:''}).value.trim();
+    var s3 = (document.getElementById('story-input-3')||{value:''}).value.trim();
+    if (s1) entries.push({ icon:'💚', label:'회복 이야기', text: s1, color:'#10B981', bg:'#F0FDF4', border:'#6EE7B7' });
+    if (s2) entries.push({ icon:'✨', label:'경험 이야기', text: s2, color:'#F59E0B', bg:'#FFFBEB', border:'#FDE68A' });
+    if (s3) entries.push({ icon:'🌱', label:'성장 이야기', text: s3, color:'#6366F1', bg:'#EFF6FF', border:'#C7D2FE' });
+
+    /* 2) 회복 체크인 — 3문장 일기 (diary-1/2/3) */
+    var d1 = (document.getElementById('diary-1')||{value:''}).value.trim();
+    var d2 = (document.getElementById('diary-2')||{value:''}).value.trim();
+    var d3 = (document.getElementById('diary-3')||{value:''}).value.trim();
+    if (d1) entries.push({ icon:'📔', label:'오늘 있었던 일', text: d1, color:'#3B82F6', bg:'#EFF6FF', border:'#BFDBFE' });
+    if (d2) entries.push({ icon:'💭', label:'오늘의 감정', text: d2, color:'#8B5CF6', bg:'#F5F3FF', border:'#DDD6FE' });
+    if (d3) entries.push({ icon:'🌟', label:'나에게 한마디', text: d3, color:'#EC4899', bg:'#FFF1F2', border:'#FECDD3' });
+
+    /* 3) 포트폴리오 탭 직접 저장 */
+    pfStories.forEach(function(s) {
+      entries.push({ icon:'📝', label: s.title, text: s.text, color:'#1E40AF', bg:'#F8FAFF', border:'#BFDBFE', date: s.date });
     });
+
+    if (badge) badge.textContent = entries.length + '개';
+
+    if (entries.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:24px 0;">' +
+        '<p style="font-size:28px;margin-bottom:8px;">✏️</p>' +
+        '<p style="font-size:14px;font-weight:700;color:#374151;margin-bottom:6px;">아직 기록한 내용이 없어요</p>' +
+        '<p style="font-size:13px;color:#9CA3AF;line-height:1.7;">활동 메뉴의 <strong>스토리 로그</strong>나<br><strong>오늘의 회복 체크인</strong>에서 기록을 작성하면<br>여기에 포트폴리오로 정리됩니다.</p></div>';
+      return;
+    }
+
+    /* 타임라인 형태로 렌더 */
+    list.innerHTML = '<div style="padding:12px 16px;background:#EFF6FF;border-radius:12px;margin-bottom:14px;border:1px solid #BFDBFE;">' +
+      '<p style="font-size:12px;font-weight:700;color:#1E40AF;">📚 총 ' + entries.length + '개의 기록이 포트폴리오에 담겼어요</p></div>' +
+      entries.map(function(e) {
+        return '<div style="background:' + e.bg + ';border-radius:12px;padding:14px 16px;border:1px solid ' + e.border + ';border-left:4px solid ' + e.color + ';">' +
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">' +
+          '<span style="font-size:14px;">' + e.icon + '</span>' +
+          '<span style="font-size:12px;font-weight:700;color:' + e.color + ';">' + e.label + '</span>' +
+          (e.date ? '<span style="margin-left:auto;font-size:11px;color:#9CA3AF;">' + e.date + '</span>' : '') +
+          '</div>' +
+          '<p style="font-size:13px;color:#374151;line-height:1.8;">' + e.text + '</p>' +
+          '</div>';
+      }).join('');
+  }
+
+  /* ══ 강점 포트폴리오 ══
+     실제 소스: act-strength [data-s] 선택 버튼 + cv-name/cv-exp/cv-recovery/cv-goal 자기소개서 */
+  function renderStrengthPortfolio() {
+    var list     = document.getElementById('pf-strength-list');
+    var analysis = document.getElementById('pf-strength-analysis');
+    var empty    = document.getElementById('pf-strength-empty');
+    var bars     = document.getElementById('pf-strength-bars');
+    var career   = document.getElementById('pf-strength-career');
+    if (!list) return;
+
+    /* 선택된 강점 키워드 (act-strength data-s 버튼, fontWeight===700 = 선택됨) */
+    var selected = [];
+    document.querySelectorAll('#act-strength [data-s]').forEach(function(b) {
+      if (b.style.fontWeight === '700') selected.push(b.dataset.s);
+    });
+
+    /* 자기소개서 입력 내용 */
+    var cvName     = (document.getElementById('cv-name')||{value:''}).value.trim();
+    var cvExp      = (document.getElementById('cv-exp')||{value:''}).value.trim();
+    var cvRecovery = (document.getElementById('cv-recovery')||{value:''}).value.trim();
+    var cvGoal     = (document.getElementById('cv-goal')||{value:''}).value.trim();
+    var cvResult   = (document.getElementById('cv-result-text')||{textContent:''}).textContent.trim();
+
+    var hasData = selected.length > 0 || cvName || cvExp || cvRecovery || cvGoal;
+
+    if (!hasData) {
+      list.innerHTML = '<span style="font-size:13px;color:#9CA3AF;">강점 찾기 활동에서 경험을 선택하거나 자기소개서를 작성하면 여기에 분석 결과가 나타납니다 💡</span>';
+      if (analysis) analysis.style.display = 'none';
+      if (empty)    empty.style.display = 'block';
+      return;
+    }
+
+    /* 강점 태그 */
+    list.innerHTML = selected.length > 0
+      ? selected.map(function(kw) {
+          return '<span style="background:#EDE9FE;color:#5B21B6;padding:6px 14px;border-radius:99px;font-size:13px;font-weight:600;">' + kw + '</span>';
+        }).join('')
+      : '<span style="font-size:13px;color:#9CA3AF;">강점 항목을 선택하면 태그가 나타나요</span>';
+
+    /* 강점 바 차트 */
+    if (bars && selected.length > 0) {
+      bars.innerHTML = selected.map(function(kw, i) {
+        var pct = 100 - i * Math.floor(60 / Math.max(selected.length - 1, 1));
+        return '<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">' +
+          '<span style="font-weight:600;color:#374151;">' + kw + '</span>' +
+          '<span style="color:#6366F1;font-weight:700;">' + pct + '%</span></div>' +
+          '<div style="height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;">' +
+          '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#6366F1,#A78BFA);border-radius:4px;transition:width 0.6s;"></div></div></div>';
+      }).join('');
+    }
+
+    /* 자기소개서 내용 표시 */
+    if (career) {
+      var cvLines = [];
+      if (cvName)     cvLines.push('<div style="margin-bottom:10px;"><span style="font-size:11px;font-weight:700;color:#6366F1;">👤 이름과 꿈</span><p style="font-size:13px;color:#374151;margin-top:4px;line-height:1.7;">' + cvName + '</p></div>');
+      if (cvExp)      cvLines.push('<div style="margin-bottom:10px;"><span style="font-size:11px;font-weight:700;color:#F59E0B;">💪 강점 경험</span><p style="font-size:13px;color:#374151;margin-top:4px;line-height:1.7;">' + cvExp + '</p></div>');
+      if (cvRecovery) cvLines.push('<div style="margin-bottom:10px;"><span style="font-size:11px;font-weight:700;color:#10B981;">🌱 버텨온 경험</span><p style="font-size:13px;color:#374151;margin-top:4px;line-height:1.7;">' + cvRecovery + '</p></div>');
+      if (cvGoal)     cvLines.push('<div style="margin-bottom:0;"><span style="font-size:11px;font-weight:700;color:#EC4899;">🎯 앞으로의 목표</span><p style="font-size:13px;color:#374151;margin-top:4px;line-height:1.7;">' + cvGoal + '</p></div>');
+      career.innerHTML = cvLines.length > 0
+        ? '<div style="display:flex;flex-direction:column;gap:2px;">' + cvLines.join('') + '</div>'
+        : '자기소개서 항목을 입력하면 여기에 표시됩니다.';
+    }
+
+    if (analysis) analysis.style.display = 'block';
+    if (empty)    empty.style.display = 'none';
+  }
+
+  /* ══ 미션 포트폴리오 ══
+     실제 소스: pfMissions 배열 (actMissionComplete에서 쌓임) */
+  var pfMissions = [];
+  function pfAddMission(missionText, note) {
+    pfMissions.push({ text: missionText, note: note, date: new Date().toLocaleDateString('ko-KR') });
+    renderMissionPortfolio();
+  }
+  function renderMissionPortfolio() {
+    var list  = document.getElementById('pf-mission-list');
+    var badge = document.getElementById('pf-mission-count-badge');
+    if (!list) return;
+    if (badge) badge.textContent = pfMissions.length + '개';
+
+    if (pfMissions.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:24px 0;">' +
+        '<p style="font-size:28px;margin-bottom:8px;">🎯</p>' +
+        '<p style="font-size:14px;font-weight:700;color:#374151;margin-bottom:6px;">아직 완료한 미션이 없어요</p>' +
+        '<p style="font-size:13px;color:#9CA3AF;line-height:1.7;">활동 메뉴의 <strong>미션 챌린지</strong>에서<br>미션을 뽑고 완료 체크를 하면<br>여기에 미션 보고서가 자동 생성됩니다.</p></div>';
+      return;
+    }
+
+    /* 미션 보고서 헤더 */
+    var header = '<div style="padding:14px 16px;background:#FFF1F2;border-radius:12px;margin-bottom:14px;border:1px solid #FECDD3;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+      '<p style="font-size:13px;font-weight:700;color:#9D174D;">🏅 미션 완료 보고서</p>' +
+      '<span style="background:#EC4899;color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;">총 ' + pfMissions.length + '개 완료</span>' +
+      '</div></div>';
+
+    var items = pfMissions.map(function(m, i) {
+      return '<div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #FECDD3;border-left:4px solid #EC4899;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:' + (m.note ? '10px' : '0') + ';">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<span style="background:#FFF1F2;color:#EC4899;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;">MISSION ' + (i+1) + '</span>' +
+        '<p style="font-size:14px;font-weight:700;color:#9D174D;">' + m.text + '</p>' +
+        '</div>' +
+        '<span style="font-size:11px;color:#9CA3AF;white-space:nowrap;">' + m.date + '</span>' +
+        '</div>' +
+        (m.note ? '<div style="background:#FFF1F2;border-radius:8px;padding:10px 12px;">' +
+          '<p style="font-size:11px;font-weight:700;color:#EC4899;margin-bottom:4px;">📝 나의 후기</p>' +
+          '<p style="font-size:13px;color:#374151;line-height:1.7;">' + m.note + '</p>' +
+          '</div>' : '') +
+        '</div>';
+    }).join('');
+
+    list.innerHTML = header + items;
   }
 </script>
 
@@ -2241,8 +2963,8 @@ function actMentorMatch() {
 
     <!-- 탭: 로그인 / 회원가입 -->
     <div style="display:flex;background:var(--muted-bg);border-radius:14px;padding:4px;margin-bottom:22px;gap:4px;">
-      <button id="tab-signin" onclick="switchTab('signin')" style="flex:1;padding:9px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--card-bg);color:var(--fg);box-shadow:0 1px 4px rgba(0,0,0,0.08);transition:all 0.2s;">로그인</button>
-      <button id="tab-signup" onclick="switchTab('signup')" style="flex:1;padding:9px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:var(--muted);transition:all 0.2s;">회원가입</button>
+      <button id="tab-signin" onclick="switchAuthTab('signin')" style="flex:1;padding:9px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--card-bg);color:var(--fg);box-shadow:0 1px 4px rgba(0,0,0,0.08);transition:all 0.2s;">로그인</button>
+      <button id="tab-signup" onclick="switchAuthTab('signup')" style="flex:1;padding:9px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:var(--muted);transition:all 0.2s;">회원가입</button>
     </div>
 
     <!-- 입력 폼 -->
@@ -2271,7 +2993,7 @@ function actMentorMatch() {
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <label style="font-size:13px;font-weight:700;color:var(--fg);">비밀번호</label>
-          <button id="forgot-pw-btn" onclick="switchTab('forgot')" style="font-size:12px;color:#4285F4;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;">비밀번호 찾기</button>
+          <button id="forgot-pw-btn" onclick="switchAuthTab('forgot')" style="font-size:12px;color:#4285F4;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;">비밀번호 찾기</button>
         </div>
         <div style="position:relative;">
           <input id="input-password" type="password" placeholder="8자 이상 입력"
@@ -2301,7 +3023,7 @@ function actMentorMatch() {
       <p style="font-size:13px;font-weight:700;margin-bottom:6px;">📧 비밀번호 재설정</p>
       <p style="font-size:13px;color:var(--muted);line-height:1.6;">등록된 Google 이메일로 비밀번호 재설정 링크를 보내드립니다. 이메일을 입력하고 아래 버튼을 눌러주세요.</p>
       <button onclick="sendResetEmail()" style="margin-top:12px;padding:10px 20px;background:#4285F4;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">재설정 메일 발송</button>
-      <button onclick="switchTab('signin')" style="margin-top:12px;margin-left:8px;padding:10px 16px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">돌아가기</button>
+      <button onclick="switchAuthTab('signin')" style="margin-top:12px;margin-left:8px;padding:10px 16px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">돌아가기</button>
     </div>
 
     <!-- 메인 버튼 -->
@@ -2334,7 +3056,7 @@ function actMentorMatch() {
 
   /* ── 모달 열기 / 닫기 ─────────────────── */
   function openLoginModal() {
-    switchTab('signin');
+    switchAuthTab('signin');
     clearError();
     document.getElementById('login-modal-overlay').style.display = 'flex';
     setTimeout(function() { document.getElementById('input-email').focus(); }, 120);
@@ -2345,7 +3067,7 @@ function actMentorMatch() {
   }
 
   /* ── 탭 전환 ──────────────────────────── */
-  function switchTab(tab) {
+  function switchAuthTab(tab) {
     currentTab = tab;
     clearError();
 
@@ -2457,7 +3179,7 @@ function actMentorMatch() {
     if (!isValidEmail(email)) { showError('이메일을 먼저 입력해주세요.'); return; }
     /* 실제 서비스에서는 Firebase Auth sendPasswordResetEmail() 등 사용 */
     showToast('📧 ' + email + ' 으로 재설정 안내를 발송했습니다.\n(시뮬레이션 – 실제 메일은 발송되지 않습니다)');
-    switchTab('signin');
+    switchAuthTab('signin');
   }
 
   /* ── 로그인 후 UI 업데이트 ──────────── */

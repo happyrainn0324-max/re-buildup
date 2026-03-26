@@ -376,7 +376,7 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
   <div class="tb-title" id="page-title">전체 현황</div>
   <div class="tb-right">
     <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV 내보내기</button>
-    <button class="btn btn-primary btn-sm" onclick="openAddModal()">＋ 회원 추가</button>
+
   </div>
 </div>
 
@@ -693,27 +693,45 @@ function fmtDate(d){return d.toISOString().slice(0,10);}
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 function today(){return new Date();}
 
-/* 42명 회원 생성 */
+/* 42명 회원 생성 — 5단계 모두 참여율 반영 */
 let MEMBERS = NAMES.map((name,i)=>{
-  const secIdx = Math.min(Math.floor(i/9),4);
-  const sec = SECTIONS[secIdx];
   const statuses = ['활성','활성','활성','신규','비활성'];
+
+  // 각 섹션별 독립 참여율: B:90% U:75% I:60% L:45% D:30%
+  const secProb = [0.9, 0.75, 0.6, 0.45, 0.3];
   const resps = {};
-  SECTIONS.slice(0,secIdx+1).forEach((s,si)=>{
-    const cnt = rnd(2,7);
-    resps[s] = Array.from({length:cnt},(_,ri)=>{
-      const daysAgo = rnd(si*5, 60-si*5);
-      return {
-        date: fmtDate(addDays(today(),-daysAgo)),
-        text: pick(SAMPLE[s]),
-        score: rnd(45,98)
-      };
-    }).sort((a,b)=>b.date.localeCompare(a.date));
+  let lastActiveSec = 'B';
+
+  SECTIONS.forEach((s, si)=>{
+    const participated = Math.random() < secProb[si];
+    if(participated){
+      const cnt = rnd(2, 6);
+      resps[s] = Array.from({length:cnt}, (_,ri)=>{
+        const daysAgo = rnd(si*4, Math.max(si*4+1, 70 - si*6));
+        return {
+          date: fmtDate(addDays(today(), -Math.max(1, daysAgo))),
+          text: pick(SAMPLE[s]),
+          score: rnd(48, 98)
+        };
+      }).sort((a,b)=>b.date.localeCompare(a.date));
+      lastActiveSec = s;
+    }
   });
+
+  // 최소 B 섹션은 무조건 보유
+  if(!resps['B']){
+    resps['B'] = Array.from({length:rnd(2,4)},(_,ri)=>({
+      date: fmtDate(addDays(today(),-rnd(5,60))),
+      text: pick(SAMPLE['B']),
+      score: rnd(48,98)
+    })).sort((a,b)=>b.date.localeCompare(a.date));
+    lastActiveSec = 'B';
+  }
+
   return {
     id:i+1, name,
     email:`${name.replace(/\s/g,'')}@email.com`,
-    section:sec,
+    section: lastActiveSec,
     resilience:rnd(48,96),
     career:rnd(30,92),
     lastDate:fmtDate(addDays(today(),-rnd(0,14))),
@@ -1038,6 +1056,33 @@ function renderMemberDetail(id){
             <div style="font-size:10px;color:var(--muted);font-weight:700;margin-top:2px">평균 점수</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 5단계 참여 현황 -->
+    <div class="card" style="padding:20px 24px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;margin-bottom:14px">📊 5단계 참여 현황</div>
+      <div style="display:flex;gap:8px;align-items:stretch">
+        ${SECTIONS.map(s=>{
+          const rs = m.responses[s]||[];
+          const done = rs.length > 0;
+          const avgS = done ? Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length) : null;
+          const col = SEC_COLOR[s];
+          const bg  = SEC_BG[s];
+          return `<div style="flex:1;border-radius:14px;border:2px solid ${done?col:'var(--border)'};background:${done?bg:'var(--muted-bg)'};padding:14px 10px;text-align:center;transition:all .2s">
+            <div style="font-size:20px;margin-bottom:4px">${SEC_EMOJI[s]}</div>
+            <div style="font-size:13px;font-weight:900;color:${done?col:'var(--muted)'}">${s}</div>
+            <div style="font-size:9px;font-weight:700;color:${done?col:'var(--muted)'};margin-top:2px;line-height:1.3">${SEC_NAMES[s].split(' ')[0]}</div>
+            <div style="margin-top:8px">
+              ${done
+                ? `<div style="font-size:16px;font-weight:900;color:${col}">${avgS}점</div>
+                   <div style="font-size:9px;color:var(--muted);margin-top:1px">${rs.length}개 응답</div>
+                   <div style="margin-top:6px;font-size:11px;font-weight:700;color:${col}">✅ 완료</div>`
+                : `<div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:6px">미진행</div>`
+              }
+            </div>
+          </div>`;
+        }).join('')}
       </div>
     </div>
 
