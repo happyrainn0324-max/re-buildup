@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>RE-BUILD-UP | 매니저 관리 · 조은경</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ───────── DESIGN TOKENS ───────── */
+:root {
+  --primary:#6366F1; --primary-lt:#818CF8; --primary-bg:#EEF2FF;
+  --success:#22C55E; --success-bg:#DCFCE7;
+  --warn:#F59E0B;    --warn-bg:#FEF3C7;
+  --danger:#EF4444;  --danger-bg:#FEE2E2;
+  --info:#3B82F6;    --info-bg:#DBEAFE;
+  --purple:#8B5CF6;  --purple-bg:#EDE9FE;
+  --pink:#EC4899;    --pink-bg:#FCE7F3;
+  --teal:#14B8A6;    --teal-bg:#CCFBF1;
+
+  --bg:#F1F5F9; --fg:#0F172A;
+  --card:#FFFFFF; --border:#E2E8F0;
+  --muted:#64748B; --muted-bg:#F8FAFC;
+  --sidebar-w:240px;
+  --topbar-h:60px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--fg);display:flex;min-height:100vh;overflow-x:hidden}
+
+/* ───────── SIDEBAR ───────── */
+#sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:#0F172A;
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;
+  z-index:300;overflow-y:auto;
+  transition:transform .3s;
+}
+.sb-logo{
+  padding:22px 20px 16px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,#6366F1,#818CF8);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:#fff;
+  flex-shrink:0;
+}
+.sb-logo-text{font-size:13px;font-weight:800;color:#F8FAFC;line-height:1.3}
+.sb-logo-sub{font-size:10px;color:#64748B;margin-top:1px}
+
+/* manager card */
+.sb-manager{
+  margin:12px;border-radius:14px;
+  background:linear-gradient(135deg,#6366F144,#818CF822);
+  border:1px solid #6366F133;
+  padding:12px 14px;
+  display:flex;align-items:center;gap:10px;
+}
+.sb-av{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#6366F1,#818CF8);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.sb-mname{font-size:13px;font-weight:700;color:#F8FAFC}
+.sb-mrole{font-size:10px;color:#818CF8;margin-top:1px}
+
+/* nav */
+.sb-section{
+  padding:16px 12px 4px;
+  font-size:9px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:#475569;
+}
+.sb-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 12px;border-radius:10px;
+  font-size:12.5px;font-weight:500;color:#94A3B8;
+  cursor:pointer;transition:all .15s;margin:1px 6px;
+  text-decoration:none;
+}
+.sb-item:hover{background:rgba(255,255,255,.05);color:#F8FAFC}
+.sb-item.active{background:rgba(99,102,241,.2);color:#818CF8;font-weight:700}
+.sb-item .ic{width:18px;text-align:center;font-size:15px}
+.sb-badge{
+  margin-left:auto;background:#6366F1;color:#fff;
+  font-size:9px;font-weight:800;padding:2px 6px;border-radius:99px;
+}
+
+/* ───────── TOPBAR ───────── */
+#topbar{
+  position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);
+  background:#fff;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;z-index:200;
+}
+.tb-title{font-size:16px;font-weight:800;letter-spacing:-.01em}
+.tb-right{display:flex;align-items:center;gap:10px}
+
+/* ───────── MAIN ───────── */
+#main{
+  margin-left:var(--sidebar-w);
+  margin-top:var(--topbar-h);
+  flex:1;padding:24px 28px;
+  min-height:calc(100vh - var(--topbar-h));
+}
+
+/* ───────── UTILS ───────── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:10px;border:none;
+  font-size:12.5px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:all .2s;white-space:nowrap;
+}
+.btn-primary{background:linear-gradient(135deg,#6366F1,#818CF8);color:#fff;box-shadow:0 3px 10px #6366F133}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--fg);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-ghost{background:transparent;color:var(--muted);border:none;padding:6px 10px}
+.btn-ghost:hover{background:var(--muted-bg);color:var(--fg)}
+.btn-sm{padding:6px 12px;font-size:11.5px}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:none}
+
+.card{
+  background:var(--card);border-radius:18px;
+  border:1px solid var(--border);
+  box-shadow:0 1px 8px rgba(0,0,0,.04);
+}
+.card-hover{transition:all .2s}
+.card-hover:hover{box-shadow:0 6px 24px rgba(0,0,0,.08);transform:translateY(-2px)}
+
+.badge{
+  display:inline-flex;align-items:center;
+  padding:3px 10px;border-radius:99px;
+  font-size:11px;font-weight:700;
+}
+
+/* grid helpers */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/* section tabs */
+.section-area{display:none}
+.section-area.active{display:block}
+
+/* ───────── STAT CARDS ───────── */
+.stat-card{padding:20px 22px;position:relative;overflow:hidden}
+.stat-card::after{
+  content:'';position:absolute;right:-10px;top:-10px;
+  width:80px;height:80px;border-radius:50%;
+  opacity:.08;
+}
+.stat-val{font-size:28px;font-weight:900;line-height:1;margin:8px 0 4px}
+.stat-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.stat-delta{font-size:11px;font-weight:600}
+.stat-ico{position:absolute;right:18px;top:18px;font-size:26px;opacity:.15}
+
+/* ───────── TABLE ───────── */
+.tbl-wrap{overflow-x:auto;border-radius:0 0 18px 18px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{
+  padding:10px 14px;background:var(--muted-bg);
+  text-align:left;font-size:10.5px;font-weight:700;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.04em;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+td{
+  padding:12px 14px;border-bottom:1px solid #F1F5F9;
+  vertical-align:middle;
+}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#FAFBFF;cursor:pointer}
+
+/* ───────── SECTION COLORS ───────── */
+.sec-B{color:#6366F1;background:#EEF2FF}
+.sec-U{color:#22C55E;background:#DCFCE7}
+.sec-I{color:#F59E0B;background:#FEF3C7}
+.sec-L{color:#EC4899;background:#FCE7F3}
+.sec-D{color:#3B82F6;background:#DBEAFE}
+
+.dot-B{background:#6366F1}
+.dot-U{background:#22C55E}
+.dot-I{background:#F59E0B}
+.dot-L{background:#EC4899}
+.dot-D{background:#3B82F6}
+
+/* ───────── PROGRESS BAR ───────── */
+.prog-wrap{height:8px;background:#E2E8F0;border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width 1s}
+
+/* ───────── HEATMAP ───────── */
+.heatmap{display:flex;gap:3px;flex-wrap:wrap}
+.hm-cell{
+  width:13px;height:13px;border-radius:2px;background:#E2E8F0;
+  cursor:pointer;transition:transform .1s;position:relative;
+}
+.hm-cell:hover{transform:scale(1.5);z-index:10}
+.hm0{background:#E2E8F0}
+.hm1{background:#C7D2FE}
+.hm2{background:#818CF8}
+.hm3{background:#6366F1}
+.hm4{background:#4338CA}
+
+/* ───────── RESPONSE CARD ───────── */
+.resp-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;margin-bottom:12px;
+}
+.resp-header{
+  padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.resp-body{padding:14px 16px}
+.resp-entry{
+  padding:10px 0;border-bottom:1px solid #F1F5F9;
+}
+.resp-entry:last-child{border-bottom:none}
+.resp-meta{font-size:11px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.resp-text{font-size:13px;line-height:1.7;color:var(--fg)}
+
+/* ───────── MEMBER AVATAR ───────── */
+.av{
+  width:32px;height:32px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.av-sm{width:24px;height:24px;font-size:10px}
+
+/* ───────── FILTER ROW ───────── */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.fsel{
+  padding:7px 12px;border-radius:10px;
+  border:1.5px solid var(--border);background:#fff;
+  font-size:12px;font-weight:500;color:var(--fg);
+  font-family:inherit;cursor:pointer;
+}
+.fsel:focus{outline:none;border-color:var(--primary)}
+.fsearch{
+  padding:7px 14px;border-radius:10px;
+  border:1.5px solid var(--border);background:#fff;
+  font-size:12px;color:var(--fg);font-family:inherit;
+  min-width:200px;
+}
+.fsearch:focus{outline:none;border-color:var(--primary)}
+
+/* ───────── SCORE PILL ───────── */
+.score-pill{
+  display:inline-block;padding:2px 8px;border-radius:99px;
+  font-size:11px;font-weight:700;
+}
+
+/* ───────── MODAL ───────── */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.4);z-index:800;
+  align-items:center;justify-content:center;
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:#fff;border-radius:20px;
+  padding:28px;max-width:600px;width:92%;
+  max-height:88vh;overflow-y:auto;
+  position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
+  animation:fadeUp .25s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-close{
+  position:absolute;top:14px;right:14px;
+  background:var(--muted-bg);border:none;
+  width:28px;height:28px;border-radius:8px;
+  font-size:14px;cursor:pointer;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:var(--border);color:var(--fg)}
+
+/* ───────── TIMELINE ───────── */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{
+  content:'';position:absolute;left:6px;top:0;bottom:0;
+  width:2px;background:#E2E8F0;
+}
+.tl-item{position:relative;margin-bottom:16px}
+.tl-dot{
+  position:absolute;left:-17px;top:3px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--primary);border:2px solid #fff;
+  box-shadow:0 0 0 1px var(--primary);
+}
+.tl-date{font-size:10px;color:var(--muted);font-weight:600;margin-bottom:3px}
+.tl-text{font-size:12.5px;line-height:1.6}
+.tl-score{font-size:11px;font-weight:700;margin-top:3px}
+
+/* chart bar */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;transition:height 1s}
+.bar-lbl{font-size:9px;color:var(--muted);font-weight:600}
+.bar-val{font-size:9px;font-weight:700;color:var(--muted)}
+
+/* ───────── ANIMATIONS ───────── */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite}
+
+@media(max-width:900px){
+  #sidebar{transform:translateX(-100%)}
+  #main,#topbar{margin-left:0;left:0}
+  .g4{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">R</div>
+    <div>
+      <div class="sb-logo-text">RE-BUILD-UP</div>
+      <div class="sb-logo-sub">매니저 관리 시스템</div>
+    </div>
+  </div>
+
+  <div class="sb-manager">
+    <div class="sb-av">조</div>
+    <div>
+      <div class="sb-mname">조은경</div>
+      <div class="sb-mrole">프로그램 매니저</div>
+    </div>
+  </div>
+
+  <div class="sb-section">대시보드</div>
+  <div class="sb-item active" onclick="goto('overview',this)">
+    <span class="ic">📊</span>전체 현황
+  </div>
+  <div class="sb-item" onclick="goto('members',this)">
+    <span class="ic">👥</span>회원 목록
+    <span class="sb-badge" id="sb-total">-</span>
+  </div>
+
+  <div class="sb-section">응답 분석</div>
+  <div class="sb-item" onclick="goto('by-section',this)">
+    <span class="ic">📋</span>섹션별 응답
+  </div>
+  <div class="sb-item" onclick="goto('by-date',this)">
+    <span class="ic">📅</span>일자별 응답
+  </div>
+  <div class="sb-item" onclick="goto('member-detail-view',this)">
+    <span class="ic">🔍</span>회원 상세
+  </div>
+
+  <div class="sb-section">관리</div>
+  <div class="sb-item" onclick="goto('alerts',this)">
+    <span class="ic">🔔</span>알림
+    <span class="sb-badge">3</span>
+  </div>
+  <div class="sb-item" onclick="window.open('index.html','_self')">
+    <span class="ic">🏠</span>홈으로
+  </div>
+
+  <div style="margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:#475569">
+    © 2025 RE-BUILD-UP
+  </div>
+</aside>
+
+<!-- ══════════════ TOPBAR ══════════════ -->
+<div id="topbar">
+  <div class="tb-title" id="page-title">전체 현황</div>
+  <div class="tb-right">
+    <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV 내보내기</button>
+    <button class="btn btn-primary btn-sm" onclick="openAddModal()">＋ 회원 추가</button>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div id="main">
+
+<!-- ────── 전체 현황 ────── -->
+<div id="sec-overview" class="section-area active">
+  <div class="g4" style="margin-bottom:18px">
+    <div class="card stat-card card-hover" style="border-top:3px solid #6366F1">
+      <div class="stat-ico">👥</div>
+      <div class="stat-lbl">총 회원수</div>
+      <div class="stat-val" style="color:#6366F1" id="ov-total">-</div>
+      <div class="stat-delta" style="color:var(--success)">▲ 이번 달 +7명</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #22C55E">
+      <div class="stat-ico">✅</div>
+      <div class="stat-lbl">활성 회원</div>
+      <div class="stat-val" style="color:#22C55E" id="ov-active">-</div>
+      <div class="stat-delta" style="color:var(--muted)">전체 중 <span id="ov-active-pct">-</span></div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #F59E0B">
+      <div class="stat-ico">📝</div>
+      <div class="stat-lbl">총 응답 수</div>
+      <div class="stat-val" style="color:#F59E0B" id="ov-resp">-</div>
+      <div class="stat-delta" style="color:var(--success)">▲ 이번 주 +43건</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #8B5CF6">
+      <div class="stat-ico">⭐</div>
+      <div class="stat-lbl">평균 회복탄력성</div>
+      <div class="stat-val" style="color:#8B5CF6" id="ov-avg">-</div>
+      <div class="stat-delta" style="color:var(--success)">▲ 지난달 +4.2점</div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:18px">
+    <!-- 섹션별 참여율 -->
+    <div class="card">
+      <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border)">
+        <div style="font-size:14px;font-weight:800">섹션별 참여율</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">B→U→I→L→D 순서로 진행</div>
+      </div>
+      <div style="padding:18px 20px" id="section-progress-bars"></div>
+    </div>
+
+    <!-- 최근 응답 -->
+    <div class="card">
+      <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:800">최근 응답</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">가장 최근 제출된 응답</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="goto('by-section',document.querySelector('.sb-item:nth-child(5)'))">전체 →</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>회원</th><th>섹션</th><th>점수</th><th>날짜</th></tr></thead>
+          <tbody id="recent-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 월별 응답 추이 간이 차트 -->
+  <div class="card">
+    <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:800">월별 응답 추이 (2025)</div>
+    </div>
+    <div style="padding:18px 20px">
+      <div id="monthly-chart" class="bar-chart"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 회원 목록 ────── -->
+<div id="sec-members" class="section-area">
+  <div class="filter-row">
+    <input class="fsearch" placeholder="🔍 이름·이메일 검색…" oninput="filterMembers(this.value)" id="member-search"/>
+    <select class="fsel" onchange="filterMembers()" id="flt-section">
+      <option value="">전체 섹션</option>
+      <option value="B">B — Be</option>
+      <option value="U">U — Understand</option>
+      <option value="I">I — Identify</option>
+      <option value="L">L — Learn</option>
+      <option value="D">D — Dream</option>
+    </select>
+    <select class="fsel" onchange="filterMembers()" id="flt-status">
+      <option value="">전체 상태</option>
+      <option value="활성">활성</option>
+      <option value="신규">신규</option>
+      <option value="비활성">비활성</option>
+    </select>
+    <span style="font-size:12px;color:var(--muted);margin-left:4px">
+      총 <b id="member-count-lbl">-</b>명
+    </span>
+  </div>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>회원</th><th>이메일</th><th>현재 섹션</th>
+            <th>회복탄력성</th><th>진로준비도</th><th>마지막 활동</th><th>상태</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="members-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 섹션별 응답 ────── -->
+<div id="sec-by-section" class="section-area">
+  <div class="filter-row">
+    <select class="fsel" id="flt-sec-tab" onchange="renderBySection()">
+      <option value="B">🟣 B — Be (존재 발견)</option>
+      <option value="U">🟢 U — Understand (자기 이해)</option>
+      <option value="I">🟡 I — Identify (강점 발견)</option>
+      <option value="L">🩷 L — Learn (경험 학습)</option>
+      <option value="D">🔵 D — Dream (미래 설계)</option>
+    </select>
+    <select class="fsel" id="flt-sec-date" onchange="renderBySection()">
+      <option value="">전체 기간</option>
+      <option value="7">최근 7일</option>
+      <option value="30">최근 30일</option>
+      <option value="90">최근 90일</option>
+    </select>
+    <select class="fsel" id="flt-sec-member" onchange="renderBySection()">
+      <option value="">전체 회원</option>
+    </select>
+    <select class="fsel" id="flt-sec-score" onchange="renderBySection()">
+      <option value="">전체 점수</option>
+      <option value="high">우수 (80점↑)</option>
+      <option value="mid">보통 (60~79)</option>
+      <option value="low">미흡 (60점↓)</option>
+    </select>
+  </div>
+
+  <!-- Section summary -->
+  <div class="card" style="margin-bottom:16px;padding:18px 22px" id="sec-summary-card">
+    <div class="g4">
+      <div><div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em">응답 회원 수</div><div style="font-size:22px;font-weight:900;margin-top:4px" id="ss-members">-</div></div>
+      <div><div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em">총 응답 건수</div><div style="font-size:22px;font-weight:900;margin-top:4px" id="ss-count">-</div></div>
+      <div><div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em">평균 점수</div><div style="font-size:22px;font-weight:900;margin-top:4px" id="ss-avg">-</div></div>
+      <div><div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em">최고 점수</div><div style="font-size:22px;font-weight:900;margin-top:4px" id="ss-max">-</div></div>
+    </div>
+  </div>
+
+  <div id="sec-response-list"></div>
+</div>
+
+<!-- ────── 일자별 응답 ────── -->
+<div id="sec-by-date" class="section-area">
+  <div class="filter-row">
+    <select class="fsel" id="flt-date-sec" onchange="renderByDate()">
+      <option value="">전체 섹션</option>
+      <option value="B">B — Be</option>
+      <option value="U">U — Understand</option>
+      <option value="I">I — Identify</option>
+      <option value="L">L — Learn</option>
+      <option value="D">D — Dream</option>
+    </select>
+    <select class="fsel" id="flt-date-range" onchange="renderByDate()">
+      <option value="30">최근 30일</option>
+      <option value="60">최근 60일</option>
+      <option value="90">최근 90일</option>
+      <option value="all">전체</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="renderByDate()">🔄 새로고침</button>
+  </div>
+
+  <!-- 히트맵 -->
+  <div class="card" style="margin-bottom:18px">
+    <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:800">응답 히트맵</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">날짜별 응답량 시각화</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;font-size:10px;color:var(--muted)">
+        <span>적음</span>
+        <div style="display:flex;gap:2px">
+          <div class="hm-cell hm0" style="cursor:default"></div>
+          <div class="hm-cell hm1" style="cursor:default"></div>
+          <div class="hm-cell hm2" style="cursor:default"></div>
+          <div class="hm-cell hm3" style="cursor:default"></div>
+          <div class="hm-cell hm4" style="cursor:default"></div>
+        </div>
+        <span>많음</span>
+      </div>
+    </div>
+    <div style="padding:18px 20px" id="heatmap-wrap"></div>
+  </div>
+
+  <!-- 일자별 테이블 -->
+  <div class="card">
+    <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:800">일자별 응답 상세</div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>날짜</th><th>총 응답</th><th>🟣 B</th><th>🟢 U</th><th>🟡 I</th><th>🩷 L</th><th>🔵 D</th><th>평균 점수</th><th>응답 회원</th></tr>
+        </thead>
+        <tbody id="date-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 회원 상세 ────── -->
+<div id="sec-member-detail-view" class="section-area">
+  <div class="filter-row">
+    <select class="fsel" id="detail-member-sel" onchange="renderMemberDetail(this.value)" style="min-width:200px">
+      <option value="">회원을 선택하세요</option>
+    </select>
+  </div>
+  <div id="member-detail-content">
+    <div style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:48px;margin-bottom:12px">👆</div>
+      <div style="font-size:14px;font-weight:600">위에서 회원을 선택하면 상세 정보를 볼 수 있습니다</div>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 알림 ────── -->
+<div id="sec-alerts" class="section-area">
+  <div class="card">
+    <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:14px;font-weight:800">🔔 알림 센터</div>
+      <button class="btn btn-ghost btn-sm" onclick="markAllRead()">모두 읽음 처리</button>
+    </div>
+    <div id="alert-list"></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ══════════════ ADD MEMBER MODAL ══════════════ -->
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:4px">＋ 회원 추가</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px">새 회원 정보를 입력하세요</div>
+    <div style="display:grid;gap:14px">
+      <div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">이름 *</div>
+        <input class="fsearch" style="width:100%;padding:9px 12px" placeholder="예: 홍길동" id="add-name"/>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">이메일 *</div>
+        <input class="fsearch" style="width:100%;padding:9px 12px" placeholder="예: hong@email.com" id="add-email"/>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">연락처</div>
+        <input class="fsearch" style="width:100%;padding:9px 12px" placeholder="010-0000-0000" id="add-phone"/>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">시작 섹션</div>
+        <select class="fsel" style="width:100%" id="add-section">
+          <option value="B">B — Be (존재 발견)</option>
+          <option value="U">U — Understand</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">메모</div>
+        <textarea class="fsearch" style="width:100%;min-height:70px;resize:vertical;padding:9px 12px" placeholder="특이사항…" id="add-note"></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="addMember()">
+        회원 추가하기
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ RESPONSE DETAIL MODAL ══════════════ -->
+<div class="modal-bg" id="resp-modal">
+  <div class="modal" style="max-width:680px">
+    <button class="modal-close" onclick="closeModal('resp-modal')">✕</button>
+    <div id="resp-modal-content"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA GENERATION
+══════════════════════════════════════════ */
+const SECTIONS = ['B','U','I','L','D'];
+const SEC_NAMES = {B:'Be (존재 발견)',U:'Understand (자기 이해)',I:'Identify (강점 발견)',L:'Learn (경험 학습)',D:'Dream (미래 설계)'};
+const SEC_EMOJI = {B:'🟣',U:'🟢',I:'🟡',L:'🩷',D:'🔵'};
+const SEC_COLOR = {B:'#6366F1',U:'#22C55E',I:'#F59E0B',L:'#EC4899',D:'#3B82F6'};
+const SEC_BG    = {B:'#EEF2FF',U:'#DCFCE7',I:'#FEF3C7',L:'#FCE7F3',D:'#DBEAFE'};
+const AV_COLORS = ['#6366F1','#22C55E','#F59E0B','#EC4899','#3B82F6','#8B5CF6','#14B8A6','#F97316','#EF4444','#6366F1'];
+
+const NAMES = [
+  '김지은','이민준','박서준','최하린','정우성','한소희','오세훈','윤아름',
+  '장민수','강예은','임도현','백지원','신재원','류수빈','문성호','조은비',
+  '허준','남궁민','황수연','고지훈','심하은','전민재','양미래','노준혁',
+  '천은지','배수지','서동주','국지수','안도경','변세아','마진호','하서윤',
+  '온누리','권도윤','엄지수','음채원','이도하','박가은','최성호','김민재',
+  '윤서연','정하늘'
+];
+
+const SAMPLE = {
+  B:['나는 힘들어도 포기하지 않는 사람이에요.','어린 시절부터 그림 그리는 것을 좋아했어요.','가족이 저를 지탱하는 힘입니다.','실패해도 다시 일어설 수 있다는 걸 알게 됐어요.','나만의 속도로 꾸준히 성장하고 있어요.','과거의 상처가 오히려 저를 더 강하게 만들었어요.'],
+  U:['사람들과 함께할 때 에너지가 넘쳐요.','혼자 조용히 생각하는 시간이 필요해요.','창의적인 일을 할 때 가장 행복해요.','내가 진짜 원하는 것이 뭔지 알아가는 중이에요.','감정을 솔직하게 표현하는 게 아직 어렵지만 노력 중이에요.','스스로에 대해 더 깊이 이해하게 되었어요.'],
+  I:['경청하는 능력이 제 강점인 것 같아요.','문제를 분석하고 해결책을 찾는 걸 잘 해요.','다른 사람을 도울 때 보람을 느껴요.','꼼꼼하게 계획하고 실행하는 편이에요.','새로운 것을 빠르게 배우는 편입니다.','어떤 상황에서도 차분하게 대응할 수 있어요.'],
+  L:['봉사활동에서 팀워크의 중요성을 배웠어요.','아르바이트를 하면서 책임감이 생겼어요.','실패한 경험이 오히려 더 많이 성장시켜줬어요.','프로젝트 경험이 진로 결정에 도움이 됐어요.','동아리 활동에서 리더십을 키웠어요.','갈등 상황을 스스로 해결해본 경험이 있어요.'],
+  D:['사회복지사가 되어 소외된 분들을 돕고 싶어요.','내 가게를 차리는 것이 꿈이에요.','해외에서 일해보고 싶어요.','예술 분야에서 제 작품을 세상에 선보이고 싶어요.','IT 분야에서 창업을 목표로 하고 있어요.','의미 있는 일을 하며 안정된 삶을 살고 싶어요.']
+};
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[rnd(0,arr.length-1)];}
+function fmtDate(d){return d.toISOString().slice(0,10);}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function today(){return new Date();}
+
+/* 42명 회원 생성 */
+let MEMBERS = NAMES.map((name,i)=>{
+  const secIdx = Math.min(Math.floor(i/9),4);
+  const sec = SECTIONS[secIdx];
+  const statuses = ['활성','활성','활성','신규','비활성'];
+  const resps = {};
+  SECTIONS.slice(0,secIdx+1).forEach((s,si)=>{
+    const cnt = rnd(2,7);
+    resps[s] = Array.from({length:cnt},(_,ri)=>{
+      const daysAgo = rnd(si*5, 60-si*5);
+      return {
+        date: fmtDate(addDays(today(),-daysAgo)),
+        text: pick(SAMPLE[s]),
+        score: rnd(45,98)
+      };
+    }).sort((a,b)=>b.date.localeCompare(a.date));
+  });
+  return {
+    id:i+1, name,
+    email:`${name.replace(/\s/g,'')}@email.com`,
+    section:sec,
+    resilience:rnd(48,96),
+    career:rnd(30,92),
+    lastDate:fmtDate(addDays(today(),-rnd(0,14))),
+    status: statuses[rnd(0,4)],
+    avColor: AV_COLORS[i%AV_COLORS.length],
+    responses:resps,
+    phone:`010-${rnd(1000,9999)}-${rnd(1000,9999)}`
+  };
+});
+
+/* ══════════════════════════════════════════
+   SIDEBAR NAV
+══════════════════════════════════════════ */
+const SEC_MAP = {
+  overview:'sec-overview',members:'sec-members',
+  'by-section':'sec-by-section','by-date':'sec-by-date',
+  'member-detail-view':'sec-member-detail-view',alerts:'sec-alerts'
+};
+const TITLES = {
+  overview:'전체 현황',members:'회원 목록',
+  'by-section':'섹션별 응답','by-date':'일자별 응답',
+  'member-detail-view':'회원 상세',alerts:'알림'
+};
+function goto(key, el){
+  document.querySelectorAll('.section-area').forEach(s=>s.classList.remove('active'));
+  document.getElementById(SEC_MAP[key]).classList.add('active');
+  document.getElementById('page-title').textContent = TITLES[key];
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(key==='by-section') renderBySection();
+  if(key==='by-date') renderByDate();
+  if(key==='alerts') renderAlerts();
+  if(key==='members') renderMembers();
+  if(key==='overview') renderOverview();
+}
+
+/* ══════════════════════════════════════════
+   OVERVIEW
+══════════════════════════════════════════ */
+function renderOverview(){
+  const total = MEMBERS.length;
+  const active = MEMBERS.filter(m=>m.status==='활성').length;
+  const totalResp = MEMBERS.reduce((s,m)=>s+Object.values(m.responses).reduce((a,rs)=>a+rs.length,0),0);
+  const avgRes = Math.round(MEMBERS.reduce((s,m)=>s+m.resilience,0)/total);
+
+  document.getElementById('ov-total').textContent = total+'명';
+  document.getElementById('sb-total').textContent = total;
+  document.getElementById('ov-active').textContent = active+'명';
+  document.getElementById('ov-active-pct').textContent = Math.round(active/total*100)+'%';
+  document.getElementById('ov-resp').textContent = totalResp+'건';
+  document.getElementById('ov-avg').textContent = avgRes+'점';
+
+  /* section bars */
+  const sec_counts = {};
+  SECTIONS.forEach(s=>{sec_counts[s]=MEMBERS.filter(m=>Object.keys(m.responses).includes(s)).length;});
+  const bars = SECTIONS.map(s=>`
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:700">${SEC_EMOJI[s]} ${s} — ${SEC_NAMES[s]}</span>
+        <span style="font-size:12px;font-weight:700;color:${SEC_COLOR[s]}">${sec_counts[s]}명 (${Math.round(sec_counts[s]/total*100)}%)</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:${Math.round(sec_counts[s]/total*100)}%;background:${SEC_COLOR[s]}"></div></div>
+    </div>`).join('');
+  document.getElementById('section-progress-bars').innerHTML = bars;
+
+  /* recent */
+  const all = [];
+  MEMBERS.forEach(m=>SECTIONS.forEach(s=>(m.responses[s]||[]).forEach(r=>all.push({m,s,r}))));
+  all.sort((a,b)=>b.r.date.localeCompare(a.r.date));
+  document.getElementById('recent-tbody').innerHTML = all.slice(0,8).map(({m,s,r})=>`
+    <tr onclick="openRespModal(${m.id},'${s}')">
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="av av-sm" style="background:${m.avColor}">${m.name[0]}</div>
+        <span style="font-weight:600">${m.name}</span>
+      </div></td>
+      <td><span class="badge sec-${s}">${SEC_EMOJI[s]} ${s}</span></td>
+      <td>${scorePill(r.score)}</td>
+      <td style="color:var(--muted);font-size:11px">${r.date}</td>
+    </tr>`).join('');
+
+  /* monthly chart */
+  const months = ['1월','2월','3월','4월','5월','6월','7월'];
+  const vals    = [18,24,31,27,39,44,totalResp>0?Math.min(totalResp,52):48];
+  const maxVal  = Math.max(...vals);
+  document.getElementById('monthly-chart').innerHTML = vals.map((v,i)=>`
+    <div class="bar-col">
+      <div class="bar-val">${v}</div>
+      <div class="bar-fill" style="height:${Math.round(v/maxVal*80)+10}px;background:${i===vals.length-1?'linear-gradient(180deg,#818CF8,#6366F1)':'#C7D2FE'}"></div>
+      <div class="bar-lbl">${months[i]}</div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════
+   MEMBERS TABLE
+══════════════════════════════════════════ */
+function renderMembers(search=''){
+  const q = (document.getElementById('member-search')||{value:''}).value.toLowerCase();
+  const secF = (document.getElementById('flt-section')||{value:''}).value;
+  const stF  = (document.getElementById('flt-status')||{value:''}).value;
+  const list = MEMBERS.filter(m=>{
+    const matchQ = !q || m.name.includes(q) || m.email.toLowerCase().includes(q);
+    const matchS = !secF || m.section===secF;
+    const matchSt = !stF || m.status===stF;
+    return matchQ && matchS && matchSt;
+  });
+  document.getElementById('member-count-lbl').textContent = list.length;
+  document.getElementById('members-tbody').innerHTML = list.map((m,i)=>`
+    <tr onclick="openMemberFromTable(${m.id})">
+      <td style="color:var(--muted);font-size:11px">${m.id}</td>
+      <td><div style="display:flex;align-items:center;gap:9px">
+        <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
+        <div><div style="font-weight:700;font-size:13px">${m.name}</div></div>
+      </div></td>
+      <td style="font-size:11px;color:var(--muted)">${m.email}</td>
+      <td><span class="badge sec-${m.section}">${SEC_EMOJI[m.section]} ${m.section}</span></td>
+      <td>${miniProg(m.resilience,'#6366F1')}</td>
+      <td>${miniProg(m.career,'#22C55E')}</td>
+      <td style="font-size:11px;color:var(--muted)">${m.lastDate}</td>
+      <td>${statusBadge(m.status)}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMemberFromTable(${m.id})">상세 →</button></td>
+    </tr>`).join('');
+}
+
+function filterMembers(){ renderMembers(); }
+
+function openMemberFromTable(id){
+  document.getElementById('detail-member-sel').value = id;
+  goto('member-detail-view', null);
+  renderMemberDetail(id);
+}
+
+/* ══════════════════════════════════════════
+   SECTION RESPONSES
+══════════════════════════════════════════ */
+function populateMemberSel(){
+  const sel = document.getElementById('flt-sec-member');
+  sel.innerHTML = '<option value="">전체 회원</option>';
+  MEMBERS.forEach(m=>{
+    const o = document.createElement('option');
+    o.value = m.id; o.textContent = m.name;
+    sel.appendChild(o);
+  });
+  const sel2 = document.getElementById('detail-member-sel');
+  MEMBERS.forEach(m=>{
+    const o = document.createElement('option');
+    o.value = m.id; o.textContent = m.name;
+    sel2.appendChild(o);
+  });
+}
+
+function renderBySection(){
+  const sec   = document.getElementById('flt-sec-tab').value;
+  const days  = document.getElementById('flt-sec-date').value;
+  const memId = document.getElementById('flt-sec-member').value;
+  const scoreF= document.getElementById('flt-sec-score').value;
+
+  const cutoff = days ? new Date(Date.now()-days*86400000) : null;
+
+  let entries = [];
+  MEMBERS.forEach(m=>{
+    if(memId && String(m.id)!==memId) return;
+    (m.responses[sec]||[]).forEach(r=>{
+      if(cutoff && new Date(r.date)<cutoff) return;
+      if(scoreF==='high' && r.score<80) return;
+      if(scoreF==='mid'  && (r.score<60||r.score>=80)) return;
+      if(scoreF==='low'  && r.score>=60) return;
+      entries.push({m,r});
+    });
+  });
+  entries.sort((a,b)=>b.r.date.localeCompare(a.r.date));
+
+  /* summary */
+  const uniqueMembers = new Set(entries.map(e=>e.m.id)).size;
+  const avgScore = entries.length? Math.round(entries.reduce((s,e)=>s+e.r.score,0)/entries.length):0;
+  const maxScore = entries.length? Math.max(...entries.map(e=>e.r.score)):0;
+  document.getElementById('ss-members').textContent = uniqueMembers+'명';
+  document.getElementById('ss-count').textContent   = entries.length+'건';
+  document.getElementById('ss-avg').textContent     = avgScore?(avgScore+'점'):'–';
+  document.getElementById('ss-max').textContent     = maxScore?(maxScore+'점'):'–';
+
+  /* group by member */
+  const byMember = {};
+  entries.forEach(e=>{
+    if(!byMember[e.m.id]) byMember[e.m.id]={m:e.m,entries:[]};
+    byMember[e.m.id].entries.push(e.r);
+  });
+
+  const dark = SEC_COLOR[sec];
+  const bg   = SEC_BG[sec];
+
+  if(!entries.length){
+    document.getElementById('sec-response-list').innerHTML = `
+      <div style="text-align:center;padding:48px;color:var(--muted)">
+        <div style="font-size:40px;margin-bottom:10px">🗂️</div>
+        <div style="font-size:14px;font-weight:600">해당 조건의 응답이 없습니다</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('sec-response-list').innerHTML = Object.values(byMember).map(({m,entries:rs})=>`
+    <div class="resp-card">
+      <div class="resp-header" style="background:${bg}">
+        <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:13px">${m.name}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:1px">${m.email} · ${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} · ${rs.length}건</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${scorePill(Math.round(rs.reduce((s,r)=>s+r.score,0)/rs.length),'평균')}
+          <button class="btn btn-ghost btn-sm" onclick="openRespModal(${m.id},'${sec}')">전체보기</button>
+        </div>
+      </div>
+      <div class="resp-body">
+        ${rs.map(r=>`
+          <div class="resp-entry">
+            <div class="resp-meta">
+              <span style="font-weight:700;color:${dark}">${r.date}</span>
+              ${scorePill(r.score)}
+            </div>
+            <div class="resp-text">${r.text}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════
+   DATE RESPONSES
+══════════════════════════════════════════ */
+function renderByDate(){
+  const secF  = document.getElementById('flt-date-sec').value;
+  const range = document.getElementById('flt-date-range').value;
+  const days  = range==='all' ? 365 : parseInt(range);
+  const cutoff= new Date(Date.now()-days*86400000);
+
+  /* aggregate by date */
+  const byDate = {};
+  MEMBERS.forEach(m=>{
+    SECTIONS.forEach(s=>{
+      if(secF && s!==secF) return;
+      (m.responses[s]||[]).forEach(r=>{
+        if(new Date(r.date)<cutoff) return;
+        if(!byDate[r.date]) byDate[r.date]={total:0,secs:{B:0,U:0,I:0,L:0,D:0},scores:[],members:new Set()};
+        byDate[r.date].total++;
+        byDate[r.date].secs[s]++;
+        byDate[r.date].scores.push(r.score);
+        byDate[r.date].members.add(m.name);
+      });
+    });
+  });
+
+  const dates = Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+  const maxT  = Math.max(...Object.values(byDate).map(d=>d.total),1);
+
+  /* heatmap — group by month */
+  const heatCells = [];
+  for(let d=days-1;d>=0;d--){
+    const dt  = fmtDate(addDays(today(),-d));
+    const dd  = byDate[dt];
+    const lv  = dd? (dd.total>=10?'hm4':dd.total>=6?'hm3':dd.total>=3?'hm2':'hm1'):'hm0';
+    const tip = dd?`${dt}\n${dd.total}건 응답\n참여: ${[...dd.members].slice(0,3).join(', ')}`:dt;
+    heatCells.push(`<div class="hm-cell ${lv}" title="${tip}"></div>`);
+  }
+  document.getElementById('heatmap-wrap').innerHTML = `
+    <div style="font-size:10px;color:var(--muted);margin-bottom:8px">최근 ${days}일</div>
+    <div class="heatmap">${heatCells.join('')}</div>`;
+
+  /* table */
+  document.getElementById('date-tbody').innerHTML = dates.map(date=>{
+    const d = byDate[date];
+    const avg = d.scores.length? Math.round(d.scores.reduce((a,b)=>a+b,0)/d.scores.length):0;
+    return `<tr>
+      <td style="font-weight:700">${date}</td>
+      <td><span style="font-weight:800;font-size:14px;color:${d.total>=8?'var(--success)':d.total>=4?'var(--warn)':'var(--muted)'}">${d.total}</span></td>
+      ${SECTIONS.map(s=>`<td style="color:${SEC_COLOR[s]};font-weight:${d.secs[s]?700:400}">${d.secs[s]||'–'}</td>`).join('')}
+      <td>${scorePill(avg)}</td>
+      <td style="font-size:11px;color:var(--muted)">${[...d.members].slice(0,3).join(', ')}${d.members.size>3?` 외 ${d.members.size-3}명`:''}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════
+   MEMBER DETAIL
+══════════════════════════════════════════ */
+function renderMemberDetail(id){
+  if(!id){ document.getElementById('member-detail-content').innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-size:48px">👆</div><div style="font-size:14px;font-weight:600;margin-top:12px">회원을 선택하세요</div></div>`; return; }
+  const m = MEMBERS.find(x=>x.id==id);
+  if(!m) return;
+
+  const allResp = SECTIONS.flatMap(s=>(m.responses[s]||[]).map(r=>({s,r})));
+  const totalResp = allResp.length;
+  const avgScore = totalResp? Math.round(allResp.reduce((s,e)=>s+e.r.score,0)/totalResp):0;
+
+  document.getElementById('member-detail-content').innerHTML = `
+    <!-- 헤더 -->
+    <div class="card" style="padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+        <div class="av" style="width:56px;height:56px;font-size:22px;background:${m.avColor}">${m.name[0]}</div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:20px;font-weight:900">${m.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">${m.email} · ${m.phone}</div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <span class="badge sec-${m.section}">${SEC_EMOJI[m.section]} 현재: ${m.section} 섹션</span>
+            ${statusBadge(m.status)}
+            <span class="badge" style="background:var(--muted-bg);color:var(--muted)">마지막 활동 ${m.lastDate}</span>
+          </div>
+        </div>
+        <div class="g4" style="flex:1;min-width:280px">
+          <div style="background:var(--primary-bg);border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:900;color:var(--primary)">${m.resilience}점</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:700;margin-top:2px">회복탄력성</div>
+          </div>
+          <div style="background:#DCFCE7;border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:900;color:#22C55E">${m.career}%</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:700;margin-top:2px">진로준비도</div>
+          </div>
+          <div style="background:#FEF3C7;border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:900;color:#F59E0B">${totalResp}건</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:700;margin-top:2px">총 응답</div>
+          </div>
+          <div style="background:#EDE9FE;border-radius:12px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:900;color:#8B5CF6">${avgScore}점</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:700;margin-top:2px">평균 점수</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 섹션별 응답 타임라인 -->
+    <div class="g2">
+      ${SECTIONS.map(s=>{
+        const rs = m.responses[s]||[];
+        const dark = SEC_COLOR[s];
+        const bg   = SEC_BG[s];
+        return `
+        <div class="card">
+          <div style="padding:14px 18px 10px;background:${bg};border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px">${SEC_EMOJI[s]}</span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:800;color:${dark}">${s} — ${SEC_NAMES[s]}</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:1px">${rs.length}개 응답${rs.length?` · 평균 ${Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length)}점`:''}
+              </div>
+            </div>
+            ${rs.length?`<span class="badge" style="background:${dark}18;color:${dark}">완료</span>`:`<span class="badge" style="background:var(--muted-bg);color:var(--muted)">미진행</span>`}
+          </div>
+          <div style="padding:16px 18px">
+            ${rs.length===0?`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0">아직 응답이 없습니다</div>`:`
+            <div class="timeline">
+              ${rs.map(r=>`
+                <div class="tl-item">
+                  <div class="tl-dot" style="background:${dark}"></div>
+                  <div class="tl-date">${r.date}</div>
+                  <div class="tl-text">${r.text}</div>
+                  <div class="tl-score" style="color:${dark}">${scorePill(r.score)}</div>
+                </div>`).join('')}
+            </div>`}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+/* ══════════════════════════════════════════
+   ALERTS
+══════════════════════════════════════════ */
+const ALERTS = [
+  {icon:'🆕',text:'김지은 회원이 B 섹션 응답을 완료했습니다.',time:'10분 전',read:false,color:'#EEF2FF'},
+  {icon:'📈',text:'이민준 회원의 회복탄력성이 +18점 급등했습니다.',time:'1시간 전',read:false,color:'#DCFCE7'},
+  {icon:'🔥',text:'박서준 회원이 7일 연속 응답했습니다!',time:'3시간 전',read:false,color:'#FEF3C7'},
+  {icon:'⚠️',text:'최하린 회원이 5일째 미응답 상태입니다. 연락이 필요합니다.',time:'1일 전',read:true,color:'#FEE2E2'},
+  {icon:'✅',text:'정우성 회원이 D 섹션을 완료했습니다. 모든 섹션 완주!',time:'2일 전',read:true,color:'#DCFCE7'},
+  {icon:'👋',text:'한소희 회원이 신규 가입했습니다.',time:'3일 전',read:true,color:'#EEF2FF'},
+  {icon:'📊',text:'이번 주 응답률이 지난주 대비 23% 증가했습니다.',time:'4일 전',read:true,color:'#EDE9FE'},
+];
+function renderAlerts(){
+  document.getElementById('alert-list').innerHTML = ALERTS.map((a,i)=>`
+    <div style="padding:14px 20px;border-bottom:1px solid #F1F5F9;display:flex;gap:12px;align-items:flex-start;cursor:pointer;background:${a.read?'':'#FAFBFF'};transition:background .15s" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='${a.read?'':'#FAFBFF'}'">
+      <div style="width:36px;height:36px;border-radius:10px;background:${a.color};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${a.icon}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:${a.read?'500':'700'};color:${a.read?'var(--muted)':'var(--fg)'}">${a.text}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${a.time}</div>
+      </div>
+      ${!a.read?`<div style="width:8px;height:8px;border-radius:50%;background:var(--primary);margin-top:4px;flex-shrink:0"></div>`:''}
+    </div>`).join('');
+}
+function markAllRead(){ ALERTS.forEach(a=>a.read=true); renderAlerts(); }
+
+/* ══════════════════════════════════════════
+   RESPONSE DETAIL MODAL
+══════════════════════════════════════════ */
+function openRespModal(memberId, sec){
+  const m = MEMBERS.find(x=>x.id==memberId);
+  if(!m) return;
+  const rs = m.responses[sec]||[];
+  const dark = SEC_COLOR[sec];
+  const bg   = SEC_BG[sec];
+  document.getElementById('resp-modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
+      <div>
+        <div style="font-size:17px;font-weight:900">${m.name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} 섹션 · ${rs.length}건 응답</div>
+      </div>
+    </div>
+    <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+      ${rs.length===0?`<div style="padding:32px;text-align:center;color:var(--muted)">응답 없음</div>`:
+        rs.map(r=>`
+          <div style="padding:14px 16px;border-bottom:1px solid #F1F5F9">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:11px;font-weight:700;color:${dark}">${r.date}</span>
+              ${scorePill(r.score)}
+            </div>
+            <div style="font-size:13px;line-height:1.7">${r.text}</div>
+          </div>`).join('')}
+    </div>`;
+  openModal('resp-modal');
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function scorePill(score, prefix=''){
+  const col = score>=80?'var(--success)':score>=60?'var(--warn)':'var(--danger)';
+  const bg  = score>=80?'var(--success-bg)':score>=60?'var(--warn-bg)':'var(--danger-bg)';
+  return `<span class="score-pill" style="background:${bg};color:${col}">${prefix?prefix+' ':''} ${score}점</span>`;
+}
+function miniProg(val, color){
+  return `<div style="display:flex;align-items:center;gap:6px">
+    <div style="width:72px;height:6px;background:#E2E8F0;border-radius:99px;overflow:hidden">
+      <div style="width:${val}%;height:100%;background:${color};border-radius:99px"></div>
+    </div>
+    <span style="font-size:11px;font-weight:700;color:${color}">${val}</span>
+  </div>`;
+}
+function statusBadge(s){
+  const map={활성:['#DCFCE7','#166534'],신규:['#DBEAFE','#1E40AF'],비활성:['#FEE2E2','#991B1B']};
+  const [bg,c]=map[s]||['#F1F5F9','#64748B'];
+  return `<span class="badge" style="background:${bg};color:${c}">${s}</span>`;
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+/* close on backdrop click */
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('open'); });
+});
+
+/* ══════════════════════════════════════════
+   ADD MEMBER
+══════════════════════════════════════════ */
+function openAddModal(){ openModal('add-modal'); }
+function addMember(){
+  const name = document.getElementById('add-name').value.trim();
+  const email= document.getElementById('add-email').value.trim();
+  if(!name||!email){ alert('이름과 이메일을 입력해주세요.'); return; }
+  const newM = {
+    id: MEMBERS.length+1, name, email,
+    section:'B', resilience:50, career:40,
+    lastDate:fmtDate(today()), status:'신규',
+    avColor:'#6366F1',
+    phone: document.getElementById('add-phone').value||'–',
+    responses:{}
+  };
+  MEMBERS.push(newM);
+  closeModal('add-modal');
+  renderOverview(); renderMembers();
+  document.getElementById('sb-total').textContent = MEMBERS.length;
+  showToast(`✅ ${name} 회원이 추가되었습니다!`);
+}
+
+/* ══════════════════════════════════════════
+   EXPORT CSV
+══════════════════════════════════════════ */
+function exportCSV(){
+  const rows=[['ID','이름','이메일','섹션','회복탄력성','진로준비도','마지막활동','상태']];
+  MEMBERS.forEach(m=>rows.push([m.id,m.name,m.email,m.section,m.resilience,m.career,m.lastDate,m.status]));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`RE-BUILD-UP_회원목록_${fmtDate(today())}.csv`; a.click();
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+function showToast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#0F172A;color:#F8FAFC;padding:12px 22px;border-radius:14px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.22);opacity:0;transition:opacity .3s,transform .3s;white-space:nowrap';
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>{ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; });
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; setTimeout(()=>t.remove(),350); },3000);
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+populateMemberSel();
+renderOverview();
+renderMembers();
+</script>
+</body>
+</html>
