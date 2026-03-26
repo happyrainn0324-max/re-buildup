@@ -275,6 +275,7 @@
       <div id="user-info" style="display:none;align-items:center;gap:10px;">
         <div id="user-avatar-circle" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#818CF8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;">?</div>
         <span id="user-display-name" style="font-size:14px;font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        <button id="manager-btn" onclick="window.open('manager.html','_self')" style="display:none;padding:6px 14px;border-radius:10px;border:none;background:linear-gradient(135deg,#6366F1,#818CF8);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px #6366F133;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">⚙️ 매니저</button>
         <button onclick="doLogout()" style="padding:6px 12px;border-radius:10px;border:1.5px solid var(--border);background:transparent;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">로그아웃</button>
       </div>
     </div>
@@ -2470,6 +2471,14 @@ function actMentorMatch() {
 
     /* 표시명 */
     document.getElementById('user-display-name').textContent = name || email;
+
+    /* 매니저 버튼: 조은경만 표시 */
+    var managerBtn = document.getElementById('manager-btn');
+    if (name === '조은경') {
+      managerBtn.style.display = 'inline-flex';
+    } else {
+      managerBtn.style.display = 'none';
+    }
   }
 
   /* ── 로그아웃 ──────────────────────── */
@@ -2480,6 +2489,7 @@ function actMentorMatch() {
     document.getElementById('user-info').style.display = 'none';
     document.getElementById('user-display-name').textContent = '';
     document.getElementById('user-avatar-circle').textContent = '?';
+    document.getElementById('manager-btn').style.display = 'none';
     showToast('👋 로그아웃 되었습니다.');
   }
 
