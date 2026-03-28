@@ -688,7 +688,20 @@ function fmtDate(d){return d.toISOString().slice(0,10);}
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 function today(){return new Date();}
 
-/* 42명 회원 생성 — 5단계 모두 참여율 반영 */
+/* localStorage 실제 가입 회원 불러오기 */
+(function mergeRealUsers(){
+  try {
+    const raw = localStorage.getItem('rbu_users');
+    if(!raw) return;
+    const users = JSON.parse(raw);
+    Object.entries(users).forEach(([email, u])=>{
+      // 이미 NAMES에 있는 이름이면 스킵
+      if(!NAMES.includes(u.name)) NAMES.push(u.name);
+    });
+  } catch(e){}
+})();
+
+/* 회원 생성 — 5단계 모두 참여율 반영 */
 let MEMBERS = NAMES.map((name,i)=>{
   const statuses = ['활성','활성','활성','신규','비활성'];
 
@@ -723,14 +736,22 @@ let MEMBERS = NAMES.map((name,i)=>{
     lastActiveSec = 'B';
   }
 
+  // 실제 가입 회원이면 실제 이메일 사용
+  let realEmail = null;
+  try {
+    const ru = JSON.parse(localStorage.getItem('rbu_users')||'{}');
+    const found = Object.entries(ru).find(([e,u])=>u.name===name);
+    if(found) realEmail = found[0];
+  } catch(e){}
+
   return {
     id:i+1, name,
-    email:`${name.replace(/\s/g,'')}@email.com`,
+    email: realEmail || `${name.replace(/\s/g,'')}@email.com`,
     section: lastActiveSec,
     resilience:rnd(48,96),
     career:rnd(30,92),
-    lastDate:fmtDate(addDays(today(),-rnd(0,14))),
-    status: statuses[rnd(0,4)],
+    lastDate: realEmail ? fmtDate(today()) : fmtDate(addDays(today(),-rnd(0,14))),
+    status: realEmail ? '신규' : statuses[rnd(0,4)],
     avColor: AV_COLORS[i%AV_COLORS.length],
     responses:resps,
     phone:`010-${rnd(1000,9999)}-${rnd(1000,9999)}`
