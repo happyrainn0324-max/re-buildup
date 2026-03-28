@@ -2993,8 +2993,30 @@ function actMentorMatch() {
   /* 기록 저장 */
   /* ══ 기록 포트폴리오 ══
      실제 소스: story-input-1/2/3 (활동 모달 스토리), diary-1/2/3 (회복 체크인 일기)
-     + pfStories (포트폴리오 탭 직접 저장) */
+     + pfStories (포트폴리오 탭 직접 저장)
+     ※ 로그인 유저별로 localStorage에 누적 저장 */
   var pfStories = [];
+
+  /* 현재 로그인 유저의 포트폴리오 localStorage 키 */
+  function pfKey() {
+    var email = localStorage.getItem('rbu_email') || 'guest';
+    return 'rbu_pf_' + email;
+  }
+
+  /* 저장된 포트폴리오 불러오기 */
+  function loadPfStories() {
+    try {
+      var raw = localStorage.getItem(pfKey());
+      pfStories = raw ? JSON.parse(raw) : [];
+    } catch(e) { pfStories = []; }
+  }
+
+  /* 포트폴리오 localStorage에 저장 */
+  function savePfStories() {
+    try {
+      localStorage.setItem(pfKey(), JSON.stringify(pfStories));
+    } catch(e) {}
+  }
 
   function updateStoryCount() {
     var len = (document.getElementById('story-text')||{value:''}).value.length;
@@ -3011,6 +3033,7 @@ function actMentorMatch() {
     var btn = document.getElementById('save-btn');
     if(btn){ btn.textContent='✓ 저장됨'; btn.className='btn btn-outline'; }
     pfStories.push({ title: title, text: text, date: new Date().toLocaleDateString('ko-KR'), src: '직접 입력' });
+    savePfStories();
     renderStoryPortfolio();
     if (titleEl) titleEl.value = '';
     if (textEl)  textEl.value = '';
@@ -3891,18 +3914,68 @@ function actMentorMatch() {
     } else {
       managerBtn.style.display = 'none';
     }
+
+    /* 포트폴리오 누적 기록 불러오기 */
+    try {
+      loadPfStories();
+      renderStoryPortfolio();
+    } catch(e) {}
   }
 
   /* ── 로그아웃 ──────────────────────── */
   function doLogout() {
+    /* 1) 현재 유저 세션 데이터 삭제 (회원DB rbu_users는 유지) */
     localStorage.removeItem('rbu_email');
     localStorage.removeItem('rbu_name');
+    localStorage.removeItem('rbu_stamp');
+
+    /* 2) 헤더 UI 초기화 */
     document.getElementById('google-login-btn').style.display = 'flex';
     document.getElementById('user-info').style.display = 'none';
     document.getElementById('user-display-name').textContent = '';
     document.getElementById('user-avatar-circle').textContent = '?';
     document.getElementById('manager-btn').style.display = 'none';
-    showToast('👋 로그아웃 되었습니다.');
+
+    /* 3) 스탬프 UI 초기화 */
+    try {
+      var stampsEl = document.querySelectorAll('.stamp-cell');
+      stampsEl.forEach(function(el){ el.classList.remove('stamped'); });
+      var cntEl = document.getElementById('stamp-count');
+      if(cntEl) cntEl.textContent = '0';
+    } catch(e){}
+
+    /* 4) 필사 노트 초기화 */
+    try {
+      var storyInput = document.getElementById('act-story-input');
+      if(storyInput) storyInput.value = '';
+      var storyDone = document.getElementById('act-story-done');
+      if(storyDone) storyDone.style.display = 'none';
+      var storyBtn = document.getElementById('act-story-btn');
+      if(storyBtn){ storyBtn.textContent = '나의 스토리 저장하기'; storyBtn.disabled = true; storyBtn.style.opacity='0.4'; storyBtn.style.cursor='not-allowed'; }
+    } catch(e){}
+
+    /* 5) 미션 노트 초기화 */
+    try {
+      var missionNote = document.getElementById('act-mission-note');
+      if(missionNote) missionNote.value = '';
+      var missionSaved = document.getElementById('act-mission-note-saved');
+      if(missionSaved) missionSaved.style.display = 'none';
+    } catch(e){}
+
+    /* 6) 포트폴리오 — in-memory 배열만 비우기 (localStorage는 유지, 다음 로그인 때 복원) */
+    try {
+      pfStories = [];
+      var pfList = document.getElementById('pf-story-list');
+      if(pfList) pfList.innerHTML = '';
+    } catch(e){}
+
+    /* 7) 진단 결과 초기화 */
+    try {
+      var diagResult = document.getElementById('act-diag-result');
+      if(diagResult) diagResult.style.display = 'none';
+    } catch(e){}
+
+    showToast('👋 로그아웃 되었습니다. 기록이 초기화됐어요.');
   }
 
   /* ── 토스트 알림 ───────────────────── */
