@@ -2098,15 +2098,29 @@ function updateStampBadge(count) {
 }
 
 /* ── localStorage 헬퍼 ── */
+function stampKey() {
+  var email = localStorage.getItem('rbu_email') || 'guest';
+  return 'rbu_stamp_' + email;
+}
 function getStampData() {
   try {
-    var raw = localStorage.getItem('rbu_stamp');
+    /* 이메일별 키 우선, 없으면 구버전 rbu_stamp 마이그레이션 */
+    var key = stampKey();
+    var raw = localStorage.getItem(key);
+    if (!raw) {
+      var legacy = localStorage.getItem('rbu_stamp');
+      if (legacy) {
+        localStorage.setItem(key, legacy);
+        localStorage.removeItem('rbu_stamp');
+        return JSON.parse(legacy);
+      }
+    }
     if (raw) return JSON.parse(raw);
   } catch(e) {}
   return { count: 0, dates: [] };
 }
 function saveStampData(data) {
-  try { localStorage.setItem('rbu_stamp', JSON.stringify(data)); } catch(e) {}
+  try { localStorage.setItem(stampKey(), JSON.stringify(data)); } catch(e) {}
 }
 function todayStr() {
   var d = new Date();
@@ -2116,6 +2130,231 @@ function todayStr() {
 /* 페이지 로드 시 실행 */
 document.addEventListener('DOMContentLoaded', initStamp);
 
+</script>
+
+<script>
+/* ══════════════════════════════════════════
+   통합 섹션 저장/복원 시스템 (이메일 기반)
+   저장 대상: 일기, 스토리로그, 필사노트, 미션노트, 자기소개서, 강점선택
+══════════════════════════════════════════ */
+
+function sectionKey(name) {
+  var email = localStorage.getItem('rbu_email') || 'guest';
+  return 'rbu_sec_' + name + '_' + email;
+}
+
+/* ── 저장 ── */
+function saveAllSections() {
+  try {
+    /* 1) 회복 체크인 일기 */
+    var diary = {
+      d1: (document.getElementById('diary-1')||{value:''}).value,
+      d2: (document.getElementById('diary-2')||{value:''}).value,
+      d3: (document.getElementById('diary-3')||{value:''}).value
+    };
+    localStorage.setItem(sectionKey('diary'), JSON.stringify(diary));
+
+    /* 2) 스토리 로그 */
+    var story = {
+      s1: (document.getElementById('story-input-1')||{value:''}).value,
+      s2: (document.getElementById('story-input-2')||{value:''}).value,
+      s3: (document.getElementById('story-input-3')||{value:''}).value
+    };
+    localStorage.setItem(sectionKey('story'), JSON.stringify(story));
+
+    /* 3) 필사 노트 */
+    var actStoryEl = document.getElementById('act-story-input');
+    var actStoryDoneEl = document.getElementById('act-story-done-text');
+    var actStoryDoneVisible = (document.getElementById('act-story-done')||{style:{display:'none'}}).style.display !== 'none';
+    var actStory = {
+      input: actStoryEl ? actStoryEl.value : '',
+      doneText: actStoryDoneEl ? actStoryDoneEl.textContent : '',
+      doneVisible: actStoryDoneVisible
+    };
+    localStorage.setItem(sectionKey('actstory'), JSON.stringify(actStory));
+
+    /* 4) 미션 노트 */
+    var missionNoteEl = document.getElementById('act-mission-note');
+    var missionSavedEl = document.getElementById('act-mission-note-text');
+    var missionSavedVisible = (document.getElementById('act-mission-note-saved')||{style:{display:'none'}}).style.display !== 'none';
+    var mission = {
+      note: missionNoteEl ? missionNoteEl.value : '',
+      savedText: missionSavedEl ? missionSavedEl.textContent : '',
+      savedVisible: missionSavedVisible
+    };
+    localStorage.setItem(sectionKey('mission'), JSON.stringify(mission));
+
+    /* 5) 자기소개서 */
+    var cv = {
+      name:     (document.getElementById('cv-name')||{value:''}).value,
+      exp:      (document.getElementById('cv-exp')||{value:''}).value,
+      recovery: (document.getElementById('cv-recovery')||{value:''}).value,
+      goal:     (document.getElementById('cv-goal')||{value:''}).value,
+      field:    (document.getElementById('cv-field')||{value:''}).value
+    };
+    localStorage.setItem(sectionKey('cv'), JSON.stringify(cv));
+
+    /* 6) 강점 선택 */
+    var selectedStrengths = [];
+    document.querySelectorAll('#act-strength [data-s]').forEach(function(btn) {
+      if (btn.style.fontWeight === '700') selectedStrengths.push(btn.dataset.s);
+    });
+    localStorage.setItem(sectionKey('strength'), JSON.stringify(selectedStrengths));
+
+  } catch(e) { console.warn('saveAllSections error:', e); }
+}
+
+/* ── 복원 ── */
+function loadAllSections() {
+  try {
+    /* 1) 회복 체크인 일기 */
+    var diaryRaw = localStorage.getItem(sectionKey('diary'));
+    if (diaryRaw) {
+      var diary = JSON.parse(diaryRaw);
+      var d1El = document.getElementById('diary-1');
+      var d2El = document.getElementById('diary-2');
+      var d3El = document.getElementById('diary-3');
+      if (d1El) d1El.value = diary.d1 || '';
+      if (d2El) d2El.value = diary.d2 || '';
+      if (d3El) d3El.value = diary.d3 || '';
+      if (diary.d1 || diary.d2 || diary.d3) {
+        var emptyEl = document.getElementById('diary-empty');
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (typeof analyzeDiary === 'function') analyzeDiary();
+      }
+    }
+
+    /* 2) 스토리 로그 */
+    var storyRaw = localStorage.getItem(sectionKey('story'));
+    if (storyRaw) {
+      var st = JSON.parse(storyRaw);
+      var s1El = document.getElementById('story-input-1');
+      var s2El = document.getElementById('story-input-2');
+      var s3El = document.getElementById('story-input-3');
+      if (s1El) s1El.value = st.s1 || '';
+      if (s2El) s2El.value = st.s2 || '';
+      if (s3El) s3El.value = st.s3 || '';
+    }
+
+    /* 3) 필사 노트 */
+    var actStoryRaw = localStorage.getItem(sectionKey('actstory'));
+    if (actStoryRaw) {
+      var as = JSON.parse(actStoryRaw);
+      var asInputEl = document.getElementById('act-story-input');
+      var asDoneEl  = document.getElementById('act-story-done');
+      var asDoneTextEl = document.getElementById('act-story-done-text');
+      if (asInputEl) asInputEl.value = as.input || '';
+      if (asDoneEl && as.doneVisible) asDoneEl.style.display = 'block';
+      if (asDoneTextEl && as.doneText) asDoneTextEl.textContent = as.doneText;
+      if (typeof actStoryCheck === 'function') actStoryCheck();
+    }
+
+    /* 4) 미션 노트 */
+    var missionRaw = localStorage.getItem(sectionKey('mission'));
+    if (missionRaw) {
+      var ms = JSON.parse(missionRaw);
+      var msNoteEl   = document.getElementById('act-mission-note');
+      var msSavedEl  = document.getElementById('act-mission-note-saved');
+      var msSavedTxt = document.getElementById('act-mission-note-text');
+      if (msNoteEl) msNoteEl.value = ms.note || '';
+      if (msSavedEl && ms.savedVisible) msSavedEl.style.display = 'block';
+      if (msSavedTxt && ms.savedText) msSavedTxt.textContent = ms.savedText;
+    }
+
+    /* 5) 자기소개서 */
+    var cvRaw = localStorage.getItem(sectionKey('cv'));
+    if (cvRaw) {
+      var cv = JSON.parse(cvRaw);
+      var cvFields = {
+        'cv-name': cv.name, 'cv-exp': cv.exp,
+        'cv-recovery': cv.recovery, 'cv-goal': cv.goal, 'cv-field': cv.field
+      };
+      Object.keys(cvFields).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && cvFields[id]) el.value = cvFields[id];
+      });
+      if (typeof cvCheck === 'function') cvCheck();
+    }
+
+    /* 6) 강점 선택 */
+    var strengthRaw = localStorage.getItem(sectionKey('strength'));
+    if (strengthRaw) {
+      var strengths = JSON.parse(strengthRaw);
+      document.querySelectorAll('#act-strength [data-s]').forEach(function(btn) {
+        if (strengths.indexOf(btn.dataset.s) >= 0) {
+          btn.style.background  = '#FEF3C7';
+          btn.style.borderColor = '#F59E0B';
+          btn.style.fontWeight  = '700';
+        }
+      });
+      if (typeof actStrengthPick === 'function') {
+        /* 카운트 메시지 갱신 */
+        var msg = document.getElementById('strength-count-msg');
+        var nextBtn = document.getElementById('strength-next-btn');
+        var count = strengths.length;
+        if (msg) msg.textContent = count + '개 선택됨' + (count < 3 ? ' (최소 3개 이상 선택해주세요)' : ' - 다음 단계로 이동하세요!');
+        if (nextBtn) { nextBtn.disabled = count < 3; nextBtn.style.opacity = count >= 3 ? '1' : '0.4'; nextBtn.style.cursor = count >= 3 ? 'pointer' : 'not-allowed'; }
+      }
+    }
+
+  } catch(e) { console.warn('loadAllSections error:', e); }
+}
+
+/* ── 로그아웃 시 UI 초기화 (localStorage는 보존) ── */
+function clearAllSectionsUI() {
+  try {
+    /* 일기 */
+    ['diary-1','diary-2','diary-3'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    var diaryEmpty = document.getElementById('diary-empty');
+    if(diaryEmpty) diaryEmpty.style.display = 'block';
+    var diaryResult = document.getElementById('diary-result');
+    if(diaryResult) diaryResult.style.display = 'none';
+    var diaryPreview = document.getElementById('diary-preview');
+    if(diaryPreview) diaryPreview.style.display = 'none';
+
+    /* 스토리 로그 */
+    ['story-input-1','story-input-2','story-input-3'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+
+    /* 필사 노트 */
+    var asIn = document.getElementById('act-story-input'); if(asIn) asIn.value='';
+    var asDone = document.getElementById('act-story-done'); if(asDone) asDone.style.display='none';
+    var asBtn = document.getElementById('act-story-btn');
+    if(asBtn){ asBtn.textContent='나의 스토리 저장하기'; asBtn.disabled=true; asBtn.style.opacity='0.4'; asBtn.style.cursor='not-allowed'; }
+
+    /* 미션 노트 */
+    var msNote = document.getElementById('act-mission-note'); if(msNote) msNote.value='';
+    var msSaved = document.getElementById('act-mission-note-saved'); if(msSaved) msSaved.style.display='none';
+
+    /* 자기소개서 */
+    ['cv-name','cv-exp','cv-recovery','cv-goal','cv-field'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+
+    /* 강점 선택 */
+    document.querySelectorAll('#act-strength [data-s]').forEach(function(btn){
+      btn.style.background='var(--bg)'; btn.style.borderColor='var(--border)'; btn.style.fontWeight='400';
+    });
+    var msg = document.getElementById('strength-count-msg'); if(msg) msg.textContent='0개 선택됨 (최소 3개 이상 선택해주세요)';
+    var nextBtn = document.getElementById('strength-next-btn'); if(nextBtn){ nextBtn.disabled=true; nextBtn.style.opacity='0.4'; nextBtn.style.cursor='not-allowed'; }
+
+  } catch(e) { console.warn('clearAllSectionsUI error:', e); }
+}
+
+/* ── 입력 시 자동 저장 이벤트 바인딩 (DOMContentLoaded 이후) ── */
+document.addEventListener('DOMContentLoaded', function() {
+  var autoSaveIds = [
+    'diary-1','diary-2','diary-3',
+    'story-input-1','story-input-2','story-input-3',
+    'act-story-input',
+    'act-mission-note',
+    'cv-name','cv-exp','cv-recovery','cv-goal','cv-field'
+  ];
+  autoSaveIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', function() {
+      if (localStorage.getItem('rbu_email')) saveAllSections();
+    });
+  });
+  /* 강점 버튼은 actStrengthPick 호출 후 저장 — 아래 패치 */
+});
 </script>
 
 <script>
@@ -2312,6 +2551,7 @@ function actStrengthPick(btn) {
   var nextBtn = document.getElementById('strength-next-btn');
   if (msg) msg.textContent = count + '개 선택됨' + (count < 3 ? ' (최소 3개 이상 선택해주세요)' : ' - 다음 단계로 이동하세요!');
   if (nextBtn) { nextBtn.disabled = count < 3; nextBtn.style.opacity = count >= 3 ? '1' : '0.4'; nextBtn.style.cursor = count >= 3 ? 'pointer' : 'not-allowed'; }
+  if (localStorage.getItem('rbu_email') && typeof saveAllSections === 'function') saveAllSections();
 }
 function strengthGoStep2() {
   var sel = [...document.querySelectorAll('#act-strength [data-s]')].filter(function(b) { return b.style.fontWeight === '700'; }).map(function(b) { return '#' + b.dataset.s; });
@@ -3915,19 +4155,28 @@ function actMentorMatch() {
       managerBtn.style.display = 'none';
     }
 
+    /* 스탬프 누적 기록 불러오기 */
+    try {
+      initStamp();
+    } catch(e) {}
+
     /* 포트폴리오 누적 기록 불러오기 */
     try {
       loadPfStories();
       renderStoryPortfolio();
     } catch(e) {}
+
+    /* 모든 섹션 기록 복원 */
+    try {
+      loadAllSections();
+    } catch(e) {}
   }
 
   /* ── 로그아웃 ──────────────────────── */
   function doLogout() {
-    /* 1) 현재 유저 세션 데이터 삭제 (회원DB rbu_users는 유지) */
+    /* 1) 현재 유저 세션 데이터 삭제 (회원DB·스탬프·포트폴리오는 유지) */
     localStorage.removeItem('rbu_email');
     localStorage.removeItem('rbu_name');
-    localStorage.removeItem('rbu_stamp');
 
     /* 2) 헤더 UI 초기화 */
     document.getElementById('google-login-btn').style.display = 'flex';
@@ -3936,40 +4185,28 @@ function actMentorMatch() {
     document.getElementById('user-avatar-circle').textContent = '?';
     document.getElementById('manager-btn').style.display = 'none';
 
-    /* 3) 스탬프 UI 초기화 */
+    /* 3) 스탬프 UI만 초기화 (localStorage 기록은 보존) */
     try {
-      var stampsEl = document.querySelectorAll('.stamp-cell');
-      stampsEl.forEach(function(el){ el.classList.remove('stamped'); });
-      var cntEl = document.getElementById('stamp-count');
-      if(cntEl) cntEl.textContent = '0';
+      renderStampGrid(0);
+      renderTree(0);
+      updateStampBadge(0);
+      var stampBtn = document.getElementById('stamp-btn');
+      if(stampBtn){ stampBtn.style.display='block'; stampBtn.textContent='🌿 오늘 출석 도장 찍기'; stampBtn.style.background='linear-gradient(135deg,#10B981,#34D399)'; }
+      var alreadyMsg = document.getElementById('stamp-already-msg');
+      if(alreadyMsg) alreadyMsg.style.display='none';
     } catch(e){}
 
-    /* 4) 필사 노트 초기화 */
-    try {
-      var storyInput = document.getElementById('act-story-input');
-      if(storyInput) storyInput.value = '';
-      var storyDone = document.getElementById('act-story-done');
-      if(storyDone) storyDone.style.display = 'none';
-      var storyBtn = document.getElementById('act-story-btn');
-      if(storyBtn){ storyBtn.textContent = '나의 스토리 저장하기'; storyBtn.disabled = true; storyBtn.style.opacity='0.4'; storyBtn.style.cursor='not-allowed'; }
-    } catch(e){}
+    /* 4) 모든 섹션 UI 초기화 (localStorage 기록은 보존) */
+    try { clearAllSectionsUI(); } catch(e){}
 
-    /* 5) 미션 노트 초기화 */
-    try {
-      var missionNote = document.getElementById('act-mission-note');
-      if(missionNote) missionNote.value = '';
-      var missionSaved = document.getElementById('act-mission-note-saved');
-      if(missionSaved) missionSaved.style.display = 'none';
-    } catch(e){}
-
-    /* 6) 포트폴리오 — in-memory 배열만 비우기 (localStorage는 유지, 다음 로그인 때 복원) */
+    /* 5) 포트폴리오 — in-memory 배열만 비우기 (localStorage는 유지, 다음 로그인 때 복원) */
     try {
       pfStories = [];
       var pfList = document.getElementById('pf-story-list');
       if(pfList) pfList.innerHTML = '';
     } catch(e){}
 
-    /* 7) 진단 결과 초기화 */
+    /* 6) 진단 결과 초기화 */
     try {
       var diagResult = document.getElementById('act-diag-result');
       if(diagResult) diagResult.style.display = 'none';
