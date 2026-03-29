@@ -744,19 +744,118 @@ let MEMBERS = NAMES.map((name,i)=>{
     if(found) realEmail = found[0];
   } catch(e){}
 
+  // 실제 회원이면 실제 활동 데이터 로드
+  let realData = null;
+  if(realEmail) {
+    realData = loadRealUserData(realEmail);
+  }
+
   return {
     id:i+1, name,
     email: realEmail || `${name.replace(/\s/g,'')}@email.com`,
-    section: lastActiveSec,
-    resilience:rnd(48,96),
-    career:rnd(30,92),
-    lastDate: realEmail ? fmtDate(today()) : fmtDate(addDays(today(),-rnd(0,14))),
-    status: realEmail ? '신규' : statuses[rnd(0,4)],
+    section: realData ? realData.section : lastActiveSec,
+    resilience: realData ? realData.resilience : rnd(48,96),
+    career: realData ? realData.career : rnd(30,92),
+    lastDate: realData ? realData.lastDate : fmtDate(addDays(today(),-rnd(0,14))),
+    status: realEmail ? (realData && realData.active ? '활성' : '신규') : statuses[rnd(0,4)],
     avColor: AV_COLORS[i%AV_COLORS.length],
-    responses:resps,
+    responses: realData ? realData.responses : resps,
+    realActivities: realData ? realData.activities : null,
     phone:`010-${rnd(1000,9999)}-${rnd(1000,9999)}`
   };
 });
+
+/* 실제 회원의 활동 데이터를 localStorage에서 읽어오는 함수 */
+function loadRealUserData(email) {
+  try {
+    const today_str = fmtDate(today());
+    let activities = {};
+    let lastDate = today_str;
+    let active = false;
+
+    // 1) 출석 스탬프
+    const stampRaw = localStorage.getItem('rbu_stamp_' + email);
+    const stamp = stampRaw ? JSON.parse(stampRaw) : { count: 0, dates: [] };
+    activities.stamp = stamp;
+    if(stamp.count > 0) active = true;
+
+    // 2) 스토리 로그
+    const storyRaw = localStorage.getItem('rbu_storylog_' + email);
+    const storyLogs = storyRaw ? JSON.parse(storyRaw) : [];
+    activities.storyLogs = storyLogs;
+    if(storyLogs.length > 0){ active = true; lastDate = storyLogs[storyLogs.length-1].date || today_str; }
+
+    // 3) 독서 포트폴리오
+    const bookRaw = localStorage.getItem('rbu_booklog_' + email);
+    const bookLogs = bookRaw ? JSON.parse(bookRaw) : [];
+    activities.bookLogs = bookLogs;
+    if(bookLogs.length > 0) active = true;
+
+    // 4) 회복 체크인 일기
+    const diaryRaw = localStorage.getItem('rbu_sec_diary_' + email);
+    const diary = diaryRaw ? JSON.parse(diaryRaw) : {};
+    activities.diary = diary;
+    if(diary.d1 || diary.d2 || diary.d3) active = true;
+
+    // 5) 미션 노트
+    const missionRaw = localStorage.getItem('rbu_sec_mission_' + email);
+    const mission = missionRaw ? JSON.parse(missionRaw) : {};
+    activities.mission = mission;
+    if(mission.savedText) active = true;
+
+    // 6) 강점 선택
+    const strengthRaw = localStorage.getItem('rbu_sec_strength_' + email);
+    const strengths = strengthRaw ? JSON.parse(strengthRaw) : [];
+    activities.strengths = strengths;
+    if(strengths.length > 0) active = true;
+
+    // 7) 자기소개서
+    const cvRaw = localStorage.getItem('rbu_sec_cv_' + email);
+    const cv = cvRaw ? JSON.parse(cvRaw) : {};
+    activities.cv = cv;
+    if(cv.name) active = true;
+
+    // 8) 포트폴리오 직접 저장
+    const pfRaw = localStorage.getItem('rbu_pf_' + email);
+    const pfStories = pfRaw ? JSON.parse(pfRaw) : [];
+    activities.pfStories = pfStories;
+    if(pfStories.length > 0) active = true;
+
+    // 활동 수 기반으로 회복탄력성·진로준비도 계산
+    const actCount = storyLogs.length + bookLogs.length + stamp.count + pfStories.length;
+    const resilience = Math.min(95, 40 + actCount * 5 + (stamp.count * 3));
+    const career = Math.min(95, 30 + storyLogs.length * 8 + bookLogs.length * 6 + (cv.goal ? 15 : 0) + strengths.length * 2);
+
+    // 현재 섹션 추정 (가장 최근 활동 기준)
+    let section = 'B';
+    if(strengths.length > 0) section = 'I';
+    if(storyLogs.length > 0) section = 'U';
+    if(cv.goal) section = 'D';
+    if(bookLogs.length > 0) section = 'L';
+
+    // SECTIONS 응답으로 변환 (실제 데이터 기반)
+    const responses = {};
+    if(diary.d1 || diary.d2 || diary.d3) {
+      responses['B'] = [{ date: today_str, text: [diary.d1, diary.d2, diary.d3].filter(Boolean).join(' / '), score: resilience }];
+    }
+    if(storyLogs.length > 0) {
+      responses['U'] = storyLogs.map(s=>({ date: s.date || today_str, text: (s.recovery||'') + ' ' + (s.experience||''), score: rnd(60,95) }));
+    }
+    if(strengths.length > 0) {
+      responses['I'] = [{ date: today_str, text: '선택 강점: ' + strengths.join(', '), score: rnd(65,95) }];
+    }
+    if(bookLogs.length > 0) {
+      responses['L'] = bookLogs.map(b=>({ date: b.date || today_str, text: '📚 ' + (b.title||'') + ': ' + (b.summary||''), score: rnd(60,90) }));
+    }
+    if(cv.goal) {
+      responses['D'] = [{ date: today_str, text: '진로목표: ' + (cv.goal||'') + (cv.field ? ' / 분야: ' + cv.field : ''), score: career }];
+    }
+
+    return { activities, resilience, career, section, lastDate, active, responses };
+  } catch(e) {
+    return null;
+  }
+}
 
 /* ══════════════════════════════════════════
    SIDEBAR NAV
@@ -1133,7 +1232,79 @@ function renderMemberDetail(id){
           </div>
         </div>`;
       }).join('')}
-    </div>`;
+    </div>
+
+    ${m.realActivities ? `
+    <!-- 실제 활동 데이터 상세 -->
+    <div class="card" style="margin-top:16px;padding:20px 24px">
+      <div style="font-size:13px;font-weight:800;margin-bottom:16px">📋 실제 활동 기록</div>
+
+      ${m.realActivities.stamp && m.realActivities.stamp.count > 0 ? `
+      <div style="margin-bottom:16px;padding:14px 16px;background:#F0FDF4;border-radius:12px;border-left:4px solid #10B981;">
+        <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:6px;">🌿 출석 스탬프</div>
+        <div style="font-size:13px;color:#374151;">총 <strong>${m.realActivities.stamp.count}회</strong> 출석 · 최근 날짜: ${m.realActivities.stamp.dates.slice(-1)[0]||'-'}</div>
+      </div>` : ''}
+
+      ${m.realActivities.storyLogs && m.realActivities.storyLogs.length > 0 ? `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#6366F1;margin-bottom:8px;">📝 스토리 로그 (${m.realActivities.storyLogs.length}건 · 최근 5건 표시)</div>
+        ${m.realActivities.storyLogs.slice(-5).reverse().map(s=>`
+        <div style="padding:10px 14px;background:#F5F3FF;border-radius:10px;border-left:3px solid #6366F1;margin-bottom:6px;">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">${s.date||''}</div>
+          ${s.recovery?`<div style="font-size:12px;color:#374151;margin-bottom:2px;"><span style="color:#10B981;font-weight:700;">💚 회복</span> ${s.recovery}</div>`:''}
+          ${s.experience?`<div style="font-size:12px;color:#374151;margin-bottom:2px;"><span style="color:#F59E0B;font-weight:700;">✨ 경험</span> ${s.experience}</div>`:''}
+          ${s.growth?`<div style="font-size:12px;color:#374151;"><span style="color:#6366F1;font-weight:700;">🌱 성장</span> ${s.growth}</div>`:''}
+        </div>`).join('')}
+        ${m.realActivities.storyLogs.length > 5 ? `<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;">+ ${m.realActivities.storyLogs.length-5}개 더 있음</div>` : ''}
+      </div>` : ''}
+
+      ${m.realActivities.bookLogs && m.realActivities.bookLogs.length > 0 ? `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#F59E0B;margin-bottom:8px;">📚 독서 포트폴리오 (${m.realActivities.bookLogs.length}권 전체)</div>
+        ${m.realActivities.bookLogs.slice().reverse().map(b=>`
+        <div style="padding:10px 14px;background:#FFFBEB;border-radius:10px;border-left:3px solid #F59E0B;margin-bottom:6px;">
+          <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:4px;">📖 ${b.title||'제목없음'} <span style="font-size:10px;color:var(--muted);font-weight:400;">${b.date||''}</span></div>
+          ${b.summary?`<div style="font-size:12px;color:#374151;margin-bottom:2px;">내용: ${b.summary}</div>`:''}
+          ${b.feeling?`<div style="font-size:12px;color:#374151;margin-bottom:2px;">느낀 점: ${b.feeling}</div>`:''}
+          ${b.lesson?`<div style="font-size:12px;color:#374151;">실천: ${b.lesson}</div>`:''}
+        </div>`).join('')}
+        
+      </div>` : ''}
+
+      ${m.realActivities.strengths && m.realActivities.strengths.length > 0 ? `
+      <div style="margin-bottom:16px;padding:14px 16px;background:#FFFBEB;border-radius:12px;border-left:4px solid #F59E0B;">
+        <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:8px;">💪 선택한 강점 (${m.realActivities.strengths.length}개)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${m.realActivities.strengths.map(s=>`<span style="background:#FEF3C7;color:#92400E;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;">#${s}</span>`).join('')}
+        </div>
+      </div>` : ''}
+
+      ${m.realActivities.cv && m.realActivities.cv.name ? `
+      <div style="margin-bottom:16px;padding:14px 16px;background:#EFF6FF;border-radius:12px;border-left:4px solid #3B82F6;">
+        <div style="font-size:12px;font-weight:700;color:#1E40AF;margin-bottom:8px;">📄 자기소개서 작성 완료</div>
+        ${m.realActivities.cv.field?`<div style="font-size:12px;color:#374151;margin-bottom:3px;">관심 분야: <strong>${m.realActivities.cv.field}</strong></div>`:''}
+        ${m.realActivities.cv.goal?`<div style="font-size:12px;color:#374151;margin-bottom:3px;">진로 목표: <strong>${m.realActivities.cv.goal}</strong></div>`:''}
+        ${m.realActivities.cv.exp?`<div style="font-size:12px;color:#374151;">강점 경험: ${m.realActivities.cv.exp}</div>`:''}
+      </div>` : ''}
+
+      ${m.realActivities.mission && m.realActivities.mission.savedText ? `
+      <div style="padding:14px 16px;background:#FFF1F2;border-radius:12px;border-left:4px solid #EC4899;">
+        <div style="font-size:12px;font-weight:700;color:#9D174D;margin-bottom:6px;">🎯 미션 완료</div>
+        <div style="font-size:12px;color:#374151;">${m.realActivities.mission.savedText}</div>
+      </div>` : ''}
+
+      ${(!m.realActivities.stamp || m.realActivities.stamp.count===0) &&
+        (!m.realActivities.storyLogs || m.realActivities.storyLogs.length===0) &&
+        (!m.realActivities.bookLogs || m.realActivities.bookLogs.length===0) &&
+        (!m.realActivities.strengths || m.realActivities.strengths.length===0) &&
+        (!m.realActivities.cv || !m.realActivities.cv.name) &&
+        (!m.realActivities.mission || !m.realActivities.mission.savedText) ? `
+      <div style="text-align:center;padding:24px;color:var(--muted);">
+        <div style="font-size:32px;margin-bottom:8px;">📭</div>
+        <div style="font-size:13px;font-weight:600;">아직 활동 기록이 없습니다</div>
+        <div style="font-size:12px;margin-top:4px;">홈페이지에서 활동을 완료하면 여기에 표시됩니다.</div>
+      </div>` : ''}
+    </div>` : ''}`;
 }
 
 /* ══════════════════════════════════════════
