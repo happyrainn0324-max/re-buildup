@@ -3449,12 +3449,12 @@ function actMentorMatch() {
             <p style="font-weight:500;font-size:16px;color:var(--muted);letter-spacing:0.04em;">Jo Yu Jin</p>
           </div>
         </div>
-        <p style="color:#6366F1;font-size:14px;font-weight:700;margin-bottom:4px;">회복적 진로설계 플랫폼 총괄 책임자</p>
+        <p style="color:#6366F1;font-size:14px;font-weight:700;margin-bottom:4px;">회복 기반 진로설계 플랫폼 총괄 책임자</p>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
           <p style="color:var(--muted);font-size:16px;font-weight:600;">RE-BUILD-UP · Director</p>
         </div>
         <p style="color:var(--muted);font-size:15px;line-height:1.9;margin-bottom:24px;">
-          청소년 회복적 진로설계 모델 RE-BUILD-UP 개발 총괄
+          청소년 회복 기반 진로설계 모델 RE-BUILD-UP 개발 총괄
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:12px;">
           <a href="/cdn-cgi/l/email-protection#dab2bbaaaaa3a8bbb3b4b4eae9e8ee9abdb7bbb3b6f4b9b5b7" style="display:inline-flex;align-items:center;gap:8px;background:#6366F112;color:#6366F1;font-size:14px;font-weight:600;padding:10px 20px;border-radius:99px;border:1px solid #6366F133;">
@@ -3483,7 +3483,7 @@ function actMentorMatch() {
 </footer>
 
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   // Dark mode
   let isDark = false;
   function toggleDark() {
@@ -4660,4 +4660,14 @@ function actMentorMatch() {
     document.body.appendChild(t);
     requestAnimationFrame(function() {
       t.style.opacity = '1';
-      t.style.transform = 'tra
+      t.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    setTimeout(function() {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(20px)';
+      setTimeout(function() { t.remove(); }, 350);
+    }, 3200);
+  }
+</script>
+</body>
+</html>
