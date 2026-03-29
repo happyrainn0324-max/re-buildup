@@ -4545,7 +4545,19 @@ function actMentorMatch() {
       /* 로그인 */
       var users = JSON.parse(localStorage.getItem('rbu_users') || '{}');
       var user  = users[email];
-      if (!user || atob(user.pw) !== pw) {
+      if (!user) {
+        /* 기존 가입자 데이터 유실 시 자동 복구: 첫 로그인으로 계정 생성 */
+        var defaultName = email.split('@')[0];
+        users[email] = { name: defaultName, pw: btoa(pw) };
+        localStorage.setItem('rbu_users', JSON.stringify(users));
+        localStorage.setItem('rbu_email', email);
+        localStorage.setItem('rbu_name',  defaultName);
+        showLoggedIn(defaultName, email);
+        closeLoginModal();
+        showToast('✅ 로그인 되었습니다. 반갑습니다, ' + defaultName + '님!');
+        return;
+      }
+      if (atob(user.pw) !== pw) {
         showError('이메일 또는 비밀번호가 올바르지 않습니다.');
         return;
       }
