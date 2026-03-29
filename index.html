@@ -1001,6 +1001,179 @@ window.addEventListener('resize', function() {
 });
 </script>
 
+<!-- 오늘의 행복 클리닉 섹션 -->
+<section style="padding:0 0 40px;background:var(--bg);">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
+    <p style="font-size:22px;font-weight:700;color:var(--muted);padding:16px 0 12px;letter-spacing:0.04em;">🌈 오늘의 행복 클리닉</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+      <!-- 왼쪽: 나를 행복하게 하는 것들 -->
+      <div class="card" style="padding:28px 24px;">
+        <h3 style="font-size:17px;font-weight:800;margin-bottom:6px;color:var(--fg);">💛 나를 행복하게 하는 것들</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">클릭하면 오늘의 행복 에너지가 활성화됩니다 ✨</p>
+        <div id="happy-items-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;grid-auto-rows:1fr;">
+          <!-- JS로 렌더링 -->
+        </div>
+        <div id="happy-selected-msg" style="display:none;margin-top:18px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,#FEF3C7,#FFF7ED);border:1.5px solid #FDE68A;font-size:14px;font-weight:600;color:#92400E;line-height:1.7;"></div>
+      </div>
+
+      <!-- 오른쪽: 오늘의 버킷리스트 -->
+      <div class="card" style="padding:28px 24px;">
+        <h3 style="font-size:17px;font-weight:800;margin-bottom:6px;color:var(--fg);">🌟 오늘의 버킷리스트</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">하고 싶은 것을 적는 것만으로 행복감이 올라갑니다 🪄</p>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <!-- 버킷 1 -->
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="min-width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#818CF8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px;box-shadow:0 3px 10px #6366F133;flex-shrink:0;">1</div>
+            <textarea id="bucket-1" placeholder="오늘 하고 싶은 것을 자유롭게 적어보세요 🌸" oninput="saveBucket()" style="flex:1;min-height:72px;border-radius:12px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:14px;padding:12px 14px;font-family:inherit;resize:none;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          </div>
+          <!-- 버킷 2 -->
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="min-width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10B981,#34D399);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px;box-shadow:0 3px 10px #10B98133;flex-shrink:0;">2</div>
+            <textarea id="bucket-2" placeholder="두 번째 소망을 적어보세요 🌿" oninput="saveBucket()" style="flex:1;min-height:72px;border-radius:12px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:14px;padding:12px 14px;font-family:inherit;resize:none;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#10B981'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          </div>
+          <!-- 버킷 3 -->
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="min-width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#FBBF24);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px;box-shadow:0 3px 10px #F59E0B33;flex-shrink:0;">3</div>
+            <textarea id="bucket-3" placeholder="세 번째 꿈을 적어보세요 💫" oninput="saveBucket()" style="flex:1;min-height:72px;border-radius:12px;border:1.5px solid var(--border);background:var(--muted-bg);color:var(--fg);font-size:14px;padding:12px 14px;font-family:inherit;resize:none;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#F59E0B'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          </div>
+        </div>
+        <button onclick="completeBucket()" style="display:block;width:100%;margin-top:18px;padding:13px;border-radius:14px;background:linear-gradient(135deg,#6674CC,#8B9FE8);border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px #6674CC33;letter-spacing:0.02em;">✅ 버킷리스트 작성완료</button>
+        <div id="bucket-complete" style="display:none;margin-top:14px;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,#FFF0F5,#FFE4EF);border:2px solid #FFADD2;text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">🎉</div>
+          <p style="font-size:15px;font-weight:800;color:#9D174D;margin:0 0 4px;">행복에너지 충전 완료!</p>
+          <p style="font-size:12px;color:#BE185D;margin:0;line-height:1.6;">세 가지 소망을 모두 담았어요.<br/>오늘 하루가 더욱 빛날 거예요 ✨</p>
+        </div>
+        <p style="margin-top:14px;font-size:12px;color:var(--muted);text-align:center;line-height:1.7;">✨ 반드시 실천하지 않아도 괜찮아요.<br/>적는 것만으로 마음이 설레는 오늘이 됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ── 행복 클리닉 ──────────────────── */
+(function(){
+  var happyItems = [
+    { emoji: '🍜', label: '맛있는 음식' },
+    { emoji: '🎵', label: '좋아하는 음악' },
+    { emoji: '📚', label: '책 읽기' },
+    { emoji: '🌸', label: '꽃 보기' },
+    { emoji: '🚶', label: '산책하기' },
+    { emoji: '🌅', label: '일출·일몰 보기' },
+    { emoji: '🍳', label: '요리하기' },
+    { emoji: '😴', label: '낮잠 자기' },
+    { emoji: '🎨', label: '그림 그리기' },
+    { emoji: '🤗', label: '친구와 수다' },
+    { emoji: '🐶', label: '동물과 놀기' },
+    { emoji: '🌿', label: '자연 속에서' },
+    { emoji: '🛁', label: '따뜻한 목욕' },
+    { emoji: '🎬', label: '영화 보기' },
+    { emoji: '🍰', label: '달콤한 디저트' },
+    { emoji: '✍️', label: '일기 쓰기' },
+    { emoji: '🧘', label: '명상·요가' },
+    { emoji: '🌙', label: '밤하늘 보기' },
+    { emoji: '💌', label: '편지 쓰기' },
+    { emoji: '🎮', label: '게임하기' },
+    { emoji: '🎧', label: '음악 듣기' },
+    { emoji: '🌊', label: '물소리 듣기' },
+    { emoji: '🧁', label: '베이킹하기' },
+    { emoji: '🌷', label: '꽃 가꾸기' },
+    { emoji: '🏃', label: '달리기' },
+    { emoji: '🎁', label: '선물 주기' },
+    { emoji: '🛍️', label: '쇼핑하기' },
+    { emoji: '📷', label: '사진 찍기' },
+    { emoji: '🍵', label: '차 마시기' },
+    { emoji: '🌻', label: '햇살 느끼기' }
+  ];
+
+  var msgs = [
+    '오늘도 소소한 행복이 나를 지켜줍니다 🌸',
+    '이것만으로도 오늘은 충분히 아름다워요 ✨',
+    '작은 기쁨이 모여 큰 회복이 됩니다 🌿',
+    '당신의 행복을 응원합니다! 💛',
+    '행복을 느끼는 순간, 회복이 시작됩니다 🌈'
+  ];
+
+  var selected = {};
+
+  function render() {
+    var grid = document.getElementById('happy-items-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    happyItems.forEach(function(item, idx) {
+      var btn = document.createElement('button');
+      btn.title = item.label;
+      var isOn = selected[idx];
+      var charLen = item.label.length;
+      var fs = charLen > 5 ? '11px' : '12px';
+      btn.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 6px;border-radius:12px;border:1.5px solid ' + (isOn ? '#6366F1' : 'var(--border)') + ';background:' + (isOn ? 'linear-gradient(135deg,#EEF2FF,#E0E7FF)' : 'var(--bg)') + ';font-size:' + fs + ';font-weight:600;cursor:pointer;font-family:inherit;color:' + (isOn ? '#4F46E5' : 'var(--muted)') + ';transition:all 0.2s;width:100%;height:100%;min-height:42px;text-align:center;box-sizing:border-box;white-space:nowrap;overflow:hidden;';
+      btn.innerHTML = item.emoji + ' ' + item.label;
+      btn.onclick = function() {
+        selected[idx] = !selected[idx];
+        render();
+        showMsg();
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  function showMsg() {
+    var el = document.getElementById('happy-selected-msg');
+    if (!el) return;
+    var count = Object.values(selected).filter(Boolean).length;
+    if (count === 0) { el.style.display = 'none'; return; }
+    var picked = [];
+    happyItems.forEach(function(item, idx) { if (selected[idx]) picked.push(item.emoji + ' ' + item.label); });
+    var msg = msgs[Math.floor(Math.random() * msgs.length)];
+    el.innerHTML = '오늘 나를 행복하게 하는 것: <strong>' + picked.join(', ') + '</strong><br/>' + msg;
+    el.style.display = 'block';
+  }
+
+  function saveBucket() {
+    var email = localStorage.getItem('rbu_email') || 'guest';
+    var b1 = (document.getElementById('bucket-1') || {}).value || '';
+    var b2 = (document.getElementById('bucket-2') || {}).value || '';
+    var b3 = (document.getElementById('bucket-3') || {}).value || '';
+    var data = { b1: b1, b2: b2, b3: b3 };
+    localStorage.setItem('rbu_bucket_' + email, JSON.stringify(data));
+  }
+
+  function completeBucket() {
+    var b1 = (document.getElementById('bucket-1') || {}).value || '';
+    var b2 = (document.getElementById('bucket-2') || {}).value || '';
+    var b3 = (document.getElementById('bucket-3') || {}).value || '';
+    var complete = document.getElementById('bucket-complete');
+    if (!complete) return;
+    if (b1.trim() && b2.trim() && b3.trim()) {
+      saveBucket();
+      complete.style.display = 'block';
+      complete.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      alert('세 가지 버킷리스트를 모두 입력해주세요 🌸');
+    }
+  }
+
+  function loadBucket() {
+    var email = localStorage.getItem('rbu_email') || 'guest';
+    try {
+      var data = JSON.parse(localStorage.getItem('rbu_bucket_' + email) || '{}');
+      if (document.getElementById('bucket-1')) document.getElementById('bucket-1').value = data.b1 || '';
+      if (document.getElementById('bucket-2')) document.getElementById('bucket-2').value = data.b2 || '';
+      if (document.getElementById('bucket-3')) document.getElementById('bucket-3').value = data.b3 || '';
+    } catch(e) {}
+  }
+
+  window.saveBucket = saveBucket;
+  window.completeBucket = completeBucket;
+
+  window.addEventListener('DOMContentLoaded', function() {
+    render();
+    loadBucket();
+  });
+})();
+</script>
+
+
 <!-- ABOUT — BUILD 모델 -->
 <section id="about" style="background:var(--muted-bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
   <div class="section-inner">
@@ -2353,6 +2526,11 @@ function clearAllSectionsUI() {
     var msg = document.getElementById('strength-count-msg'); if(msg) msg.textContent='0개 선택됨 (최소 3개 이상 선택해주세요)';
     var nextBtn = document.getElementById('strength-next-btn'); if(nextBtn){ nextBtn.disabled=true; nextBtn.style.opacity='0.4'; nextBtn.style.cursor='not-allowed'; }
 
+    /* 버킷리스트 초기화 */
+    ['bucket-1','bucket-2','bucket-3'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    var bucketComplete = document.getElementById('bucket-complete');
+    if(bucketComplete) bucketComplete.style.display='none';
+
   } catch(e) { console.warn('clearAllSectionsUI error:', e); }
 }
 
@@ -3457,8 +3635,8 @@ function actMentorMatch() {
           청소년 회복 기반 진로설계 모델 RE-BUILD-UP 개발 총괄
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:12px;">
-          <a href="mailto:eunkyung@ishinjeong.icems.kr" style="display:inline-flex;align-items:center;gap:8px;background:#6366F112;color:#6366F1;font-size:14px;font-weight:600;padding:10px 20px;border-radius:99px;border:1px solid #6366F133;">
-            ✉️ eunkyung@ishinjeong.icems.kr
+          <a href="mailto:happyrainn0324@gmail.com" style="display:inline-flex;align-items:center;gap:8px;background:#6366F112;color:#6366F1;font-size:14px;font-weight:600;padding:10px 20px;border-radius:99px;border:1px solid #6366F133;">
+            ✉️ happyrainn0324@gmail.com
           </a>
         </div>
       </div>
