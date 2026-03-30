@@ -4567,6 +4567,16 @@ function actMentorMatch() {
     <!-- 에러 메시지 -->
     <div id="login-error" style="display:none;background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#DC2626;text-align:left;"></div>
 
+    <!-- 기억된 계정 바 -->
+    <div id="remembered-account-bar" style="display:none;align-items:center;gap:10px;background:linear-gradient(135deg,#EEF2FF,#E0E7FF);border:1.5px solid #C7D2FE;border-radius:14px;padding:10px 14px;margin-bottom:16px;text-align:left;">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#818CF8);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;" id="remembered-avatar">?</div>
+      <div style="flex:1;min-width:0;">
+        <div id="remembered-name" style="font-size:13px;font-weight:700;color:#3730A3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+        <div id="remembered-email" style="font-size:12px;color:#6366F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+      </div>
+      <button onclick="clearRememberedAccount()" title="계정 변경" style="background:none;border:none;cursor:pointer;font-size:18px;color:#6366F1;padding:2px 4px;flex-shrink:0;line-height:1;" title="다른 계정 사용">✕</button>
+    </div>
+
     <!-- 탭: 로그인 / 회원가입 -->
     <div style="display:flex;background:var(--muted-bg);border-radius:14px;padding:4px;margin-bottom:22px;gap:4px;">
       <button id="tab-signin" onclick="switchAuthTab('signin')" style="flex:1;padding:9px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--card-bg);color:var(--fg);box-shadow:0 1px 4px rgba(0,0,0,0.08);transition:all 0.2s;">로그인</button>
@@ -4664,12 +4674,53 @@ function actMentorMatch() {
   function openLoginModal() {
     switchAuthTab('signin');
     clearError();
-    document.getElementById('login-modal-overlay').style.display = 'flex';
-    setTimeout(function() { document.getElementById('input-email').focus(); }, 120);
+
+    /* 저장된 이메일 자동 완성 */
+    var savedEmail = localStorage.getItem('rbu_email');
+    var savedName  = localStorage.getItem('rbu_name');
+    var emailInput = document.getElementById('input-email');
+    var rememberedBar = document.getElementById('remembered-account-bar');
+
+    if (savedEmail) {
+      emailInput.value = savedEmail;
+      if (rememberedBar) {
+        document.getElementById('remembered-name').textContent = savedName || savedEmail;
+        document.getElementById('remembered-email').textContent = savedEmail;
+        rememberedBar.style.display = 'flex';
+      }
+      setTimeout(function() { document.getElementById('input-password').focus(); }, 140);
+    } else {
+      emailInput.value = '';
+      if (rememberedBar) rememberedBar.style.display = 'none';
+      setTimeout(function() { emailInput.focus(); }, 140);
+    }
+
+    var overlay = document.getElementById('login-modal-overlay');
+    overlay.style.display = 'flex';
+    var card = overlay.querySelector('div');
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(18px) scale(0.97)';
+    card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0) scale(1)';
+      });
+    });
   }
 
   function closeLoginModal() {
     document.getElementById('login-modal-overlay').style.display = 'none';
+  }
+
+  /* 기억된 계정 지우기 */
+  function clearRememberedAccount() {
+    localStorage.removeItem('rbu_email');
+    localStorage.removeItem('rbu_name');
+    document.getElementById('remembered-account-bar').style.display = 'none';
+    document.getElementById('input-email').value = '';
+    document.getElementById('input-password').value = '';
+    setTimeout(function() { document.getElementById('input-email').focus(); }, 60);
   }
 
   /* ── 탭 전환 ──────────────────────────── */
@@ -4745,18 +4796,18 @@ function actMentorMatch() {
     if (currentTab === 'signup') {
       var name      = document.getElementById('input-name').value.trim();
       var confirmPw = document.getElementById('input-confirm-pw').value;
-      if (!name)          { showError('이름을 입력해주세요.'); return; }
+      if (!name)            { showError('이름을 입력해주세요.'); return; }
       if (pw !== confirmPw) { showError('비밀번호가 일치하지 않습니다.'); return; }
 
       /* 이미 가입된 이메일 확인 */
       var users = JSON.parse(localStorage.getItem('rbu_users') || '{}');
-      if (users[email]) { showError('이미 가입된 이메일입니다. 로그인을 이용해주세요.'); return; }
+      if (users[email]) { showError('이미 가입된 이메일입니다. 로그인 탭을 이용해주세요.'); return; }
 
-      /* 회원 저장 (비밀번호는 간이 해시 – 실제 서비스엔 bcrypt 등 사용) */
-      users[email] = { name: name, pw: btoa(pw) };
+      /* 회원 저장 */
+      users[email] = { name: name, pw: btoa(unescape(encodeURIComponent(pw))) };
       localStorage.setItem('rbu_users', JSON.stringify(users));
 
-      /* 자동 로그인 */
+      /* 세션 저장 후 자동 로그인 */
       localStorage.setItem('rbu_email', email);
       localStorage.setItem('rbu_name',  name);
       showLoggedIn(name, email);
@@ -4764,25 +4815,31 @@ function actMentorMatch() {
       showToast('🎉 회원가입 완료! 환영합니다, ' + name + '님!');
 
     } else {
-      /* 로그인 */
+      /* ── 로그인 ── */
       var users = JSON.parse(localStorage.getItem('rbu_users') || '{}');
       var user  = users[email];
+
       if (!user) {
-        /* 기존 가입자 데이터 유실 시 자동 복구: 첫 로그인으로 계정 생성 */
-        var defaultName = email.split('@')[0];
-        users[email] = { name: defaultName, pw: btoa(pw) };
-        localStorage.setItem('rbu_users', JSON.stringify(users));
-        localStorage.setItem('rbu_email', email);
-        localStorage.setItem('rbu_name',  defaultName);
-        showLoggedIn(defaultName, email);
-        closeLoginModal();
-        showToast('✅ 로그인 되었습니다. 반갑습니다, ' + defaultName + '님!');
+        showError('가입된 계정이 없습니다. 회원가입을 먼저 해주세요.');
+        /* 회원가입 탭으로 전환하고 이메일 유지 */
+        switchAuthTab('signup');
+        document.getElementById('input-email').value = email;
         return;
       }
-      if (atob(user.pw) !== pw) {
+
+      /* 비밀번호 검증 */
+      var storedPw = '';
+      try {
+        storedPw = decodeURIComponent(escape(atob(user.pw)));
+      } catch(e) {
+        storedPw = atob(user.pw); // fallback: 이전 btoa 방식
+      }
+      if (storedPw !== pw) {
         showError('이메일 또는 비밀번호가 올바르지 않습니다.');
         return;
       }
+
+      /* 세션 저장 */
       localStorage.setItem('rbu_email', email);
       localStorage.setItem('rbu_name',  user.name);
       showLoggedIn(user.name, email);
@@ -4808,6 +4865,10 @@ function actMentorMatch() {
     /* 아바타: 이름 첫 글자 */
     var initial = (name && name.length > 0) ? name.charAt(0).toUpperCase() : email.charAt(0).toUpperCase();
     document.getElementById('user-avatar-circle').textContent = initial;
+
+    /* 기억된 계정 바 아바타도 업데이트 */
+    var remAvatar = document.getElementById('remembered-avatar');
+    if (remAvatar) remAvatar.textContent = initial;
 
     /* 표시명 */
     document.getElementById('user-display-name').textContent = name || email;
@@ -4849,6 +4910,14 @@ function actMentorMatch() {
     document.getElementById('user-display-name').textContent = '';
     document.getElementById('user-avatar-circle').textContent = '?';
     document.getElementById('manager-btn').style.display = 'none';
+
+    /* 2-1) 모달 입력값 & 기억된 계정 바 초기화 */
+    var rememberedBar = document.getElementById('remembered-account-bar');
+    if (rememberedBar) rememberedBar.style.display = 'none';
+    var emailInput = document.getElementById('input-email');
+    if (emailInput) emailInput.value = '';
+    var pwInput = document.getElementById('input-password');
+    if (pwInput) pwInput.value = '';
 
     /* 3) 스탬프 UI만 초기화 (localStorage 기록은 보존) */
     try {
@@ -4894,4 +4963,15 @@ function actMentorMatch() {
     document.body.appendChild(t);
     requestAnimationFrame(function() {
       t.style.opacity = '1';
-      t.style.transform = 'tr
+      t.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    setTimeout(function() {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(20px)';
+      setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 350);
+    }, 3200);
+  }
+
+</script>
+</body>
+</html>
