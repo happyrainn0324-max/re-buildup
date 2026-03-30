@@ -350,9 +350,6 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
   <div class="sb-item" onclick="goto('by-section',this)">
     <span class="ic">📋</span>섹션별 응답
   </div>
-  <div class="sb-item" onclick="goto('by-date',this)">
-    <span class="ic">📅</span>일자별 응답
-  </div>
   <div class="sb-item" onclick="goto('member-detail-view',this)">
     <span class="ic">🔍</span>회원 상세
   </div>
@@ -463,12 +460,7 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
       <option value="L">L — Learn</option>
       <option value="D">D — Dream</option>
     </select>
-    <select class="fsel" onchange="filterMembers()" id="flt-status">
-      <option value="">전체 상태</option>
-      <option value="활성">활성</option>
-      <option value="신규">신규</option>
-      <option value="비활성">비활성</option>
-    </select>
+    
     <span style="font-size:12px;color:var(--muted);margin-left:4px">
       총 <b id="member-count-lbl">-</b>명
     </span>
@@ -478,8 +470,8 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
       <table>
         <thead>
           <tr>
-            <th>#</th><th>회원</th><th>이메일</th><th>현재 섹션</th>
-            <th>회복탄력성</th><th>진로준비도</th><th>마지막 활동</th><th>상태</th><th></th>
+<th>#</th><th>회원</th><th>이메일</th><th>현재 섹션</th>
+            <th>회복탄력성</th><th>진로준비도</th><th>마지막 활동</th><th></th>
           </tr>
         </thead>
         <tbody id="members-tbody"></tbody>
@@ -526,64 +518,6 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
   </div>
 
   <div id="sec-response-list"></div>
-</div>
-
-<!-- ────── 일자별 응답 ────── -->
-<div id="sec-by-date" class="section-area">
-  <div class="filter-row">
-    <select class="fsel" id="flt-date-sec" onchange="renderByDate()">
-      <option value="">전체 섹션</option>
-      <option value="B">B — Be</option>
-      <option value="U">U — Understand</option>
-      <option value="I">I — Identify</option>
-      <option value="L">L — Learn</option>
-      <option value="D">D — Dream</option>
-    </select>
-    <select class="fsel" id="flt-date-range" onchange="renderByDate()">
-      <option value="30">최근 30일</option>
-      <option value="60">최근 60일</option>
-      <option value="90">최근 90일</option>
-      <option value="all">전체</option>
-    </select>
-    <button class="btn btn-outline btn-sm" onclick="renderByDate()">🔄 새로고침</button>
-  </div>
-
-  <!-- 히트맵 -->
-  <div class="card" style="margin-bottom:18px">
-    <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:14px;font-weight:800">응답 히트맵</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">날짜별 응답량 시각화</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;font-size:10px;color:var(--muted)">
-        <span>적음</span>
-        <div style="display:flex;gap:2px">
-          <div class="hm-cell hm0" style="cursor:default"></div>
-          <div class="hm-cell hm1" style="cursor:default"></div>
-          <div class="hm-cell hm2" style="cursor:default"></div>
-          <div class="hm-cell hm3" style="cursor:default"></div>
-          <div class="hm-cell hm4" style="cursor:default"></div>
-        </div>
-        <span>많음</span>
-      </div>
-    </div>
-    <div style="padding:18px 20px" id="heatmap-wrap"></div>
-  </div>
-
-  <!-- 일자별 테이블 -->
-  <div class="card">
-    <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border)">
-      <div style="font-size:14px;font-weight:800">일자별 응답 상세</div>
-    </div>
-    <div class="tbl-wrap">
-      <table>
-        <thead>
-          <tr><th>날짜</th><th>총 응답</th><th>🟣 B</th><th>🟢 U</th><th>🟡 I</th><th>🩷 L</th><th>🔵 D</th><th>평균 점수</th><th>응답 회원</th></tr>
-        </thead>
-        <tbody id="date-tbody"></tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
 <!-- ────── 회원 상세 ────── -->
@@ -661,19 +595,88 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
 
 <script>
 /* ══════════════════════════════════════════
-   DATA GENERATION
+   CONSTANTS
 ══════════════════════════════════════════ */
 const SECTIONS = ['B','U','I','L','D'];
 const SEC_NAMES = {B:'Be (존재 발견)',U:'Understand (자기 이해)',I:'Identify (강점 발견)',L:'Learn (경험 학습)',D:'Dream (미래 설계)'};
 const SEC_EMOJI = {B:'🟣',U:'🟢',I:'🟡',L:'🩷',D:'🔵'};
 const SEC_COLOR = {B:'#6366F1',U:'#22C55E',I:'#F59E0B',L:'#EC4899',D:'#3B82F6'};
 const SEC_BG    = {B:'#EEF2FF',U:'#DCFCE7',I:'#FEF3C7',L:'#FCE7F3',D:'#DBEAFE'};
-const AV_COLORS = ['#6366F1','#22C55E','#F59E0B','#EC4899','#3B82F6','#8B5CF6','#14B8A6','#F97316','#EF4444','#6366F1'];
+const AV_COLORS = ['#6366F1','#22C55E','#F59E0B','#EC4899','#3B82F6','#8B5CF6','#14B8A6','#F97316','#EF4444','#84CC16'];
+const STORAGE_KEY = 'rbu_manager_members';
 
-const NAMES = [
-  '김지은'
-];
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[rnd(0,arr.length-1)];}
+function fmtDate(d){return d.toISOString().slice(0,10);}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function today(){return new Date();}
 
+/* ══════════════════════════════════════════
+   MEMBER STORE — localStorage 기반
+══════════════════════════════════════════ */
+function loadMembers(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  } catch(e){}
+  return null;
+}
+function saveMembers(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(MEMBERS));
+}
+
+/* index.html 가입자 데이터 읽기 */
+function syncFromIndex(){
+  // index.html의 localStorage 키 패턴: rbu_email, rbu_name
+  // 여러 계정은 rbu_accounts 에 배열로 저장됨
+  try {
+    const accounts = JSON.parse(localStorage.getItem('rbu_accounts') || '[]');
+    let changed = false;
+    accounts.forEach(function(acc) {
+      if(!MEMBERS.find(m=>m.email===acc.email)){
+        const newM = {
+          id: Date.now() + Math.random(),
+          name: acc.name || acc.email.split('@')[0],
+          email: acc.email,
+          phone: acc.phone || '–',
+          section: 'B',
+          resilience: 50, career: 40,
+          lastDate: fmtDate(today()),
+          avColor: AV_COLORS[MEMBERS.length % AV_COLORS.length],
+          responses: {},
+          checkin: [],    // 회복 체크인 [{date, d1, d2, d3, eScore, rScore, cScore}]
+          bucket: [],     // 버킷리스트 [{date, b1, b2, b3}]
+          passage: [],    // 필사 [{date, text, author}]
+          joinDate: acc.joinDate || fmtDate(today())
+        };
+        MEMBERS.push(newM);
+        changed = true;
+      }
+    });
+    // 기존 회원의 활동 데이터 동기화
+    MEMBERS.forEach(function(m){
+      const email = m.email;
+      // 회복 체크인
+      try {
+        const ciKeys = Object.keys(localStorage).filter(k=>k.startsWith('rbu_checkin_'+email));
+        m.checkin = ciKeys.map(k=>{try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}).filter(Boolean);
+      } catch(e){}
+      // 버킷리스트
+      try {
+        const bk = JSON.parse(localStorage.getItem('rbu_bucket_'+email)||'{}');
+        if(bk.b1||bk.b2||bk.b3) m.bucket = [{date:m.lastDate, b1:bk.b1||'', b2:bk.b2||'', b3:bk.b3||''}];
+      } catch(e){}
+      // 필사
+      try {
+        const ps = JSON.parse(localStorage.getItem('rbu_passages_'+email)||'[]');
+        m.passage = ps;
+      } catch(e){}
+    });
+    if(changed) saveMembers();
+  } catch(e){}
+}
+
+/* ── 샘플 응답 텍스트 ── */
 const SAMPLE = {
   B:['나는 힘들어도 포기하지 않는 사람이에요.','어린 시절부터 그림 그리는 것을 좋아했어요.','가족이 저를 지탱하는 힘입니다.','실패해도 다시 일어설 수 있다는 걸 알게 됐어요.','나만의 속도로 꾸준히 성장하고 있어요.','과거의 상처가 오히려 저를 더 강하게 만들었어요.'],
   U:['사람들과 함께할 때 에너지가 넘쳐요.','혼자 조용히 생각하는 시간이 필요해요.','창의적인 일을 할 때 가장 행복해요.','내가 진짜 원하는 것이 뭔지 알아가는 중이에요.','감정을 솔직하게 표현하는 게 아직 어렵지만 노력 중이에요.','스스로에 대해 더 깊이 이해하게 되었어요.'],
@@ -682,192 +685,86 @@ const SAMPLE = {
   D:['사회복지사가 되어 소외된 분들을 돕고 싶어요.','내 가게를 차리는 것이 꿈이에요.','해외에서 일해보고 싶어요.','예술 분야에서 제 작품을 세상에 선보이고 싶어요.','IT 분야에서 창업을 목표로 하고 있어요.','의미 있는 일을 하며 안정된 삶을 살고 싶어요.']
 };
 
-function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
-function pick(arr){return arr[rnd(0,arr.length-1)];}
-function fmtDate(d){return d.toISOString().slice(0,10);}
-function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function today(){return new Date();}
-
-/* localStorage 실제 가입 회원 불러오기 */
-(function mergeRealUsers(){
-  try {
-    const raw = localStorage.getItem('rbu_users');
-    if(!raw) return;
-    const users = JSON.parse(raw);
-    Object.entries(users).forEach(([email, u])=>{
-      // 이미 NAMES에 있는 이름이면 스킵
-      if(!NAMES.includes(u.name)) NAMES.push(u.name);
-    });
-  } catch(e){}
-})();
-
-/* 회원 생성 — 5단계 모두 참여율 반영 */
-let MEMBERS = NAMES.map((name,i)=>{
-  const statuses = ['활성','활성','활성','신규','비활성'];
-
-  // 각 섹션별 독립 참여율: B:90% U:75% I:60% L:45% D:30%
-  const secProb = [0.9, 0.75, 0.6, 0.45, 0.3];
-  const resps = {};
-  let lastActiveSec = 'B';
-
-  SECTIONS.forEach((s, si)=>{
-    const participated = Math.random() < secProb[si];
-    if(participated){
-      const cnt = rnd(2, 6);
-      resps[s] = Array.from({length:cnt}, (_,ri)=>{
-        const daysAgo = rnd(si*4, Math.max(si*4+1, 70 - si*6));
-        return {
-          date: fmtDate(addDays(today(), -Math.max(1, daysAgo))),
+/* ── 샘플 회원 생성 (localStorage에 없을 때만) ── */
+function generateSampleMembers(){
+  const NAMES = ['김지은'];
+  return NAMES.map((name,i)=>{
+    const secProb = [0.95, 0.78, 0.62, 0.48, 0.32];
+    const resps = {};
+    let lastActiveSec = 'B';
+    SECTIONS.forEach((s,si)=>{
+      if(Math.random()<secProb[si]){
+        const cnt = rnd(2,6);
+        resps[s] = Array.from({length:cnt},()=>({
+          date: fmtDate(addDays(today(),-rnd(si*3+1, 80-si*8))),
           text: pick(SAMPLE[s]),
-          score: rnd(48, 98)
-        };
-      }).sort((a,b)=>b.date.localeCompare(a.date));
-      lastActiveSec = s;
+          score: rnd(48,98)
+        })).sort((a,b)=>b.date.localeCompare(a.date));
+        lastActiveSec = s;
+      }
+    });
+    if(!resps['B']){
+      resps['B'] = Array.from({length:rnd(2,4)},()=>({
+        date: fmtDate(addDays(today(),-rnd(5,60))),
+        text: pick(SAMPLE['B']),
+        score: rnd(48,98)
+      })).sort((a,b)=>b.date.localeCompare(a.date));
     }
+    // 출석 데이터 생성 (최근 30일)
+    const attendance = {};
+    for(let d=0;d<30;d++){
+      const dt = fmtDate(addDays(today(),-d));
+      if(Math.random()<0.55) attendance[dt] = true;
+    }
+    // 체크인 샘플
+    const checkinSample = [];
+    for(let d=0;d<10;d++){
+      if(Math.random()<0.4){
+        checkinSample.push({
+          date: fmtDate(addDays(today(),-rnd(0,30))),
+          d1: pick(['오늘 친구와 다퉜어요','공부가 잘 안됐어요','좋은 하루였어요','운동을 했어요','가족과 대화했어요']),
+          d2: pick(['속상했지만 괜찮아졌어요','뿌듯했어요','조금 불안했어요','행복했어요','피곤했어요']),
+          d3: pick(['내일은 더 잘할 거야','열심히 해보자','좋은 하루 되자','쉬어야겠어','긍정적으로 생각하자']),
+          eScore: rnd(45,95), rScore: rnd(45,95), cScore: rnd(35,85)
+        });
+      }
+    }
+    return {
+      id: i+1, name,
+      email: `${name}@email.com`,
+      phone: `010-${rnd(1000,9999)}-${rnd(1000,9999)}`,
+      section: lastActiveSec,
+      resilience: rnd(48,96), career: rnd(30,92),
+      lastDate: fmtDate(addDays(today(),-rnd(0,14))),
+      joinDate: fmtDate(addDays(today(),-rnd(30,180))),
+      avColor: AV_COLORS[i%AV_COLORS.length],
+      responses: resps,
+      checkin: checkinSample,
+      bucket: Math.random()>0.4 ? [{date:fmtDate(addDays(today(),-rnd(0,7))), b1:'책 읽기', b2:'운동하기', b3:'친구 만나기'}] : [],
+      passage: Math.random()>0.5 ? [{date:fmtDate(addDays(today(),-rnd(0,14))), text:'인생은 가까이서 보면 비극이지만 멀리서 보면 희극이다.', author:'찰리 채플린'}] : [],
+      attendance
+    };
   });
-
-  // 최소 B 섹션은 무조건 보유
-  if(!resps['B']){
-    resps['B'] = Array.from({length:rnd(2,4)},(_,ri)=>({
-      date: fmtDate(addDays(today(),-rnd(5,60))),
-      text: pick(SAMPLE['B']),
-      score: rnd(48,98)
-    })).sort((a,b)=>b.date.localeCompare(a.date));
-    lastActiveSec = 'B';
-  }
-
-  // 실제 가입 회원이면 실제 이메일 사용
-  let realEmail = null;
-  try {
-    const ru = JSON.parse(localStorage.getItem('rbu_users')||'{}');
-    const found = Object.entries(ru).find(([e,u])=>u.name===name);
-    if(found) realEmail = found[0];
-  } catch(e){}
-
-  // 실제 회원이면 실제 활동 데이터 로드
-  let realData = null;
-  if(realEmail) {
-    realData = loadRealUserData(realEmail);
-  }
-
-  return {
-    id:i+1, name,
-    email: realEmail || `${name.replace(/\s/g,'')}@email.com`,
-    section: realData ? realData.section : lastActiveSec,
-    resilience: realData ? realData.resilience : rnd(48,96),
-    career: realData ? realData.career : rnd(30,92),
-    lastDate: realData ? realData.lastDate : fmtDate(addDays(today(),-rnd(0,14))),
-    status: realEmail ? (realData && realData.active ? '활성' : '신규') : statuses[rnd(0,4)],
-    avColor: AV_COLORS[i%AV_COLORS.length],
-    responses: realData ? realData.responses : resps,
-    realActivities: realData ? realData.activities : null,
-    phone:`010-${rnd(1000,9999)}-${rnd(1000,9999)}`
-  };
-});
-
-/* 실제 회원의 활동 데이터를 localStorage에서 읽어오는 함수 */
-function loadRealUserData(email) {
-  try {
-    const today_str = fmtDate(today());
-    let activities = {};
-    let lastDate = today_str;
-    let active = false;
-
-    // 1) 출석 스탬프
-    const stampRaw = localStorage.getItem('rbu_stamp_' + email);
-    const stamp = stampRaw ? JSON.parse(stampRaw) : { count: 0, dates: [] };
-    activities.stamp = stamp;
-    if(stamp.count > 0) active = true;
-
-    // 2) 스토리 로그
-    const storyRaw = localStorage.getItem('rbu_storylog_' + email);
-    const storyLogs = storyRaw ? JSON.parse(storyRaw) : [];
-    activities.storyLogs = storyLogs;
-    if(storyLogs.length > 0){ active = true; lastDate = storyLogs[storyLogs.length-1].date || today_str; }
-
-    // 3) 독서 포트폴리오
-    const bookRaw = localStorage.getItem('rbu_booklog_' + email);
-    const bookLogs = bookRaw ? JSON.parse(bookRaw) : [];
-    activities.bookLogs = bookLogs;
-    if(bookLogs.length > 0) active = true;
-
-    // 4) 회복 체크인 일기
-    const diaryRaw = localStorage.getItem('rbu_sec_diary_' + email);
-    const diary = diaryRaw ? JSON.parse(diaryRaw) : {};
-    activities.diary = diary;
-    if(diary.d1 || diary.d2 || diary.d3) active = true;
-
-    // 5) 미션 노트
-    const missionRaw = localStorage.getItem('rbu_sec_mission_' + email);
-    const mission = missionRaw ? JSON.parse(missionRaw) : {};
-    activities.mission = mission;
-    if(mission.savedText) active = true;
-
-    // 6) 강점 선택
-    const strengthRaw = localStorage.getItem('rbu_sec_strength_' + email);
-    const strengths = strengthRaw ? JSON.parse(strengthRaw) : [];
-    activities.strengths = strengths;
-    if(strengths.length > 0) active = true;
-
-    // 7) 자기소개서
-    const cvRaw = localStorage.getItem('rbu_sec_cv_' + email);
-    const cv = cvRaw ? JSON.parse(cvRaw) : {};
-    activities.cv = cv;
-    if(cv.name) active = true;
-
-    // 8) 포트폴리오 직접 저장
-    const pfRaw = localStorage.getItem('rbu_pf_' + email);
-    const pfStories = pfRaw ? JSON.parse(pfRaw) : [];
-    activities.pfStories = pfStories;
-    if(pfStories.length > 0) active = true;
-
-    // 활동 수 기반으로 회복탄력성·진로준비도 계산
-    const actCount = storyLogs.length + bookLogs.length + stamp.count + pfStories.length;
-    const resilience = Math.min(95, 40 + actCount * 5 + (stamp.count * 3));
-    const career = Math.min(95, 30 + storyLogs.length * 8 + bookLogs.length * 6 + (cv.goal ? 15 : 0) + strengths.length * 2);
-
-    // 현재 섹션 추정 (가장 최근 활동 기준)
-    let section = 'B';
-    if(strengths.length > 0) section = 'I';
-    if(storyLogs.length > 0) section = 'U';
-    if(cv.goal) section = 'D';
-    if(bookLogs.length > 0) section = 'L';
-
-    // SECTIONS 응답으로 변환 (실제 데이터 기반)
-    const responses = {};
-    if(diary.d1 || diary.d2 || diary.d3) {
-      responses['B'] = [{ date: today_str, text: [diary.d1, diary.d2, diary.d3].filter(Boolean).join(' / '), score: resilience }];
-    }
-    if(storyLogs.length > 0) {
-      responses['U'] = storyLogs.map(s=>({ date: s.date || today_str, text: (s.recovery||'') + ' ' + (s.experience||''), score: rnd(60,95) }));
-    }
-    if(strengths.length > 0) {
-      responses['I'] = [{ date: today_str, text: '선택 강점: ' + strengths.join(', '), score: rnd(65,95) }];
-    }
-    if(bookLogs.length > 0) {
-      responses['L'] = bookLogs.map(b=>({ date: b.date || today_str, text: '📚 ' + (b.title||'') + ': ' + (b.summary||''), score: rnd(60,90) }));
-    }
-    if(cv.goal) {
-      responses['D'] = [{ date: today_str, text: '진로목표: ' + (cv.goal||'') + (cv.field ? ' / 분야: ' + cv.field : ''), score: career }];
-    }
-
-    return { activities, resilience, career, section, lastDate, active, responses };
-  } catch(e) {
-    return null;
-  }
 }
+
+/* ── MEMBERS 초기화 ── */
+// localStorage 초기화 후 샘플 1명으로 새로 시작
+localStorage.removeItem(STORAGE_KEY);
+let MEMBERS = generateSampleMembers();
+saveMembers();
+syncFromIndex();
 
 /* ══════════════════════════════════════════
    SIDEBAR NAV
 ══════════════════════════════════════════ */
 const SEC_MAP = {
   overview:'sec-overview',members:'sec-members',
-  'by-section':'sec-by-section','by-date':'sec-by-date',
+  'by-section':'sec-by-section',
   'member-detail-view':'sec-member-detail-view',alerts:'sec-alerts'
 };
 const TITLES = {
   overview:'전체 현황',members:'회원 목록',
-  'by-section':'섹션별 응답','by-date':'일자별 응답',
+  'by-section':'섹션별 응답',
   'member-detail-view':'회원 상세',alerts:'알림'
 };
 function goto(key, el){
@@ -877,7 +774,6 @@ function goto(key, el){
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
   if(el) el.classList.add('active');
   if(key==='by-section') renderBySection();
-  if(key==='by-date') renderByDate();
   if(key==='alerts') renderAlerts();
   if(key==='members') renderMembers();
   if(key==='overview') renderOverview();
@@ -888,21 +784,15 @@ function goto(key, el){
 ══════════════════════════════════════════ */
 function renderOverview(){
   const total = MEMBERS.length;
-  const active = MEMBERS.filter(m=>m.status==='활성').length;
   const totalResp = MEMBERS.reduce((s,m)=>s+Object.values(m.responses).reduce((a,rs)=>a+rs.length,0),0);
   const avgRes = Math.round(MEMBERS.reduce((s,m)=>s+m.resilience,0)/total);
-
   document.getElementById('ov-total').textContent = total+'명';
   document.getElementById('sb-total').textContent = total;
-  document.getElementById('ov-active').textContent = active+'명';
-  document.getElementById('ov-active-pct').textContent = Math.round(active/total*100)+'%';
   document.getElementById('ov-resp').textContent = totalResp+'건';
   document.getElementById('ov-avg').textContent = avgRes+'점';
-
-  /* section bars */
   const sec_counts = {};
   SECTIONS.forEach(s=>{sec_counts[s]=MEMBERS.filter(m=>Object.keys(m.responses).includes(s)).length;});
-  const bars = SECTIONS.map(s=>`
+  document.getElementById('section-progress-bars').innerHTML = SECTIONS.map(s=>`
     <div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-size:12px;font-weight:700">${SEC_EMOJI[s]} ${s} — ${SEC_NAMES[s]}</span>
@@ -910,9 +800,6 @@ function renderOverview(){
       </div>
       <div class="prog-wrap"><div class="prog-fill" style="width:${Math.round(sec_counts[s]/total*100)}%;background:${SEC_COLOR[s]}"></div></div>
     </div>`).join('');
-  document.getElementById('section-progress-bars').innerHTML = bars;
-
-  /* recent */
   const all = [];
   MEMBERS.forEach(m=>SECTIONS.forEach(s=>(m.responses[s]||[]).forEach(r=>all.push({m,s,r}))));
   all.sort((a,b)=>b.r.date.localeCompare(a.r.date));
@@ -926,11 +813,9 @@ function renderOverview(){
       <td>${scorePill(r.score)}</td>
       <td style="color:var(--muted);font-size:11px">${r.date}</td>
     </tr>`).join('');
-
-  /* monthly chart */
   const months = ['1월','2월','3월','4월','5월','6월','7월'];
-  const vals    = [18,24,31,27,39,44,totalResp>0?Math.min(totalResp,52):48];
-  const maxVal  = Math.max(...vals);
+  const vals = [18,24,31,27,39,44,totalResp>0?Math.min(totalResp,52):48];
+  const maxVal = Math.max(...vals);
   document.getElementById('monthly-chart').innerHTML = vals.map((v,i)=>`
     <div class="bar-col">
       <div class="bar-val">${v}</div>
@@ -942,36 +827,32 @@ function renderOverview(){
 /* ══════════════════════════════════════════
    MEMBERS TABLE
 ══════════════════════════════════════════ */
-function renderMembers(search=''){
+function renderMembers(){
   const q = (document.getElementById('member-search')||{value:''}).value.toLowerCase();
   const secF = (document.getElementById('flt-section')||{value:''}).value;
-  const stF  = (document.getElementById('flt-status')||{value:''}).value;
   const list = MEMBERS.filter(m=>{
     const matchQ = !q || m.name.includes(q) || m.email.toLowerCase().includes(q);
     const matchS = !secF || m.section===secF;
-    const matchSt = !stF || m.status===stF;
-    return matchQ && matchS && matchSt;
+    return matchQ && matchS;
   });
   document.getElementById('member-count-lbl').textContent = list.length;
   document.getElementById('members-tbody').innerHTML = list.map((m,i)=>`
     <tr onclick="openMemberFromTable(${m.id})">
-      <td style="color:var(--muted);font-size:11px">${m.id}</td>
+      <td style="color:var(--muted);font-size:11px">${i+1}</td>
       <td><div style="display:flex;align-items:center;gap:9px">
         <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
-        <div><div style="font-weight:700;font-size:13px">${m.name}</div></div>
+        <div><div style="font-weight:700;font-size:13px">${m.name}</div>
+        <div style="font-size:10px;color:var(--muted)">${m.joinDate||'–'} 가입</div></div>
       </div></td>
       <td style="font-size:11px;color:var(--muted)">${m.email}</td>
       <td><span class="badge sec-${m.section}">${SEC_EMOJI[m.section]} ${m.section}</span></td>
       <td>${miniProg(m.resilience,'#6366F1')}</td>
       <td>${miniProg(m.career,'#22C55E')}</td>
       <td style="font-size:11px;color:var(--muted)">${m.lastDate}</td>
-      <td>${statusBadge(m.status)}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMemberFromTable(${m.id})">상세 →</button></td>
     </tr>`).join('');
 }
-
 function filterMembers(){ renderMembers(); }
-
 function openMemberFromTable(id){
   document.getElementById('detail-member-sel').value = id;
   goto('member-detail-view', null);
@@ -984,91 +865,48 @@ function openMemberFromTable(id){
 function populateMemberSel(){
   const sel = document.getElementById('flt-sec-member');
   sel.innerHTML = '<option value="">전체 회원</option>';
-  MEMBERS.forEach(m=>{
-    const o = document.createElement('option');
-    o.value = m.id; o.textContent = m.name;
-    sel.appendChild(o);
-  });
+  MEMBERS.forEach(m=>{ const o=document.createElement('option'); o.value=m.id; o.textContent=m.name; sel.appendChild(o); });
   const sel2 = document.getElementById('detail-member-sel');
-  MEMBERS.forEach(m=>{
-    const o = document.createElement('option');
-    o.value = m.id; o.textContent = m.name;
-    sel2.appendChild(o);
-  });
+  sel2.innerHTML = '<option value="">회원을 선택하세요</option>';
+  MEMBERS.forEach(m=>{ const o=document.createElement('option'); o.value=m.id; o.textContent=m.name; sel2.appendChild(o); });
 }
-
 function renderBySection(){
-  const sec   = document.getElementById('flt-sec-tab').value;
-  const days  = document.getElementById('flt-sec-date').value;
+  const sec = document.getElementById('flt-sec-tab').value;
+  const days = document.getElementById('flt-sec-date').value;
   const memId = document.getElementById('flt-sec-member').value;
-  const scoreF= document.getElementById('flt-sec-score').value;
-
+  const scoreF = document.getElementById('flt-sec-score').value;
   const cutoff = days ? new Date(Date.now()-days*86400000) : null;
-
   let entries = [];
   MEMBERS.forEach(m=>{
     if(memId && String(m.id)!==memId) return;
     (m.responses[sec]||[]).forEach(r=>{
       if(cutoff && new Date(r.date)<cutoff) return;
       if(scoreF==='high' && r.score<80) return;
-      if(scoreF==='mid'  && (r.score<60||r.score>=80)) return;
-      if(scoreF==='low'  && r.score>=60) return;
+      if(scoreF==='mid' && (r.score<60||r.score>=80)) return;
+      if(scoreF==='low' && r.score>=60) return;
       entries.push({m,r});
     });
   });
   entries.sort((a,b)=>b.r.date.localeCompare(a.r.date));
-
-  /* summary */
   const uniqueMembers = new Set(entries.map(e=>e.m.id)).size;
   const avgScore = entries.length? Math.round(entries.reduce((s,e)=>s+e.r.score,0)/entries.length):0;
   const maxScore = entries.length? Math.max(...entries.map(e=>e.r.score)):0;
   document.getElementById('ss-members').textContent = uniqueMembers+'명';
-  document.getElementById('ss-count').textContent   = entries.length+'건';
-  document.getElementById('ss-avg').textContent     = avgScore?(avgScore+'점'):'–';
-  document.getElementById('ss-max').textContent     = maxScore?(maxScore+'점'):'–';
-
-  /* group by member */
+  document.getElementById('ss-count').textContent = entries.length+'건';
+  document.getElementById('ss-avg').textContent = avgScore?(avgScore+'점'):'–';
+  document.getElementById('ss-max').textContent = maxScore?(maxScore+'점'):'–';
   const byMember = {};
-  entries.forEach(e=>{
-    if(!byMember[e.m.id]) byMember[e.m.id]={m:e.m,entries:[]};
-    byMember[e.m.id].entries.push(e.r);
-  });
-
-  const dark = SEC_COLOR[sec];
-  const bg   = SEC_BG[sec];
-
-  if(!entries.length){
-    document.getElementById('sec-response-list').innerHTML = `
-      <div style="text-align:center;padding:48px;color:var(--muted)">
-        <div style="font-size:40px;margin-bottom:10px">🗂️</div>
-        <div style="font-size:14px;font-weight:600">해당 조건의 응답이 없습니다</div>
-      </div>`;
-    return;
-  }
-
+  entries.forEach(e=>{ if(!byMember[e.m.id]) byMember[e.m.id]={m:e.m,entries:[]}; byMember[e.m.id].entries.push(e.r); });
+  const dark=SEC_COLOR[sec], bg=SEC_BG[sec];
+  if(!entries.length){ document.getElementById('sec-response-list').innerHTML=`<div style="text-align:center;padding:48px;color:var(--muted)"><div style="font-size:40px;margin-bottom:10px">🗂️</div><div style="font-size:14px;font-weight:600">해당 조건의 응답이 없습니다</div></div>`; return; }
   document.getElementById('sec-response-list').innerHTML = Object.values(byMember).map(({m,entries:rs})=>`
     <div class="resp-card">
       <div class="resp-header" style="background:${bg}">
         <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
-        <div style="flex:1">
-          <div style="font-weight:800;font-size:13px">${m.name}</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:1px">${m.email} · ${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} · ${rs.length}건</div>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          ${scorePill(Math.round(rs.reduce((s,r)=>s+r.score,0)/rs.length),'평균')}
-          <button class="btn btn-ghost btn-sm" onclick="openRespModal(${m.id},'${sec}')">전체보기</button>
-        </div>
+        <div style="flex:1"><div style="font-weight:800;font-size:13px">${m.name}</div><div style="font-size:10px;color:var(--muted)">${m.email} · ${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} · ${rs.length}건</div></div>
+        <div style="display:flex;gap:6px;align-items:center">${scorePill(Math.round(rs.reduce((s,r)=>s+r.score,0)/rs.length),'평균')}<button class="btn btn-ghost btn-sm" onclick="openRespModal(${m.id},'${sec}')">전체보기</button></div>
       </div>
-      <div class="resp-body">
-        ${rs.map(r=>`
-          <div class="resp-entry">
-            <div class="resp-meta">
-              <span style="font-weight:700;color:${dark}">${r.date}</span>
-              ${scorePill(r.score)}
-            </div>
-            <div class="resp-text">${r.text}</div>
-          </div>`).join('')}
-      </div>
+      <div class="resp-body">${rs.map(r=>`<div class="resp-entry"><div class="resp-meta"><span style="font-weight:700;color:${dark}">${r.date}</span>${scorePill(r.score)}</div><div class="resp-text">${r.text}</div></div>`).join('')}</div>
     </div>`).join('');
 }
 
@@ -1076,12 +914,10 @@ function renderBySection(){
    DATE RESPONSES
 ══════════════════════════════════════════ */
 function renderByDate(){
-  const secF  = document.getElementById('flt-date-sec').value;
+  const secF = document.getElementById('flt-date-sec').value;
   const range = document.getElementById('flt-date-range').value;
-  const days  = range==='all' ? 365 : parseInt(range);
-  const cutoff= new Date(Date.now()-days*86400000);
-
-  /* aggregate by date */
+  const days = range==='all'?365:parseInt(range);
+  const cutoff = new Date(Date.now()-days*86400000);
   const byDate = {};
   MEMBERS.forEach(m=>{
     SECTIONS.forEach(s=>{
@@ -1089,55 +925,313 @@ function renderByDate(){
       (m.responses[s]||[]).forEach(r=>{
         if(new Date(r.date)<cutoff) return;
         if(!byDate[r.date]) byDate[r.date]={total:0,secs:{B:0,U:0,I:0,L:0,D:0},scores:[],members:new Set()};
-        byDate[r.date].total++;
-        byDate[r.date].secs[s]++;
-        byDate[r.date].scores.push(r.score);
-        byDate[r.date].members.add(m.name);
+        byDate[r.date].total++; byDate[r.date].secs[s]++; byDate[r.date].scores.push(r.score); byDate[r.date].members.add(m.name);
       });
     });
   });
-
   const dates = Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
-  const maxT  = Math.max(...Object.values(byDate).map(d=>d.total),1);
-
-  /* heatmap — group by month */
   const heatCells = [];
   for(let d=days-1;d>=0;d--){
-    const dt  = fmtDate(addDays(today(),-d));
-    const dd  = byDate[dt];
-    const lv  = dd? (dd.total>=10?'hm4':dd.total>=6?'hm3':dd.total>=3?'hm2':'hm1'):'hm0';
-    const tip = dd?`${dt}\n${dd.total}건 응답\n참여: ${[...dd.members].slice(0,3).join(', ')}`:dt;
-    heatCells.push(`<div class="hm-cell ${lv}" title="${tip}"></div>`);
+    const dt=fmtDate(addDays(today(),-d)), dd=byDate[dt];
+    const lv=dd?(dd.total>=10?'hm4':dd.total>=6?'hm3':dd.total>=3?'hm2':'hm1'):'hm0';
+    heatCells.push(`<div class="hm-cell ${lv}" title="${dd?dt+'\\n'+dd.total+'건':dt}"></div>`);
   }
-  document.getElementById('heatmap-wrap').innerHTML = `
-    <div style="font-size:10px;color:var(--muted);margin-bottom:8px">최근 ${days}일</div>
-    <div class="heatmap">${heatCells.join('')}</div>`;
-
-  /* table */
+  document.getElementById('heatmap-wrap').innerHTML=`<div style="font-size:10px;color:var(--muted);margin-bottom:8px">최근 ${days}일</div><div class="heatmap">${heatCells.join('')}</div>`;
   document.getElementById('date-tbody').innerHTML = dates.map(date=>{
-    const d = byDate[date];
-    const avg = d.scores.length? Math.round(d.scores.reduce((a,b)=>a+b,0)/d.scores.length):0;
-    return `<tr>
-      <td style="font-weight:700">${date}</td>
-      <td><span style="font-weight:800;font-size:14px;color:${d.total>=8?'var(--success)':d.total>=4?'var(--warn)':'var(--muted)'}">${d.total}</span></td>
+    const d=byDate[date], avg=d.scores.length?Math.round(d.scores.reduce((a,b)=>a+b,0)/d.scores.length):0;
+    return `<tr><td style="font-weight:700">${date}</td><td><span style="font-weight:800;font-size:14px;color:${d.total>=8?'var(--success)':d.total>=4?'var(--warn)':'var(--muted)'}">${d.total}</span></td>
       ${SECTIONS.map(s=>`<td style="color:${SEC_COLOR[s]};font-weight:${d.secs[s]?700:400}">${d.secs[s]||'–'}</td>`).join('')}
-      <td>${scorePill(avg)}</td>
-      <td style="font-size:11px;color:var(--muted)">${[...d.members].slice(0,3).join(', ')}${d.members.size>3?` 외 ${d.members.size-3}명`:''}</td>
-    </tr>`;
+      <td>${scorePill(avg)}</td><td style="font-size:11px;color:var(--muted)">${[...d.members].slice(0,3).join(', ')}${d.members.size>3?` 외 ${d.members.size-3}명`:''}</td></tr>`;
   }).join('');
+}
+
+/* ══════════════════════════════════════════
+   활동 기반 피드백 생성
+══════════════════════════════════════════ */
+function generateFeedback(m){
+  const allResp = SECTIONS.flatMap(s=>(m.responses[s]||[]).map(r=>({s,r})));
+  const total = allResp.length;
+  if(total===0) return '아직 활동 기록이 없습니다. 첫 섹션 응답을 완료하면 맞춤 피드백이 제공됩니다.';
+
+  const avgScore = Math.round(allResp.reduce((s,e)=>s+e.r.score,0)/total);
+  const secs = SECTIONS.filter(s=>(m.responses[s]||[]).length>0);
+  const lastText = allResp.sort((a,b)=>b.r.date.localeCompare(a.r.date))[0].r.text;
+  const hasCheckin = m.checkin && m.checkin.length > 0;
+  const hasPassage = m.passage && m.passage.length > 0;
+  const hasBucket = m.bucket && m.bucket.length > 0;
+
+  // 상황별 피드백
+  if(m.resilience>=80 && avgScore>=80){
+    return `${m.name} 학생은 회복탄력성(${m.resilience}점)과 응답 평균(${avgScore}점) 모두 높은 수준으로, "${lastText.slice(0,20)}..."처럼 자기 자신을 깊이 이해하고 있어요 — ${secs.length}개 섹션을 꾸준히 이어가고 있으니 D(꿈 설계) 단계까지 완주할 가능성이 높습니다.`;
+  }
+  if(secs.includes('B') && secs.includes('U') && !secs.includes('I')){
+    return `${m.name} 학생은 존재 발견(B)과 자기 이해(U)를 완료하며 탄탄한 기반을 쌓았어요 — "${lastText.slice(0,20)}..."라는 응답처럼 내면 탐색이 깊어지고 있으니, 지금이 강점 발견(I) 섹션으로 나아갈 최적의 타이밍입니다.`;
+  }
+  if(hasCheckin && m.checkin.length>=3){
+    const ci = m.checkin[0];
+    return `${m.name} 학생은 회복 체크인을 ${m.checkin.length}회 꾸준히 작성하고 있어요 — 최근 "${ci.d1.slice(0,15)}..."를 기록하며 자신의 감정을 적극적으로 돌보고 있으니, 이 흐름을 5단계 섹션 응답과 연결시켜주면 더 큰 성장이 예상됩니다.`;
+  }
+  if(avgScore<60){
+    return `${m.name} 학생의 응답 평균이 ${avgScore}점으로 다소 낮게 나타나고 있어요 — "${lastText.slice(0,20)}..."처럼 아직 자기 탐색을 어려워하는 것 같으니, 매니저의 따뜻한 격려와 쉬운 질문으로 참여 장벽을 낮춰주세요.`;
+  }
+  if(total>=10){
+    return `${m.name} 학생은 총 ${total}건의 응답을 기록하며 가장 성실한 참여자 중 한 명이에요 — "${lastText.slice(0,20)}..."처럼 진정성 있는 답변을 이어가고 있으니 ${m.section} 섹션 완료 후 다음 단계를 미리 안내해주면 좋겠습니다.`;
+  }
+  return `${m.name} 학생은 현재 ${m.section} 섹션에서 평균 ${avgScore}점으로 활동 중이에요 — "${lastText.slice(0,20)}..."라는 응답이 인상적이며, 꾸준한 참여를 통해 자기 이해가 점점 깊어지고 있습니다.`;
+}
+
+/* ══════════════════════════════════════════
+   출석 현황 (최근 30일)
+══════════════════════════════════════════ */
+function renderAttendance(m){
+  const cells = [];
+  const days30 = [];
+  for(let d=29;d>=0;d--) days30.push(fmtDate(addDays(today(),-d)));
+
+  // 활동 날짜 수집 (5단계 응답 + 체크인)
+  const activeDates = new Set();
+  SECTIONS.forEach(s=>(m.responses[s]||[]).forEach(r=>activeDates.add(r.date)));
+  (m.checkin||[]).forEach(c=>activeDates.add(c.date));
+  (m.passage||[]).forEach(p=>activeDates.add(p.date));
+  (m.bucket||[]).forEach(b=>activeDates.add(b.date));
+  // 샘플 attendance 데이터
+  if(m.attendance) Object.keys(m.attendance).forEach(d=>activeDates.add(d));
+
+  const presentCount = days30.filter(d=>activeDates.has(d)).length;
+  const rate = Math.round(presentCount/30*100);
+
+  days30.forEach(dt=>{
+    const on = activeDates.has(dt);
+    const dow = new Date(dt).getDay();
+    const isWeekend = dow===0||dow===6;
+    cells.push(`<div title="${dt}" style="width:26px;height:26px;border-radius:6px;background:${on?'#6366F1':isWeekend?'#F1F5F9':'#E2E8F0'};opacity:${on?1:0.5};display:flex;align-items:center;justify-content:center;font-size:9px;color:${on?'#fff':'#94A3B8'};font-weight:700">${on?'✓':''}</div>`);
+  });
+
+  const dayLabels = ['일','월','화','수','목','금','토'];
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:800">📅 출석 현황 (최근 30일)</div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <span style="font-size:12px;color:var(--muted)">${presentCount}일 출석</span>
+        <span style="font-size:14px;font-weight:900;color:${rate>=70?'var(--success)':rate>=40?'var(--warn)':'var(--danger)'}">${rate}%</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;margin-bottom:6px">
+      ${cells.join('')}
+    </div>
+    <div style="display:flex;gap:4px">
+      ${days30.map(dt=>{
+        const dow=new Date(dt).getDay();
+        return `<div style="width:26px;text-align:center;font-size:8px;color:var(--muted)">${dow===0||dow===6?'<span style="color:#EC4899">'+dayLabels[dow]+'</span>':dayLabels[dow]}</div>`;
+      }).join('')}
+    </div>`;
+}
+
+/* ══════════════════════════════════════════
+   기타 활동 참여 현황 (체크인·필사·버킷)
+══════════════════════════════════════════ */
+function renderExtraActivity(m){
+  const todayStr = fmtDate(today());
+  const thisWeek = [];
+  for(let d=0;d<7;d++) thisWeek.push(fmtDate(addDays(today(),-d)));
+
+  // 체크인
+  const ciDates = new Set((m.checkin||[]).map(c=>c.date));
+  const ciTotal = ciDates.size;
+  const ciToday = ciDates.has(todayStr);
+  const ciWeek = thisWeek.filter(d=>ciDates.has(d)).length;
+  const lastCi = m.checkin&&m.checkin.length ? m.checkin.sort((a,b)=>b.date.localeCompare(a.date))[0] : null;
+
+  // 필사
+  const psDates = new Set((m.passage||[]).map(p=>p.date));
+  const psTotal = psDates.size;
+  const psToday = psDates.has(todayStr);
+  const psWeek = thisWeek.filter(d=>psDates.has(d)).length;
+
+  // 버킷리스트
+  const bkDates = new Set((m.bucket||[]).map(b=>b.date));
+  const bkTotal = bkDates.size;
+  const bkToday = bkDates.has(todayStr);
+  const lastBk = m.bucket&&m.bucket.length ? m.bucket.sort((a,b)=>b.date.localeCompare(a.date))[0] : null;
+
+  function actCard(emoji, title, total, today2, week, detail){
+    const participated = total>0;
+    return `<div style="border-radius:14px;border:1.5px solid ${participated?'var(--primary)':'var(--border)'};background:${participated?'var(--primary-bg)':'var(--muted-bg)'};padding:16px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:20px">${emoji}</span>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:800;color:${participated?'var(--primary)':'var(--muted)'}">${title}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:1px">누적 ${total}회</div>
+        </div>
+        <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${participated?'#6366F1':'#E2E8F0'};color:${participated?'#fff':'#94A3B8'}">${participated?'참여':'미참여'}</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:${detail?'10px':'0'}">
+        <div style="flex:1;background:#fff;border-radius:10px;padding:8px;text-align:center">
+          <div style="font-size:16px;font-weight:900;color:${today2?'var(--success)':'var(--muted)'}">${today2?'✅':'–'}</div>
+          <div style="font-size:9px;color:var(--muted);font-weight:700;margin-top:2px">오늘</div>
+        </div>
+        <div style="flex:1;background:#fff;border-radius:10px;padding:8px;text-align:center">
+          <div style="font-size:16px;font-weight:900;color:${week>0?'var(--primary)':'var(--muted)'}">${week}일</div>
+          <div style="font-size:9px;color:var(--muted);font-weight:700;margin-top:2px">이번 주</div>
+        </div>
+        <div style="flex:1;background:#fff;border-radius:10px;padding:8px;text-align:center">
+          <div style="font-size:16px;font-weight:900;color:${total>0?'var(--primary)':'var(--muted)'}">${total}</div>
+          <div style="font-size:9px;color:var(--muted);font-weight:700;margin-top:2px">누적</div>
+        </div>
+      </div>
+      ${detail||''}
+    </div>`;
+  }
+
+  const ciDetail = lastCi ? `<div style="background:#fff;border-radius:10px;padding:10px;font-size:11px;line-height:1.7;color:var(--muted)"><span style="font-weight:700;color:var(--primary)">${lastCi.date}</span> 최근 체크인<br/>📝 ${lastCi.d1.slice(0,30)}...<br/>💭 ${lastCi.d2.slice(0,25)}...</div>` : '';
+  const bkDetail = lastBk ? `<div style="background:#fff;border-radius:10px;padding:10px;font-size:11px;line-height:1.7;color:var(--muted)"><span style="font-weight:700;color:var(--primary)">${lastBk.date}</span> 최근 버킷리스트<br/>1️⃣ ${lastBk.b1||'–'} &nbsp; 2️⃣ ${lastBk.b2||'–'} &nbsp; 3️⃣ ${lastBk.b3||'–'}</div>` : '';
+
+  return `
+    <div style="font-size:13px;font-weight:800;margin-bottom:12px">🎯 기타 활동 참여 현황</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      ${actCard('📔','오늘의 회복 체크인',ciTotal,ciToday,ciWeek,ciDetail)}
+      ${actCard('✍️','필사',psTotal,psToday,psWeek,'')}
+      ${actCard('🌟','버킷리스트',bkTotal,bkToday,bkWeek,bkDetail)}
+    </div>`;
 }
 
 /* ══════════════════════════════════════════
    MEMBER DETAIL
 ══════════════════════════════════════════ */
 function renderMemberDetail(id){
-  if(!id){ document.getElementById('member-detail-content').innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-size:48px">👆</div><div style="font-size:14px;font-weight:600;margin-top:12px">회원을 선택하세요</div></div>`; return; }
-  const m = MEMBERS.find(x=>x.id==id);
+  if(!id){
+    document.getElementById('member-detail-content').innerHTML=`
+      <div style="text-align:center;padding:60px;color:var(--muted)">
+        <div style="font-size:48px">👆</div>
+        <div style="font-size:14px;font-weight:600;margin-top:12px">회원을 선택하세요</div>
+      </div>`;
+    return;
+  }
+  const m = MEMBERS.find(x=>String(x.id)==String(id));
   if(!m) return;
 
   const allResp = SECTIONS.flatMap(s=>(m.responses[s]||[]).map(r=>({s,r})));
   const totalResp = allResp.length;
   const avgScore = totalResp? Math.round(allResp.reduce((s,e)=>s+e.r.score,0)/totalResp):0;
+  const feedback = generateFeedback(m);
+
+  /* ── 기타 활동 참여 뱃지 ── */
+  function actBadge(participated, label){
+    return participated
+      ? `<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:#DCFCE7;color:#166534">✅ 참여</span>`
+      : `<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:#F1F5F9;color:#94A3B8">– 미참여</span>`;
+  }
+
+  const ciList  = m.checkin  || [];
+  const psList  = m.passage  || [];
+  const bkList  = m.bucket   || [];
+  const hasCI   = ciList.length > 0;
+  const hasPS   = psList.length > 0;
+  const hasBK   = bkList.length > 0;
+  // 포춘쿠키: 오늘 날짜 키로 localStorage 확인
+  const todayKey = (()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();})();
+  const hasFortune = !!localStorage.getItem('rbu_fortune_'+todayKey);
+
+  /* ── 5단계별 상세 카드 (아코디언) ── */
+  function secDetailCard(s){
+    const rs  = m.responses[s]||[];
+    const done = rs.length>0;
+    const col  = SEC_COLOR[s];
+    const bg   = SEC_BG[s];
+    const avgS = done ? Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length) : null;
+    const cardId = 'sec-detail-'+s;
+    return `
+      <div style="border-radius:16px;border:2px solid ${done?col:'var(--border)'};overflow:hidden;margin-bottom:10px">
+        <!-- 헤더 (클릭 토글) -->
+        <div onclick="toggleSecDetail('${cardId}')" style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:${done?bg:'var(--muted-bg)'};cursor:pointer;user-select:none">
+          <span style="font-size:22px">${SEC_EMOJI[s]}</span>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:900;color:${done?col:'var(--muted)'}">${s} — ${SEC_NAMES[s]}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">
+              ${done ? rs.length+'개 응답 · 평균 '+avgS+'점' : '아직 응답이 없습니다'}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${done
+              ? `<span style="font-size:18px;font-weight:900;color:${col}">${avgS}점</span>
+                 <span style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:${col}22;color:${col}">✅ 완료</span>`
+              : `<span style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:#E2E8F0;color:var(--muted)">미진행</span>`}
+            <span id="${cardId}-arrow" style="font-size:14px;color:var(--muted);transition:transform .2s">▾</span>
+          </div>
+        </div>
+        <!-- 바디 (토글) -->
+        <div id="${cardId}" style="display:none;padding:16px 20px;background:#fff">
+          ${done ? `
+            <div class="timeline">
+              ${rs.map(r=>`
+                <div class="tl-item">
+                  <div class="tl-dot" style="background:${col}"></div>
+                  <div class="tl-date">${r.date}</div>
+                  <div class="tl-text">${r.text}</div>
+                  <div class="tl-score">${scorePill(r.score)}</div>
+                </div>`).join('')}
+            </div>` : `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">아직 응답이 없습니다</div>`}
+        </div>
+      </div>`;
+  }
+
+  /* ── 기타 활동 카드 ── */
+  function extraCard(emoji, title, participated, count, detail){
+    return `
+      <div style="border-radius:14px;border:1.5px solid ${participated?'#6366F1':'var(--border)'};background:${participated?'#EEF2FF':'var(--muted-bg)'};padding:16px 18px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:${detail?'12px':'0'}">
+          <span style="font-size:22px">${emoji}</span>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:800;color:${participated?'#4F46E5':'var(--muted)'}">${title}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">누적 ${count}회</div>
+          </div>
+          ${actBadge(participated)}
+        </div>
+        ${detail||''}
+      </div>`;
+  }
+
+  /* 체크인 상세 */
+  const ciDetail = hasCI ? (() => {
+    const sorted = [...ciList].sort((a,b)=>b.date.localeCompare(a.date));
+    return `<div style="display:flex;flex-direction:column;gap:8px">
+      ${sorted.slice(0,3).map(c=>`
+        <div style="background:#fff;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.8">
+          <div style="font-weight:700;color:#6366F1;margin-bottom:4px">${c.date}</div>
+          <div>📝 ${c.d1}</div>
+          <div>💭 ${c.d2}</div>
+          <div>🌱 ${c.d3}</div>
+        </div>`).join('')}
+      ${sorted.length>3?`<div style="font-size:11px;color:var(--muted);text-align:center">외 ${sorted.length-3}건 더</div>`:''}
+    </div>`;
+  })() : '';
+
+  /* 필사 상세 */
+  const psDetail = hasPS ? (() => {
+    const sorted = [...psList].sort((a,b)=>b.date.localeCompare(a.date));
+    return `<div style="display:flex;flex-direction:column;gap:8px">
+      ${sorted.slice(0,3).map(p=>`
+        <div style="background:#fff;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.8">
+          <div style="font-weight:700;color:#6366F1;margin-bottom:4px">${p.date}</div>
+          <div style="font-style:italic;color:#374151">"${p.text}"</div>
+          ${p.author?`<div style="font-size:11px;color:var(--muted);margin-top:2px">— ${p.author}</div>`:''}
+        </div>`).join('')}
+    </div>`;
+  })() : '';
+
+  /* 버킷리스트 상세 */
+  const bkDetail = hasBK ? (() => {
+    const sorted = [...bkList].sort((a,b)=>b.date.localeCompare(a.date));
+    return `<div style="display:flex;flex-direction:column;gap:8px">
+      ${sorted.slice(0,2).map(b=>`
+        <div style="background:#fff;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.8">
+          <div style="font-weight:700;color:#6366F1;margin-bottom:4px">${b.date}</div>
+          ${b.b1?`<div>1️⃣ ${b.b1}</div>`:''}
+          ${b.b2?`<div>2️⃣ ${b.b2}</div>`:''}
+          ${b.b3?`<div>3️⃣ ${b.b3}</div>`:''}
+        </div>`).join('')}
+    </div>`;
+  })() : '';
 
   document.getElementById('member-detail-content').innerHTML = `
     <!-- 헤더 -->
@@ -1149,7 +1243,7 @@ function renderMemberDetail(id){
           <div style="font-size:12px;color:var(--muted);margin-top:3px">${m.email} · ${m.phone}</div>
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
             <span class="badge sec-${m.section}">${SEC_EMOJI[m.section]} 현재: ${m.section} 섹션</span>
-            ${statusBadge(m.status)}
+            <span class="badge" style="background:var(--muted-bg);color:var(--muted)">가입 ${m.joinDate||'–'}</span>
             <span class="badge" style="background:var(--muted-bg);color:var(--muted)">마지막 활동 ${m.lastDate}</span>
           </div>
         </div>
@@ -1174,159 +1268,65 @@ function renderMemberDetail(id){
       </div>
     </div>
 
-    <!-- 5단계 참여 현황 -->
-    <div class="card" style="padding:20px 24px;margin-bottom:16px">
-      <div style="font-size:13px;font-weight:800;margin-bottom:14px">📊 5단계 참여 현황</div>
-      <div style="display:flex;gap:8px;align-items:stretch">
-        ${SECTIONS.map(s=>{
-          const rs = m.responses[s]||[];
-          const done = rs.length > 0;
-          const avgS = done ? Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length) : null;
-          const col = SEC_COLOR[s];
-          const bg  = SEC_BG[s];
-          return `<div style="flex:1;border-radius:14px;border:2px solid ${done?col:'var(--border)'};background:${done?bg:'var(--muted-bg)'};padding:14px 10px;text-align:center;transition:all .2s">
-            <div style="font-size:20px;margin-bottom:4px">${SEC_EMOJI[s]}</div>
-            <div style="font-size:13px;font-weight:900;color:${done?col:'var(--muted)'}">${s}</div>
-            <div style="font-size:9px;font-weight:700;color:${done?col:'var(--muted)'};margin-top:2px;line-height:1.3">${SEC_NAMES[s].split(' ')[0]}</div>
-            <div style="margin-top:8px">
-              ${done
-                ? `<div style="font-size:16px;font-weight:900;color:${col}">${avgS}점</div>
-                   <div style="font-size:9px;color:var(--muted);margin-top:1px">${rs.length}개 응답</div>
-                   <div style="margin-top:6px;font-size:11px;font-weight:700;color:${col}">✅ 완료</div>`
-                : `<div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:6px">미진행</div>`
-              }
-            </div>
-          </div>`;
-        }).join('')}
+    <!-- 활동 기반 피드백 -->
+    <div class="card" style="padding:20px 24px;margin-bottom:16px;border-left:4px solid var(--primary)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:18px">💬</span>
+        <div style="font-size:13px;font-weight:800">매니저 피드백 (활동 기반 자동 생성)</div>
       </div>
+      <div style="font-size:14px;line-height:1.8;color:var(--fg);background:var(--primary-bg);border-radius:12px;padding:14px 18px">${feedback}</div>
     </div>
 
-    <!-- 섹션별 응답 타임라인 -->
-    <div class="g2">
-      ${SECTIONS.map(s=>{
-        const rs = m.responses[s]||[];
-        const dark = SEC_COLOR[s];
-        const bg   = SEC_BG[s];
-        return `
-        <div class="card">
-          <div style="padding:14px 18px 10px;background:${bg};border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
-            <span style="font-size:20px">${SEC_EMOJI[s]}</span>
-            <div style="flex:1">
-              <div style="font-size:13px;font-weight:800;color:${dark}">${s} — ${SEC_NAMES[s]}</div>
-              <div style="font-size:10px;color:var(--muted);margin-top:1px">${rs.length}개 응답${rs.length?` · 평균 ${Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length)}점`:''}
-              </div>
-            </div>
-            ${rs.length?`<span class="badge" style="background:${dark}18;color:${dark}">완료</span>`:`<span class="badge" style="background:var(--muted-bg);color:var(--muted)">미진행</span>`}
-          </div>
-          <div style="padding:16px 18px">
-            ${rs.length===0?`<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px 0">아직 응답이 없습니다</div>`:`
-            <div class="timeline">
-              ${rs.map(r=>`
-                <div class="tl-item">
-                  <div class="tl-dot" style="background:${dark}"></div>
-                  <div class="tl-date">${r.date}</div>
-                  <div class="tl-text">${r.text}</div>
-                  <div class="tl-score" style="color:${dark}">${scorePill(r.score)}</div>
-                </div>`).join('')}
-            </div>`}
-          </div>
-        </div>`;
-      }).join('')}
+    <!-- 출석 현황 -->
+    <div class="card" style="padding:20px 24px;margin-bottom:16px">
+      ${renderAttendance(m)}
     </div>
 
-    ${m.realActivities ? `
-    <!-- 실제 활동 데이터 상세 -->
-    <div class="card" style="margin-top:16px;padding:20px 24px">
-      <div style="font-size:13px;font-weight:800;margin-bottom:16px">📋 실제 활동 기록</div>
+    <!-- 5단계 상세 (아코디언) -->
+    <div class="card" style="padding:20px 24px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;margin-bottom:16px">📊 5단계 활동 상세</div>
+      ${SECTIONS.map(s=>secDetailCard(s)).join('')}
+    </div>
 
-      ${m.realActivities.stamp && m.realActivities.stamp.count > 0 ? `
-      <div style="margin-bottom:16px;padding:14px 16px;background:#F0FDF4;border-radius:12px;border-left:4px solid #10B981;">
-        <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:6px;">🌿 출석 스탬프</div>
-        <div style="font-size:13px;color:#374151;">총 <strong>${m.realActivities.stamp.count}회</strong> 출석 · 최근 날짜: ${m.realActivities.stamp.dates.slice(-1)[0]||'-'}</div>
-      </div>` : ''}
-
-      ${m.realActivities.storyLogs && m.realActivities.storyLogs.length > 0 ? `
-      <div style="margin-bottom:16px;">
-        <div style="font-size:12px;font-weight:700;color:#6366F1;margin-bottom:8px;">📝 스토리 로그 (${m.realActivities.storyLogs.length}건 · 최근 5건 표시)</div>
-        ${m.realActivities.storyLogs.slice(-5).reverse().map(s=>`
-        <div style="padding:10px 14px;background:#F5F3FF;border-radius:10px;border-left:3px solid #6366F1;margin-bottom:6px;">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">${s.date||''}</div>
-          ${s.recovery?`<div style="font-size:12px;color:#374151;margin-bottom:2px;"><span style="color:#10B981;font-weight:700;">💚 회복</span> ${s.recovery}</div>`:''}
-          ${s.experience?`<div style="font-size:12px;color:#374151;margin-bottom:2px;"><span style="color:#F59E0B;font-weight:700;">✨ 경험</span> ${s.experience}</div>`:''}
-          ${s.growth?`<div style="font-size:12px;color:#374151;"><span style="color:#6366F1;font-weight:700;">🌱 성장</span> ${s.growth}</div>`:''}
-        </div>`).join('')}
-        ${m.realActivities.storyLogs.length > 5 ? `<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;">+ ${m.realActivities.storyLogs.length-5}개 더 있음</div>` : ''}
-      </div>` : ''}
-
-      ${m.realActivities.bookLogs && m.realActivities.bookLogs.length > 0 ? `
-      <div style="margin-bottom:16px;">
-        <div style="font-size:12px;font-weight:700;color:#F59E0B;margin-bottom:8px;">📚 독서 포트폴리오 (${m.realActivities.bookLogs.length}권 전체)</div>
-        ${m.realActivities.bookLogs.slice().reverse().map(b=>`
-        <div style="padding:10px 14px;background:#FFFBEB;border-radius:10px;border-left:3px solid #F59E0B;margin-bottom:6px;">
-          <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:4px;">📖 ${b.title||'제목없음'} <span style="font-size:10px;color:var(--muted);font-weight:400;">${b.date||''}</span></div>
-          ${b.summary?`<div style="font-size:12px;color:#374151;margin-bottom:2px;">내용: ${b.summary}</div>`:''}
-          ${b.feeling?`<div style="font-size:12px;color:#374151;margin-bottom:2px;">느낀 점: ${b.feeling}</div>`:''}
-          ${b.lesson?`<div style="font-size:12px;color:#374151;">실천: ${b.lesson}</div>`:''}
-        </div>`).join('')}
-        
-      </div>` : ''}
-
-      ${m.realActivities.strengths && m.realActivities.strengths.length > 0 ? `
-      <div style="margin-bottom:16px;padding:14px 16px;background:#FFFBEB;border-radius:12px;border-left:4px solid #F59E0B;">
-        <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:8px;">💪 선택한 강점 (${m.realActivities.strengths.length}개)</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${m.realActivities.strengths.map(s=>`<span style="background:#FEF3C7;color:#92400E;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;">#${s}</span>`).join('')}
-        </div>
-      </div>` : ''}
-
-      ${m.realActivities.cv && m.realActivities.cv.name ? `
-      <div style="margin-bottom:16px;padding:14px 16px;background:#EFF6FF;border-radius:12px;border-left:4px solid #3B82F6;">
-        <div style="font-size:12px;font-weight:700;color:#1E40AF;margin-bottom:8px;">📄 자기소개서 작성 완료</div>
-        ${m.realActivities.cv.field?`<div style="font-size:12px;color:#374151;margin-bottom:3px;">관심 분야: <strong>${m.realActivities.cv.field}</strong></div>`:''}
-        ${m.realActivities.cv.goal?`<div style="font-size:12px;color:#374151;margin-bottom:3px;">진로 목표: <strong>${m.realActivities.cv.goal}</strong></div>`:''}
-        ${m.realActivities.cv.exp?`<div style="font-size:12px;color:#374151;">강점 경험: ${m.realActivities.cv.exp}</div>`:''}
-      </div>` : ''}
-
-      ${m.realActivities.mission && m.realActivities.mission.savedText ? `
-      <div style="padding:14px 16px;background:#FFF1F2;border-radius:12px;border-left:4px solid #EC4899;">
-        <div style="font-size:12px;font-weight:700;color:#9D174D;margin-bottom:6px;">🎯 미션 완료</div>
-        <div style="font-size:12px;color:#374151;">${m.realActivities.mission.savedText}</div>
-      </div>` : ''}
-
-      ${(!m.realActivities.stamp || m.realActivities.stamp.count===0) &&
-        (!m.realActivities.storyLogs || m.realActivities.storyLogs.length===0) &&
-        (!m.realActivities.bookLogs || m.realActivities.bookLogs.length===0) &&
-        (!m.realActivities.strengths || m.realActivities.strengths.length===0) &&
-        (!m.realActivities.cv || !m.realActivities.cv.name) &&
-        (!m.realActivities.mission || !m.realActivities.mission.savedText) ? `
-      <div style="text-align:center;padding:24px;color:var(--muted);">
-        <div style="font-size:32px;margin-bottom:8px;">📭</div>
-        <div style="font-size:13px;font-weight:600;">아직 활동 기록이 없습니다</div>
-        <div style="font-size:12px;margin-top:4px;">홈페이지에서 활동을 완료하면 여기에 표시됩니다.</div>
-      </div>` : ''}
-    </div>` : ''}`;
+    <!-- 기타 활동 참여 현황 -->
+    <div class="card" style="padding:20px 24px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;margin-bottom:16px">🎯 기타 활동 참여 현황</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        ${extraCard('📔','오늘의 회복 체크인',hasCI,ciList.length,ciDetail)}
+        ${extraCard('🥠','포춘쿠키',hasFortune,hasFortune?1:0,'')}
+        ${extraCard('🌟','버킷리스트',hasBK,bkList.length,bkDetail)}
+        ${extraCard('✍️','필사',hasPS,psList.length,psDetail)}
+      </div>
+    </div>`;
 }
+
+function toggleSecDetail(id){
+  const el    = document.getElementById(id);
+  const arrow = document.getElementById(id+'-arrow');
+  if(!el) return;
+  const open = el.style.display==='block';
+  el.style.display = open?'none':'block';
+  if(arrow) arrow.style.transform = open?'rotate(0deg)':'rotate(180deg)';
+}
+
 
 /* ══════════════════════════════════════════
    ALERTS
 ══════════════════════════════════════════ */
 const ALERTS = [
   {icon:'🆕',text:'김지은 회원이 B 섹션 응답을 완료했습니다.',time:'10분 전',read:false,color:'#EEF2FF'},
-  {icon:'📈',text:'이민준 회원의 회복탄력성이 +18점 급등했습니다.',time:'1시간 전',read:false,color:'#DCFCE7'},
-  {icon:'🔥',text:'박서준 회원이 7일 연속 응답했습니다!',time:'3시간 전',read:false,color:'#FEF3C7'},
-  {icon:'⚠️',text:'최하린 회원이 5일째 미응답 상태입니다. 연락이 필요합니다.',time:'1일 전',read:true,color:'#FEE2E2'},
-  {icon:'✅',text:'정우성 회원이 D 섹션을 완료했습니다. 모든 섹션 완주!',time:'2일 전',read:true,color:'#DCFCE7'},
-  {icon:'👋',text:'한소희 회원이 신규 가입했습니다.',time:'3일 전',read:true,color:'#EEF2FF'},
+  {icon:'📈',text:'김지은 회원의 회복탄력성이 +12점 올랐습니다.',time:'1시간 전',read:false,color:'#DCFCE7'},
+  {icon:'🔥',text:'김지은 회원이 3일 연속 응답했습니다!',time:'3시간 전',read:false,color:'#FEF3C7'},
+  
+  
+  
   {icon:'📊',text:'이번 주 응답률이 지난주 대비 23% 증가했습니다.',time:'4일 전',read:true,color:'#EDE9FE'},
 ];
 function renderAlerts(){
   document.getElementById('alert-list').innerHTML = ALERTS.map((a,i)=>`
-    <div style="padding:14px 20px;border-bottom:1px solid #F1F5F9;display:flex;gap:12px;align-items:flex-start;cursor:pointer;background:${a.read?'':'#FAFBFF'};transition:background .15s" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='${a.read?'':'#FAFBFF'}'">
+    <div style="padding:14px 20px;border-bottom:1px solid #F1F5F9;display:flex;gap:12px;align-items:flex-start;cursor:pointer;background:${a.read?'':'#FAFBFF'}" onmouseenter="this.style.background='#F8FAFC'" onmouseleave="this.style.background='${a.read?'':'#FAFBFF'}'">
       <div style="width:36px;height:36px;border-radius:10px;background:${a.color};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${a.icon}</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:${a.read?'500':'700'};color:${a.read?'var(--muted)':'var(--fg)'}">${a.text}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">${a.time}</div>
-      </div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:${a.read?500:700};color:${a.read?'var(--muted)':'var(--fg)'}">${a.text}</div><div style="font-size:11px;color:var(--muted);margin-top:4px">${a.time}</div></div>
       ${!a.read?`<div style="width:8px;height:8px;border-radius:50%;background:var(--primary);margin-top:4px;flex-shrink:0"></div>`:''}
     </div>`).join('');
 }
@@ -1336,29 +1336,17 @@ function markAllRead(){ ALERTS.forEach(a=>a.read=true); renderAlerts(); }
    RESPONSE DETAIL MODAL
 ══════════════════════════════════════════ */
 function openRespModal(memberId, sec){
-  const m = MEMBERS.find(x=>x.id==memberId);
+  const m=MEMBERS.find(x=>String(x.id)==String(memberId));
   if(!m) return;
-  const rs = m.responses[sec]||[];
-  const dark = SEC_COLOR[sec];
-  const bg   = SEC_BG[sec];
-  document.getElementById('resp-modal-content').innerHTML = `
+  const rs=m.responses[sec]||[], dark=SEC_COLOR[sec], bg=SEC_BG[sec];
+  document.getElementById('resp-modal-content').innerHTML=`
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
       <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
-      <div>
-        <div style="font-size:17px;font-weight:900">${m.name}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} 섹션 · ${rs.length}건 응답</div>
-      </div>
+      <div><div style="font-size:17px;font-weight:900">${m.name}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} 섹션 · ${rs.length}건 응답</div></div>
     </div>
     <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border)">
       ${rs.length===0?`<div style="padding:32px;text-align:center;color:var(--muted)">응답 없음</div>`:
-        rs.map(r=>`
-          <div style="padding:14px 16px;border-bottom:1px solid #F1F5F9">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-              <span style="font-size:11px;font-weight:700;color:${dark}">${r.date}</span>
-              ${scorePill(r.score)}
-            </div>
-            <div style="font-size:13px;line-height:1.7">${r.text}</div>
-          </div>`).join('')}
+        rs.map(r=>`<div style="padding:14px 16px;border-bottom:1px solid #F1F5F9"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:${dark}">${r.date}</span>${scorePill(r.score)}</div><div style="font-size:13px;line-height:1.7">${r.text}</div></div>`).join('')}
     </div>`;
   openModal('resp-modal');
 }
@@ -1366,52 +1354,43 @@ function openRespModal(memberId, sec){
 /* ══════════════════════════════════════════
    UTILS
 ══════════════════════════════════════════ */
-function scorePill(score, prefix=''){
-  const col = score>=80?'var(--success)':score>=60?'var(--warn)':'var(--danger)';
-  const bg  = score>=80?'var(--success-bg)':score>=60?'var(--warn-bg)':'var(--danger-bg)';
+function scorePill(score,prefix=''){
+  const col=score>=80?'var(--success)':score>=60?'var(--warn)':'var(--danger)';
+  const bg=score>=80?'var(--success-bg)':score>=60?'var(--warn-bg)':'var(--danger-bg)';
   return `<span class="score-pill" style="background:${bg};color:${col}">${prefix?prefix+' ':''} ${score}점</span>`;
 }
-function miniProg(val, color){
-  return `<div style="display:flex;align-items:center;gap:6px">
-    <div style="width:72px;height:6px;background:#E2E8F0;border-radius:99px;overflow:hidden">
-      <div style="width:${val}%;height:100%;background:${color};border-radius:99px"></div>
-    </div>
-    <span style="font-size:11px;font-weight:700;color:${color}">${val}</span>
-  </div>`;
+function miniProg(val,color){
+  return `<div style="display:flex;align-items:center;gap:6px"><div style="width:72px;height:6px;background:#E2E8F0;border-radius:99px;overflow:hidden"><div style="width:${val}%;height:100%;background:${color};border-radius:99px"></div></div><span style="font-size:11px;font-weight:700;color:${color}">${val}</span></div>`;
 }
 function statusBadge(s){
   const map={활성:['#DCFCE7','#166534'],신규:['#DBEAFE','#1E40AF'],비활성:['#FEE2E2','#991B1B']};
   const [bg,c]=map[s]||['#F1F5F9','#64748B'];
   return `<span class="badge" style="background:${bg};color:${c}">${s}</span>`;
 }
-
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-
-/* close on backdrop click */
-document.querySelectorAll('.modal-bg').forEach(bg=>{
-  bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('open'); });
-});
+document.querySelectorAll('.modal-bg').forEach(bg=>{ bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('open'); }); });
 
 /* ══════════════════════════════════════════
    ADD MEMBER
 ══════════════════════════════════════════ */
 function openAddModal(){ openModal('add-modal'); }
 function addMember(){
-  const name = document.getElementById('add-name').value.trim();
-  const email= document.getElementById('add-email').value.trim();
+  const name=document.getElementById('add-name').value.trim();
+  const email=document.getElementById('add-email').value.trim();
   if(!name||!email){ alert('이름과 이메일을 입력해주세요.'); return; }
-  const newM = {
+  const newM={
     id: MEMBERS.length+1, name, email,
     section:'B', resilience:50, career:40,
-    lastDate:fmtDate(today()), status:'신규',
+    lastDate:fmtDate(today()), joinDate:fmtDate(today()),
     avColor:'#6366F1',
     phone: document.getElementById('add-phone').value||'–',
-    responses:{}
+    responses:{}, checkin:[], bucket:[], passage:[], attendance:{}
   };
   MEMBERS.push(newM);
+  saveMembers();
   closeModal('add-modal');
-  renderOverview(); renderMembers();
+  renderOverview(); renderMembers(); populateMemberSel();
   document.getElementById('sb-total').textContent = MEMBERS.length;
   showToast(`✅ ${name} 회원이 추가되었습니다!`);
 }
@@ -1420,11 +1399,11 @@ function addMember(){
    EXPORT CSV
 ══════════════════════════════════════════ */
 function exportCSV(){
-  const rows=[['ID','이름','이메일','섹션','회복탄력성','진로준비도','마지막활동','상태']];
-  MEMBERS.forEach(m=>rows.push([m.id,m.name,m.email,m.section,m.resilience,m.career,m.lastDate,m.status]));
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  const rows=[['ID','이름','이메일','섹션','회복탄력성','진로준비도','가입일','마지막활동','상태','체크인횟수','필사횟수','버킷횟수']];
+  MEMBERS.forEach(m=>rows.push([m.id,m.name,m.email,m.section,m.resilience,m.career,m.joinDate||'–',m.lastDate,m.status,(m.checkin||[]).length,(m.passage||[]).length,(m.bucket||[]).length]));
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download=`RE-BUILD-UP_회원목록_${fmtDate(today())}.csv`; a.click();
 }
 
@@ -1446,6 +1425,7 @@ function showToast(msg){
 populateMemberSel();
 renderOverview();
 renderMembers();
+
 </script>
 </body>
 </html>

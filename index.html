@@ -44,6 +44,7 @@
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
   @keyframes progressFill { from{width:0} to{width:var(--target-width)} }
   @keyframes countUp { from{opacity:0} to{opacity:1} }
+  @keyframes fortuneOpen { from{opacity:0;transform:translateY(16px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
 
   .fadeUp { animation: fadeUp 0.6s ease both; }
   .fadeUp-1 { animation-delay: 0.1s; }
@@ -652,7 +653,7 @@
       <div id="cd-loading" style="display:none;text-align:center;padding:20px 0;">
         <div style="display:inline-flex;align-items:center;gap:10px;color:#92400E;font-size:14px;font-weight:600;">
           <span style="display:inline-block;animation:pulse 1.2s infinite;font-size:20px;">🌱</span>
-          따뜻한 응원 메시지를 작성하고 있어요...
+          오늘 하루를 읽고 있어요...
         </div>
       </div>
 
@@ -1007,14 +1008,33 @@ window.addEventListener('resize', function() {
     <p style="font-size:22px;font-weight:700;color:var(--muted);padding:16px 0 12px;letter-spacing:0.04em;">🌈 오늘의 행복 클리닉</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
 
-      <!-- 왼쪽: 나를 행복하게 하는 것들 -->
-      <div class="card" style="padding:28px 24px;">
-        <h3 style="font-size:17px;font-weight:800;margin-bottom:6px;color:var(--fg);">💛 나를 행복하게 하는 것들</h3>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">클릭하면 오늘의 행복 에너지가 활성화됩니다 ✨</p>
-        <div id="happy-items-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;grid-auto-rows:1fr;">
-          <!-- JS로 렌더링 -->
+      <!-- 왼쪽: 오늘의 포춘쿠키 -->
+      <div class="card" style="padding:28px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:340px;position:relative;overflow:hidden;">
+
+        <!-- 배경 장식 -->
+        <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#FEF3C7,#FDE68A);opacity:0.4;pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FDE68A,#F59E0B);opacity:0.2;pointer-events:none;"></div>
+
+        <h3 style="font-size:17px;font-weight:800;margin-bottom:4px;color:var(--fg);text-align:center;">🥠 오늘의 포춘쿠키</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;text-align:center;">쿠키를 깨면 오늘의 행복 메시지가 나와요</p>
+
+        <!-- 쿠키 아이콘 (클릭 전) -->
+        <div id="fortune-cookie-wrap" style="text-align:center;">
+          <button id="fortune-btn" onclick="openFortune()" style="background:none;border:none;cursor:pointer;padding:0;display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div id="fortune-cookie-icon" style="font-size:130px;filter:drop-shadow(0 6px 18px #F59E0B55);transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1) rotate(-5deg)'" onmouseout="this.style.transform='scale(1) rotate(0deg)'">🥠</div>
+            <span style="font-size:13px;font-weight:700;color:#D97706;background:linear-gradient(135deg,#FEF3C7,#FDE68A);padding:8px 20px;border-radius:20px;border:1.5px solid #FDE68A;">톡! 깨어보기 ✨</span>
+          </button>
         </div>
-        <div id="happy-selected-msg" style="display:none;margin-top:18px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,#FEF3C7,#FFF7ED);border:1.5px solid #FDE68A;font-size:14px;font-weight:600;color:#92400E;line-height:1.7;"></div>
+
+        <!-- 메시지 (클릭 후) -->
+        <div id="fortune-result" style="display:none;text-align:center;animation:fortuneOpen 0.5s ease;">
+          <div style="font-size:40px;margin-bottom:16px;">✨</div>
+          <div id="fortune-paper" style="background:linear-gradient(135deg,#FFFBEB,#FFF7ED);border:1.5px solid #FDE68A;border-radius:16px;padding:20px 24px;margin-bottom:16px;box-shadow:0 4px 20px #F59E0B22;">
+            <p id="fortune-text" style="font-size:15px;font-weight:700;color:#92400E;line-height:1.8;margin:0;"></p>
+          </div>
+          <button onclick="resetFortune()" style="background:none;border:1.5px solid #FDE68A;border-radius:20px;padding:8px 20px;font-size:12px;font-weight:700;color:#D97706;cursor:pointer;font-family:inherit;transition:all 0.2s;" onmouseover="this.style.background='#FEF3C7'" onmouseout="this.style.background='none'">🥠 다시 깨기</button>
+        </div>
+
       </div>
 
       <!-- 오른쪽: 오늘의 버킷리스트 -->
@@ -1051,94 +1071,96 @@ window.addEventListener('resize', function() {
 </section>
 
 <script>
-/* ── 행복 클리닉 ──────────────────── */
-(function(){
-  var happyItems = [
-    { emoji: '🍜', label: '맛있는 음식' },
-    { emoji: '🎵', label: '좋아하는 음악' },
-    { emoji: '📚', label: '책 읽기' },
-    { emoji: '🌸', label: '꽃 보기' },
-    { emoji: '🚶', label: '산책하기' },
-    { emoji: '🌅', label: '일출·일몰 보기' },
-    { emoji: '🍳', label: '요리하기' },
-    { emoji: '😴', label: '낮잠 자기' },
-    { emoji: '🎨', label: '그림 그리기' },
-    { emoji: '🤗', label: '친구와 수다' },
-    { emoji: '🐶', label: '동물과 놀기' },
-    { emoji: '🌿', label: '자연 속에서' },
-    { emoji: '🛁', label: '따뜻한 목욕' },
-    { emoji: '🎬', label: '영화 보기' },
-    { emoji: '🍰', label: '달콤한 디저트' },
-    { emoji: '✍️', label: '일기 쓰기' },
-    { emoji: '🧘', label: '명상·요가' },
-    { emoji: '🌙', label: '밤하늘 보기' },
-    { emoji: '💌', label: '편지 쓰기' },
-    { emoji: '🎮', label: '게임하기' },
-    { emoji: '🎧', label: '음악 듣기' },
-    { emoji: '🌊', label: '물소리 듣기' },
-    { emoji: '🧁', label: '베이킹하기' },
-    { emoji: '🌷', label: '꽃 가꾸기' },
-    { emoji: '🏃', label: '달리기' },
-    { emoji: '🎁', label: '선물 주기' },
-    { emoji: '🛍️', label: '쇼핑하기' },
-    { emoji: '📷', label: '사진 찍기' },
-    { emoji: '🍵', label: '차 마시기' },
-    { emoji: '🌻', label: '햇살 느끼기' }
+(function() {
+  var fortunes = [
+    '오늘 하루, 작은 것에 감사하는 연습을 해봐요. 그 작은 감사가 쌓여 어느새 큰 행복이 되어 있을 거예요 🌸',
+    '지금 이 순간의 나는 충분히 잘 하고 있어요. 스스로를 조금 더 믿어봐요 — 당신 생각보다 훨씬 잘 해내고 있으니까요 💛',
+    '넘어지는 횟수보다 다시 일어나는 횟수가 더 많다면, 그것만으로 이미 충분해요. 오늘도 일어난 당신이 대단해요 🌿',
+    '오늘의 고민이 내일의 지혜가 돼요. 지금 이 질문들을 소중하게 여겨요 — 답을 찾는 과정 자체가 성장이에요 🌟',
+    '완벽하지 않아도 괜찮아요. 있는 그대로의 당신이 이미 충분히 빛나요 — 완벽한 척 하느라 지치지 않아도 돼요 ✨',
+    '한 걸음씩이면 충분해요. 속도보다 방향이 훨씬 중요하고, 멈추지 않는 것이 가장 중요해요 🧭',
+    '힘든 날일수록 자신을 가장 먼저 다독여줘요. 당신도 충분히 위로받을 자격이 있어요 — 스스로에게 친절해져요 💙',
+    '오늘 작게 낸 용기들이 모여 나중에 큰 변화를 만들어요. 아무리 작아도 용기를 낸 오늘이 자랑스러워요 🦋',
+    '잘 쉬는 것도 열심히 사는 방법 중 하나예요. 오늘은 마음껏 쉬어도 괜찮아요 — 충전도 성장의 일부예요 😌',
+    '꿈은 크게 꾸되, 오늘은 딱 한 걸음만 내딛어봐요. 그 한 걸음이 쌓여 꿈에 가까워지는 거예요 🚀',
+    '다른 사람과 비교하지 말아요. 당신만의 속도로 가는 당신만의 여정이 세상에서 가장 아름다운 길이에요 🌈',
+    '실수는 실패가 아니에요. 더 나은 방법을 찾아가는 과정이고, 그 과정이 바로 당신을 성장시키는 거예요 🔍',
+    '오늘 느낀 감정들은 모두 유효해요. 기쁨도 슬픔도 불안도 — 감정을 느끼는 것 자체가 살아있다는 증거예요 💜',
+    '무엇이든 처음엔 어렵고 낯설어요. 지금 어색한 게 당연한 거니까 너무 조급해하지 않아도 돼요 🌱',
+    '주변의 기대보다 나 자신의 목소리에 먼저 귀 기울여봐요. 내 안의 목소리가 가장 정확한 나침반이에요 👂',
+    '오늘 하루를 버텨낸 것만으로도 충분히 대단한 일을 해낸 거예요. 버텨낸 당신을 진심으로 응원해요 🏆',
+    '좋아하는 것을 발견하는 것도 멋진 진로 탐색이에요. 설레는 것을 찾아다니는 지금이 이미 길 위에 있는 거예요 🎨',
+    '작은 습관 하나가 인생의 방향을 조금씩 바꿔줘요. 오늘의 작은 결심을 믿고 꾸준히 이어가봐요 🌻',
+    '도움을 요청하는 것도 용기예요. 혼자 다 하려 하지 않아도 돼요 — 함께하면 더 멀리 갈 수 있어요 🤝',
+    '오늘의 나를 내일의 내가 고마워할 거예요. 지금 이 순간도 분명 잘 하고 있어요 ⭐',
+    '불안한 마음은 앞으로 나아가고 있다는 신호예요. 성장통은 원래 아픈 거니까 — 아프다는 건 자라고 있다는 뜻이에요 💪',
+    '당신이 포기하지 않는 한, 가능성은 항상 열려 있어요. 오늘도 포기하지 않은 당신이 이미 이기고 있어요 🔓',
+    '오늘 가장 힘들었던 순간이 나중에 가장 강한 무기가 돼요. 지금의 어려움이 미래의 나를 단단하게 만들고 있어요 ⚡',
+    '자신을 사랑하는 연습을 매일 조금씩 해봐요. 자기 자신을 아끼는 것이 모든 회복과 성장의 시작이에요 💗',
+    '어제보다 오늘, 오늘보다 내일 — 조금씩 나아지는 것으로 충분해요. 그 조금이 모여 엄청난 변화가 돼요 📈',
+    '꿈이 아직 막막해도 괜찮아요. 탐색하고 고민하는 지금 이 시간이 이미 멋진 진로 여정의 일부예요 🗺️',
+    '좋은 하루를 만드는 건 거창한 일이 아니에요. 오늘 딱 하나만 잘 해봐요 — 그것만으로 좋은 하루가 돼요 🌞',
+    '나를 힘들게 한 경험도 나를 만들어온 소중한 조각이에요. 그 조각들이 모여 지금의 멋진 당신이 됐어요 🧩',
+    '쉬고 싶을 때 쉬는 것, 그것도 나를 위한 용감한 선택이에요. 오늘 충분히 쉬고 내일을 맞이해요 🛌',
+    '오늘의 포춘쿠키가 당신에게 닿기를 바랐어요. 오늘 하루도 당신이 있어서 세상이 조금 더 따뜻해요 🥠'
   ];
 
-  var msgs = [
-    '오늘도 소소한 행복이 나를 지켜줍니다 🌸',
-    '이것만으로도 오늘은 충분히 아름다워요 ✨',
-    '작은 기쁨이 모여 큰 회복이 됩니다 🌿',
-    '당신의 행복을 응원합니다! 💛',
-    '행복을 느끼는 순간, 회복이 시작됩니다 🌈'
-  ];
-
-  var selected = {};
-
-  function render() {
-    var grid = document.getElementById('happy-items-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    happyItems.forEach(function(item, idx) {
-      var btn = document.createElement('button');
-      btn.title = item.label;
-      var isOn = selected[idx];
-      var charLen = item.label.length;
-      var fs = charLen > 5 ? '11px' : '12px';
-      btn.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 6px;border-radius:12px;border:1.5px solid ' + (isOn ? '#6366F1' : 'var(--border)') + ';background:' + (isOn ? 'linear-gradient(135deg,#EEF2FF,#E0E7FF)' : 'var(--bg)') + ';font-size:' + fs + ';font-weight:600;cursor:pointer;font-family:inherit;color:' + (isOn ? '#4F46E5' : 'var(--muted)') + ';transition:all 0.2s;width:100%;height:100%;min-height:42px;text-align:center;box-sizing:border-box;white-space:nowrap;overflow:hidden;';
-      btn.innerHTML = item.emoji + ' ' + item.label;
-      btn.onclick = function() {
-        selected[idx] = !selected[idx];
-        render();
-        showMsg();
-      };
-      grid.appendChild(btn);
-    });
+  function getTodayKey() {
+    var d = new Date();
+    return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
   }
 
-  function showMsg() {
-    var el = document.getElementById('happy-selected-msg');
-    if (!el) return;
-    var count = Object.values(selected).filter(Boolean).length;
-    if (count === 0) { el.style.display = 'none'; return; }
-    var picked = [];
-    happyItems.forEach(function(item, idx) { if (selected[idx]) picked.push(item.emoji + ' ' + item.label); });
-    var msg = msgs[Math.floor(Math.random() * msgs.length)];
-    el.innerHTML = '오늘 나를 행복하게 하는 것: <strong>' + picked.join(', ') + '</strong><br/>' + msg;
-    el.style.display = 'block';
+  function getTodayIndex() {
+    var d = new Date();
+    var start = new Date(2025, 0, 1);
+    var daysSince = Math.floor((d - start) / (1000 * 60 * 60 * 24));
+    return ((daysSince % fortunes.length) + fortunes.length) % fortunes.length;
   }
 
+  var currentIdx = getTodayIndex();
+
+  window.openFortune = function() {
+    var btn  = document.getElementById('fortune-cookie-wrap');
+    var res  = document.getElementById('fortune-result');
+    var text = document.getElementById('fortune-text');
+    var icon = document.getElementById('fortune-cookie-icon');
+
+    icon.style.transform = 'scale(1.3) rotate(15deg)';
+    setTimeout(function() {
+      icon.style.transform = 'scale(0.5) rotate(-20deg)';
+      setTimeout(function() {
+        btn.style.display = 'none';
+        text.textContent = fortunes[currentIdx];
+        res.style.display = 'block';
+      }, 200);
+    }, 150);
+  };
+
+  window.resetFortune = function() {
+    var btn  = document.getElementById('fortune-cookie-wrap');
+    var res  = document.getElementById('fortune-result');
+    var icon = document.getElementById('fortune-cookie-icon');
+
+    // 다음 인덱스로 이동 (순환)
+    currentIdx = (currentIdx + 1) % fortunes.length;
+
+    res.style.display = 'none';
+    icon.style.transform = 'scale(1) rotate(0deg)';
+    btn.style.display = 'block';
+  };
+
+  /* ── 버킷리스트 ── */
   function saveBucket() {
     var email = localStorage.getItem('rbu_email') || 'guest';
     var b1 = (document.getElementById('bucket-1') || {}).value || '';
     var b2 = (document.getElementById('bucket-2') || {}).value || '';
     var b3 = (document.getElementById('bucket-3') || {}).value || '';
-    var data = { b1: b1, b2: b2, b3: b3 };
-    localStorage.setItem('rbu_bucket_' + email, JSON.stringify(data));
+    localStorage.setItem('rbu_bucket_' + email, JSON.stringify({ b1:b1, b2:b2, b3:b3 }));
   }
 
-  function completeBucket() {
+  window.saveBucket = saveBucket;
+
+  window.completeBucket = function() {
     var b1 = (document.getElementById('bucket-1') || {}).value || '';
     var b2 = (document.getElementById('bucket-2') || {}).value || '';
     var b3 = (document.getElementById('bucket-3') || {}).value || '';
@@ -1147,13 +1169,13 @@ window.addEventListener('resize', function() {
     if (b1.trim() && b2.trim() && b3.trim()) {
       saveBucket();
       complete.style.display = 'block';
-      complete.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      complete.scrollIntoView({ behavior:'smooth', block:'nearest' });
     } else {
       alert('세 가지 버킷리스트를 모두 입력해주세요 🌸');
     }
-  }
+  };
 
-  function loadBucket() {
+  window.addEventListener('DOMContentLoaded', function() {
     var email = localStorage.getItem('rbu_email') || 'guest';
     try {
       var data = JSON.parse(localStorage.getItem('rbu_bucket_' + email) || '{}');
@@ -1161,14 +1183,6 @@ window.addEventListener('resize', function() {
       if (document.getElementById('bucket-2')) document.getElementById('bucket-2').value = data.b2 || '';
       if (document.getElementById('bucket-3')) document.getElementById('bucket-3').value = data.b3 || '';
     } catch(e) {}
-  }
-
-  window.saveBucket = saveBucket;
-  window.completeBucket = completeBucket;
-
-  window.addEventListener('DOMContentLoaded', function() {
-    render();
-    loadBucket();
   });
 })();
 </script>
@@ -2555,7 +2569,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // -- 활동 모달 제어 --
-const actTitles = { diag:'act-diag', story:'act-story', strength:'act-strength', mission:'act-mission', portfolio:'act-portfolio', mentor:'act-mentor' };
+var actTitles = { diag:'act-diag', story:'act-story', strength:'act-strength', mission:'act-mission', portfolio:'act-portfolio', mentor:'act-mentor' };
 function openActivity(type) {
   Object.values(actTitles).forEach(function(id) { document.getElementById(id).style.display = 'none'; });
   document.getElementById(actTitles[type]).style.display = 'block';
@@ -2571,7 +2585,7 @@ function closeActivity(e) {
 }
 
 // -- 1. 진단 --
-const actDiagQs = [
+var actDiagQs = [
   'Q1. 하루하루를 버티는 것이 힘들게 느껴진다.',
   'Q2. 나는 미래에 하고 싶은 일이 있다고 생각한다.',
   'Q3. 힘든 일이 생겼을 때 나를 도와줄 사람이 있다.',
@@ -2593,7 +2607,7 @@ const actDiagQs = [
   'Q19. 나는 변화를 두려워하지 않는 편이다.',
   'Q20. 지금보다 더 나은 내가 될 수 있다고 믿는다.',
 ];
-let adStep = 0, adScores = [];
+var adStep = 0, adScores = [];
 function actDiag(score) {
   adScores.push(score);
   document.getElementById('adp' + (adStep + 1)).style.background = '#3B82F6';
@@ -2606,8 +2620,8 @@ function actDiag(score) {
       b.style.background = '#fff';
     });
   } else {
-    const total = adScores.reduce(function(a,b){ return a+b; }, 0);
-    const pct = Math.round(total / 80 * 100);
+    var total = adScores.reduce(function(a,b){ return a+b; }, 0);
+    var pct = Math.round(total / 80 * 100);
     document.getElementById('act-diag-btns').style.display = 'none';
     document.getElementById('act-diag-result').style.display = 'block';
     var t, s, sub;
@@ -2728,7 +2742,7 @@ function storyReset() {
   storyCheckAll();
 }
 
-let actMoodVal = '';
+var actMoodVal = '';
 function actMood(btn, val) {
   actMoodVal = val;
   document.querySelectorAll('#act-mood-btns button').forEach(b => { b.style.background='var(--bg)'; b.style.borderColor='var(--border)'; b.style.fontWeight='400'; });
@@ -2736,8 +2750,8 @@ function actMood(btn, val) {
   actStoryCheck();
 }
 function actStoryCheck() {
-  const ok = document.getElementById('act-story-input').value.trim().length > 2;
-  const btn = document.getElementById('act-story-btn');
+  var ok = document.getElementById('act-story-input').value.trim().length > 2;
+  var btn = document.getElementById('act-story-btn');
   btn.disabled = !ok; btn.style.opacity = ok ? '1' : '0.4'; btn.style.cursor = ok ? 'pointer' : 'not-allowed';
 }
 
@@ -2901,7 +2915,7 @@ function strengthReset() {
 }
 
 // -- 4. 미션 챌린지 --
-const actMissions = [
+var actMissions = [
   /* 회복 · 감정 */
   { icon:'✏️', text:'오늘 가장 좋았던 순간을 3줄로 써보기', time:'10분' },
   { icon:'💌', text:'과거의 힘들었던 나에게 응원 편지 쓰기', time:'15분' },
@@ -2940,7 +2954,7 @@ const actMissions = [
   { icon:'🌙', text:'오늘 배운 것 또는 깨달은 것 1줄로 기록하기', time:'5분' },
 ];
 function actMissionDraw() {
-  const m = actMissions[Math.floor(Math.random() * actMissions.length)];
+  var m = actMissions[Math.floor(Math.random() * actMissions.length)];
   document.getElementById('act-mission-card').innerHTML =
     '<div><p style="font-size:40px;margin-bottom:12px;">' + m.icon + '</p>' +
     '<p style="font-size:16px;font-weight:700;color:var(--fg);margin-bottom:10px;">' + m.text + '</p>' +
@@ -2985,7 +2999,7 @@ function actMissionComplete() {
 }
 
 // -- 5. 진로 독서 포트폴리오 --
-const actBookDB = {
+var actBookDB = {
   '💻 개발/IT': [
     { isbn:'9788998139766', title:'소프트웨어 세계를 변화시킨 혁명가들', author:'스티븐 레비', desc:'해커 문화의 탄생부터 실리콘밸리의 성장까지, IT 세계를 만든 개척자들의 이야기를 담은 책입니다. 코딩과 기술에 관심 있는 청소년이 IT 산업의 뿌리를 이해하는 데 도움을 줍니다.' },
     { isbn:'9788966262298', title:'Clean Code', author:'로버트 마틴', desc:'좋은 코드란 무엇인지, 어떻게 하면 읽기 쉽고 유지보수하기 좋은 코드를 작성할 수 있는지를 알려주는 프로그래밍 필독서입니다. 개발자를 꿈꾸는 청소년에게 코딩의 진짜 의미를 일깨워줍니다.' },
@@ -3146,7 +3160,7 @@ function actBookPick(btn, field) {
           '<p style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:8px;">📌 이런 책이에요</p>' +
           '<p style="font-size:13px;color:var(--fg);line-height:1.9;">' + book.desc + '</p>' +
         '</div>' +
-        '<button data-idx="' + i + '" data-title="' + book.title + '" onclick="actBookLogOpen(this)" style="width:100%;padding:11px;border-radius:11px;background:linear-gradient(135deg,#F59E0B,#FBBF24);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ 독서 포트폴리오 쓰기</button>' +
+        '<button data-idx="' + i + '" data-title="' + book.title + '" onclick="actBookLogOpen(this)" style="width:100%;padding:11px;border-radius:11px;background:linear-gradient(135deg,#10B981,#34D399);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ 독서 포트폴리오 쓰기</button>' +
         '<div id="act-book-log-' + i + '" style="display:none;margin-top:12px;background:#fff;border-radius:14px;border:1.5px solid #FDE68A;padding:16px;">' +
           '<p style="font-size:13px;font-weight:800;color:#92400E;margin-bottom:12px;">📓 독서 포트폴리오 — ' + book.title + '</p>' +
           '<p style="font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;">📖 책의 내용 요약</p>' +
@@ -3246,7 +3260,7 @@ function actBookLogSave(btn) {
 
 
 // -- 6. 멘토 연결 --
-const actMentorData = {
+var actMentorData = {
   '개발/IT':     { name:'김현우 멘토 (웹 개발자)', info:'비전공자에서 개발자로 전향한 경험을 나눠드려요.\n진로 고민부터 포트폴리오까지 함께 만들어요!' },
   '디자인/예술': { name:'이소연 멘토 (UX 디자이너)', info:'예술을 좋아하는 마음 그대로 직업으로 연결한 이야기,\n같이 들어볼래요?' },
   '보건/의료':   { name:'박지민 멘토 (간호사)', info:'보건 계열 진학부터 실제 현장까지\n궁금한 게 있으면 무엇이든 물어보세요!' },
@@ -3254,7 +3268,7 @@ const actMentorData = {
   '요리/서비스': { name:'정민준 멘토 (셰프)', info:'요리 학원부터 레스토랑까지의 여정,\n같이 꿈 이야기해봐요!' },
   '미디어/콘텐츠':{ name:'한예진 멘토 (콘텐츠 크리에이터)', info:'유튜브·SNS 콘텐츠 제작 경험을 공유해요.\n나만의 채널 만들기, 같이 시작해봐요!' },
 };
-let actMentorField = '';
+var actMentorField = '';
 function actMentorPick(btn, field) {
   actMentorField = field;
   document.querySelectorAll('#act-mentor-btns button').forEach(b => { b.style.background='var(--bg)'; b.style.borderColor='var(--border)'; b.style.fontWeight='400'; });
@@ -3262,7 +3276,7 @@ function actMentorPick(btn, field) {
 }
 function actMentorMatch() {
   if (!actMentorField) { alert('관심 분야를 먼저 선택해주세요!'); return; }
-  const m = actMentorData[actMentorField];
+  var m = actMentorData[actMentorField];
   document.getElementById('act-mentor-result').style.display = 'block';
   document.getElementById('act-mentor-name').textContent = '(멘토) ' + m.name;
   document.getElementById('act-mentor-info').textContent = m.info;
@@ -3635,8 +3649,8 @@ function actMentorMatch() {
           청소년 회복 기반 진로설계 모델 RE-BUILD-UP 개발 총괄
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:12px;">
-          <a href="mailto:happyrainn0324@gmail.com" style="display:inline-flex;align-items:center;gap:8px;background:#6366F112;color:#6366F1;font-size:14px;font-weight:600;padding:10px 20px;border-radius:99px;border:1px solid #6366F133;">
-            ✉️ happyrainn0324@gmail.com
+          <a href="/cdn-cgi/l/email-protection#1c747d6c6c656e7d7572722c2f2e285c7b717d7570327f7371" style="display:inline-flex;align-items:center;gap:8px;background:#6366F112;color:#6366F1;font-size:14px;font-weight:600;padding:10px 20px;border-radius:99px;border:1px solid #6366F133;">
+            ✉️ <span class="__cf_email__" data-cfemail="7018110000090211191e1e4043424430171d11191c5e131f1d">[email&#160;protected]</span>
           </a>
         </div>
       </div>
@@ -3661,9 +3675,9 @@ function actMentorMatch() {
 </footer>
 
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Dark mode
-  let isDark = false;
+  var isDark = false;
   function toggleDark() {
     isDark = !isDark;
     document.getElementById('app').setAttribute('data-dark', isDark);
@@ -3719,7 +3733,7 @@ function actMentorMatch() {
   }
 
   // Diagnosis sliders
-  let rVal = 58, eVal = 65, cVal = 42;
+  var rVal = 58, eVal = 65, cVal = 42;
   function updateSlider(type, val) {
     val = parseInt(val);
     if (type === 'r') {
@@ -4132,7 +4146,7 @@ function actMentorMatch() {
 
 <script>
   // -- 감정 이모티콘 --
-  let selectedMoodScore = 0;
+  var selectedMoodScore = 0;
   function selectEmoji(btn, score) {
     document.querySelectorAll('.mood-emoji-btn').forEach(b => {
       b.style.borderColor = 'var(--border)';
@@ -4147,7 +4161,7 @@ function actMentorMatch() {
   }
 
   // -- KRQ 진단 --
-  const krqQuestions = [
+  var krqQuestions = [
     {q:"나는 어려운 일이 생겨도 잘 해결할 수 있다", area:"자기조절", color:"#6366F1", bg:"#6366F118"},
     {q:"힘든 상황에서도 긍정적인 면을 찾으려 한다", area:"자기조절", color:"#6366F1", bg:"#6366F118"},
     {q:"실패해도 포기하지 않고 다시 도전한다", area:"자기조절", color:"#6366F1", bg:"#6366F118"},
@@ -4164,7 +4178,7 @@ function actMentorMatch() {
     {q:"지금까지 버텨온 내 모습이 대견하다", area:"긍정성", color:"#22C55E", bg:"#22C55E18"},
     {q:"앞으로 내 삶이 더 나아질 것이라 믿는다", area:"긍정성", color:"#22C55E", bg:"#22C55E18"},
   ];
-  let krqIdx = 0, krqScores = new Array(15).fill(0);
+  var krqIdx = 0, krqScores = new Array(15).fill(0);
   function openKRQ() {
     document.getElementById('krqModal').classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -4184,7 +4198,7 @@ function actMentorMatch() {
     document.getElementById('krq-start').style.display = 'block';
   }
   function renderQ() {
-    const q = krqQuestions[krqIdx];
+    var q = krqQuestions[krqIdx];
     document.getElementById('krq-counter').textContent = (krqIdx+1) + ' / 15';
     document.getElementById('krq-progress').style.width = ((krqIdx)/15*100) + '%';
     document.getElementById('krq-badge').textContent = q.area;
@@ -4214,14 +4228,14 @@ function actMentorMatch() {
   function showKRQResult() {
     document.getElementById('krq-questions').style.display = 'none';
     document.getElementById('krq-result').style.display = 'block';
-    const self  = krqScores.slice(0,5).reduce((a,b)=>a+b,0);
-    const soc   = krqScores.slice(5,10).reduce((a,b)=>a+b,0);
-    const pos   = krqScores.slice(10,15).reduce((a,b)=>a+b,0);
-    const total = self + soc + pos;
-    const pct   = Math.round(total/75*100);
-    const selfPct = Math.round(self/25*100);
-    const socPct  = Math.round(soc/25*100);
-    const posPct  = Math.round(pos/25*100);
+    var self  = krqScores.slice(0,5).reduce((a,b)=>a+b,0);
+    var soc   = krqScores.slice(5,10).reduce((a,b)=>a+b,0);
+    var pos   = krqScores.slice(10,15).reduce((a,b)=>a+b,0);
+    var total = self + soc + pos;
+    var pct   = Math.round(total/75*100);
+    var selfPct = Math.round(self/25*100);
+    var socPct  = Math.round(soc/25*100);
+    var posPct  = Math.round(pos/25*100);
     document.getElementById('r-self').textContent   = selfPct + '%';
     document.getElementById('r-social').textContent = socPct + '%';
     document.getElementById('r-pos').textContent    = posPct + '%';
@@ -4230,7 +4244,7 @@ function actMentorMatch() {
       document.getElementById('bar-social').style.width = socPct + '%';
       document.getElementById('bar-pos').style.width    = posPct + '%';
     }, 100);
-    let emoji, title, sub, msg;
+    var emoji, title, sub, msg;
     if(pct >= 75) {
       emoji='🌟'; title='강한 회복탄력성';
       sub='총점 '+total+'점 / 75점';
@@ -4251,20 +4265,20 @@ function actMentorMatch() {
   }
 
   // -- 3문장 일기 체크인 분석 --
-  const resilienceKeywords = [
+  var resilienceKeywords = [
     '했어','했다','해냈','버텼','극복','다시','도전','노력','열심','성공','이겨','견뎠',
     '괜찮','나아','성장','배웠','깨달','뿌듯','자랑','잘했','할 수','할수','할게','할거',
     '희망','기대','좋아','행복','즐거','재미','감사','좋았','잘됐','다행'
   ];
-  const careerKeywords = [
+  var careerKeywords = [
     '공부','수업','시험','성적','진로','직업','꿈','목표','계획','미래','하고싶','되고싶',
     '관심','탐색','찾았','알았','배웠','준비','연습','발표','프로젝트','활동','경험',
     '대학','취업','자격','기술','능력','강점','잘해','잘하','열정','의지','결심'
   ];
 
   function countKeywords(text, keywords) {
-    let count = 0;
-    const lower = text;
+    var count = 0;
+    var lower = text;
     keywords.forEach(k => { if(lower.includes(k)) count++; });
     return count;
   }
@@ -4273,13 +4287,13 @@ function actMentorMatch() {
   var cdLastInput = '';
 
   function analyzeDiary() {
-    const d1 = document.getElementById('diary-1').value.trim();
-    const d2 = document.getElementById('diary-2').value.trim();
-    const d3 = document.getElementById('diary-3').value.trim();
-    const filledCount = [d1,d2,d3].filter(d => d.length > 2).length;
+    var d1 = document.getElementById('diary-1').value.trim();
+    var d2 = document.getElementById('diary-2').value.trim();
+    var d3 = document.getElementById('diary-3').value.trim();
+    var filledCount = [d1,d2,d3].filter(d => d.length > 2).length;
 
     // 3문장 모두 입력해야 버튼 활성화
-    const btn = document.getElementById('diary-submit-btn');
+    var btn = document.getElementById('diary-submit-btn');
     if (filledCount >= 3) {
       btn.disabled = false;
       btn.style.opacity = '1';
@@ -4298,15 +4312,15 @@ function actMentorMatch() {
     }
 
     // 입력 중 미리보기
-    const allText = d1 + ' ' + d2 + ' ' + d3;
-    const totalLen = d1.length + d2.length + d3.length;
+    var allText = d1 + ' ' + d2 + ' ' + d3;
+    var totalLen = d1.length + d2.length + d3.length;
     document.getElementById('diary-empty').style.display = 'none';
     document.getElementById('diary-preview').style.display = 'block';
     document.getElementById('diary-result').style.display = 'none';
 
-    const rScore = calcResilience(allText, totalLen, filledCount);
-    const cScore = calcCareer(allText, totalLen, filledCount);
-    const eScore = selectedMoodScore > 0 ? selectedMoodScore : Math.round((rScore + cScore) / 2 * 0.8);
+    var rScore = calcResilience(allText, totalLen, filledCount);
+    var cScore = calcCareer(allText, totalLen, filledCount);
+    var eScore = selectedMoodScore > 0 ? selectedMoodScore : Math.round((rScore + cScore) / 2 * 0.8);
     document.getElementById('preview-emotion').textContent = eScore + '%';
     document.getElementById('preview-resilience').textContent = rScore + '%';
     document.getElementById('preview-career').textContent = cScore + '%';
@@ -4318,36 +4332,36 @@ function actMentorMatch() {
   }
 
   function calcResilience(text, len, filled) {
-    let score = 30;
+    var score = 30;
     score += filled * 10;
     score += Math.min(countKeywords(text, resilienceKeywords) * 8, 30);
     score += Math.min(Math.floor(len / 20), 15);
-    const d2 = document.getElementById('diary-2').value;
+    var d2 = document.getElementById('diary-2').value;
     if(d2.includes('해냈') || d2.includes('뿌듯') || d2.includes('잘했') || d2.includes('괜찮') || d2.includes('버텼')) score += 10;
     return Math.min(Math.max(score, 20), 95);
   }
 
   function calcCareer(text, len, filled) {
-    let score = 25;
+    var score = 25;
     score += filled * 8;
     score += Math.min(countKeywords(text, careerKeywords) * 10, 35);
     score += Math.min(Math.floor(len / 25), 12);
-    const d3 = document.getElementById('diary-3').value;
+    var d3 = document.getElementById('diary-3').value;
     if(d3.includes('할게') || d3.includes('할거') || d3.includes('도전') || d3.includes('목표') || d3.includes('노력') || d3.includes('해볼')) score += 12;
     return Math.min(Math.max(score, 15), 92);
   }
 
   function submitDiary() {
-    const d1 = document.getElementById('diary-1').value.trim();
-    const d2 = document.getElementById('diary-2').value.trim();
-    const d3 = document.getElementById('diary-3').value.trim();
+    var d1 = document.getElementById('diary-1').value.trim();
+    var d2 = document.getElementById('diary-2').value.trim();
+    var d3 = document.getElementById('diary-3').value.trim();
     if(!d1 || !d2 || !d3) return;
-    const allText = d1 + ' ' + d2 + ' ' + d3;
-    const totalLen = d1.length + d2.length + d3.length;
+    var allText = d1 + ' ' + d2 + ' ' + d3;
+    var totalLen = d1.length + d2.length + d3.length;
 
-    const rScore = calcResilience(allText, totalLen, 3);
-    const cScore = calcCareer(allText, totalLen, 3);
-    const eScore = selectedMoodScore > 0 ? selectedMoodScore : Math.round((rScore + cScore) / 2 * 0.8);
+    var rScore = calcResilience(allText, totalLen, 3);
+    var cScore = calcCareer(allText, totalLen, 3);
+    var eScore = selectedMoodScore > 0 ? selectedMoodScore : Math.round((rScore + cScore) / 2 * 0.8);
 
     document.getElementById('diary-preview').style.display = 'none';
     document.getElementById('diary-result').style.display = 'block';
@@ -4361,7 +4375,7 @@ function actMentorMatch() {
       document.getElementById('result-bar-c').style.width = cScore + '%';
     }, 100);
 
-    let msg = '';
+    var msg = '';
     if(eScore >= 70 && rScore >= 70 && cScore >= 60) {
       msg = '오늘 하루를 정말 잘 보냈어요! 감정도 안정적이고 앞으로 나아갈 힘도 느껴집니다. 🌟';
     } else if(rScore >= 70 && cScore >= 60) {
@@ -4384,20 +4398,17 @@ function actMentorMatch() {
   }
 
   function generateCDComment(d1, d2, d3, eScore, rScore, cScore) {
-    const guide   = document.getElementById('cd-guide');
-    const loading = document.getElementById('cd-loading');
-    const commentText = document.getElementById('cd-comment-text');
-    const signature   = document.getElementById('cd-signature');
-
+    var guide       = document.getElementById('cd-guide');
+    var loading     = document.getElementById('cd-loading');
+    var commentText = document.getElementById('cd-comment-text');
+    var signature   = document.getElementById('cd-signature');
     if (guide) guide.style.display = 'none';
     loading.style.display = 'block';
     commentText.style.display = 'none';
     commentText.textContent = '';
     signature.style.display = 'none';
-
-    /* 일기 내용 분석 기반 따뜻한 메시지 생성 */
     setTimeout(function() {
-      const text = buildCDMessage(d1, d2, d3, eScore, rScore, cScore);
+      var text = buildCDMessage(d1, d2, d3, eScore, rScore, cScore);
       loading.style.display = 'none';
       commentText.textContent = text;
       commentText.style.display = 'block';
@@ -4406,70 +4417,103 @@ function actMentorMatch() {
   }
 
   function buildCDMessage(d1, d2, d3, eScore, rScore, cScore) {
-    const t1 = d1.toLowerCase();
-    const t2 = d2.toLowerCase();
-    const t3 = d3.toLowerCase();
-    const all = t1 + ' ' + t2 + ' ' + t3;
+    var all = (d1 + ' ' + d2 + ' ' + d3).toLowerCase();
+    var t1  = d1.toLowerCase();
+    var t2  = d2.toLowerCase();
+    function has(words) { return words.some(function(w) { return all.indexOf(w) !== -1; }); }
+    function hasIn(text, words) { return words.some(function(w) { return text.indexOf(w) !== -1; }); }
 
-    function has(text, words) { return words.some(w => text.includes(w)); }
+    var sit_fight   = has(['싸웠','다퉜','갈등','언쟁','다툼','말다툼','화냈','섭섭','원망','삐졌','토라','싸운','화가나']);
+    var sit_family  = has(['부모님','엄마','아빠','가족','혼났','잔소리','집에서','부모','형이랑','언니랑','동생이랑','집안']);
+    var sit_lonely  = has(['외로','혼자','아무도','소외','쓸쓸','따돌','무시','고립','친구가없','친구없','아무도없']);
+    var sit_tired   = has(['지쳐','피곤','무기력','하기싫','귀찮','쉬고싶','번아웃','기운없','지겨','다그만']);
+    var sit_fail    = has(['실패','못했','망했','포기','자신없','후회','창피','실수','떨어졌','낙제','틀렸','잘못했']);
+    var sit_study   = has(['공부','시험','성적','과제','숙제','발표','수업','학교','점수','어렵','집중','수행평가','이해안','모르겠']);
+    var sit_future  = has(['진로','꿈','직업','대학','미래','목표','뭘해야','방향','취업','진학','되고싶','하고싶은']);
+    var sit_courage = has(['용기','도전했','시작했','해봤','시도했','결심','새로운','처음으로','첫번째']);
+    var sit_grow    = has(['배웠','깨달','알게됐','성장','변했','달라졌','반성','교훈','느꼈','깨우침']);
+    var sit_good    = has(['뿌듯','해냈','잘했','성공','기뻤','행복','감사','설레','즐거','신났','보람','만족','달성','완성','끝냈','재밌','좋았']);
+    var feel_hard   = hasIn(t2, ['힘들','슬프','울었','눈물','두렵','불안','걱정','우울','막막','공허','속상','억울','화가','짜증','답답']);
+    var feel_good   = hasIn(t2, ['뿌듯','좋았','기뻤','행복','설렜','감사','보람','즐거','신났','만족','편했','후련','안정']);
 
-    const sit_fight   = has(all, ['싸웠','싸움','다퉜','다툼','다투','말다툼','언쟁','갈등','화냈','화가나','속상','억울','서운','짜증','섭섭','원망','삐','토라','싸운','다퉜어']);
-    const sit_family  = has(all, ['부모님','엄마','아빠','가족','집에서','혼났','혼나','잔소리','부모','형이랑','언니랑','동생이랑','집안']);
-    const sit_lonely  = has(all, ['외로','혼자','아무도','소외','무시','외톨','쓸쓸','고립','따돌','친구가없','친구없','아무도없']);
-    const sit_tired   = has(all, ['지쳐','피곤','무기력','하기싫','귀찮','쉬고싶','아무것도','지겨','번아웃','기운없','다그만','그냥다']);
-    const sit_fail    = has(all, ['실패','틀렸','못했','망했','포기','안됐','자신없','자존감','낙제','떨어졌','실수','잘못했','후회','창피','부끄']);
-    const sit_study   = has(all, ['공부','시험','성적','과제','숙제','발표','수업','학교','점수','모르겠','어렵','집중','외워','이해안','수행평가']);
-    const sit_future  = has(all, ['진로','꿈','직업','대학','미래','목표','되고싶','하고싶은','뭘해야','어떻게해야','선택','방향','진학','취업']);
-    const sit_courage = has(all, ['용기','도전했','시작했','해봤','시도했','결심','새로운','처음으로','첫번째']);
-    const sit_grow    = has(all, ['배웠','깨달','알게됐','성장','변했','달라졌','반성','교훈','느꼈','깨우침']);
-    const sit_good    = has(all, ['뿌듯','해냈','잘했','성공','기뻐','행복','감사','설레','좋았','즐거','신났','보람','만족','칭찬','이뤘','달성','완성','끝냈','재밌']);
-    const feel_hard   = has(t2, ['힘들','슬프','울었','눈물','무서','두렵','불안','걱정','답답','막막','외로','지쳐','공허','우울','속상','억울','화가','짜증']);
-    const feel_good   = has(t2, ['뿌듯','좋았','기뻤','행복','설렜','감사','보람','즐거','신났','만족','편했','안정','후련']);
+    var tm = d3.trim(); var hasTm = tm.length > 3;
+    var s1='', s2='', s3='', s4='', s5='';
+    var s6 = hasTm ? '"' + tm + '"라는 마음 그대로, 내일의 당신을 응원해요 🌸' : '내일의 당신도 오늘처럼 충분히 잘 해낼 거예요 🌸';
 
-    const BUILD_U = '자신의 감정을 이렇게 솔직하게 들여다보는 것 자체가 나를 이해하는(Understand) 과정이에요.';
-    const BUILD_B = '오늘의 경험과 감정이 있는 그대로의 나(Be)를 발견하는 소중한 재료가 돼요.';
-    const BUILD_I = '이런 순간들이 쌓여서 내가 어떤 사람인지, 어디서 빛나는지를 발견(Identify)하게 돼요.';
-    const BUILD_L = '힘든 경험도 돌아보면 진로를 만들어가는 진짜 배움(Learn)이 되어줘요.';
-    const BUILD_D = '지금의 고민이 나만의 꿈(Dream)을 설계하는 첫 번째 걸음이에요.';
-
-    const end = d3.length > 3
-      ? '"' + d3 + '" — 그 마음 그대로 내일을 시작해봐요. CD가 응원할게요 🌸'
-      : '내일도 오늘처럼 한 걸음씩이면 충분해요. CD가 응원할게요 🌸';
-
-    if (sit_fight)
-      return '가까운 사람과 다퉜을 때 느끼는 그 복잡하고 속상한 감정, 얼마나 마음이 무거웠을지 충분히 이해해요. 지금 당장 해결하려 하지 않아도 괜찮아요 — 감정이 조금 가라앉으면, 그때 상대방의 입장에서 한 번만 바라봐요. 갈등을 피하지 않고 마주하는 것 자체가 관계를 더 깊고 단단하게 만드는 힘이에요. ' + BUILD_U + ' ' + end;
-
-    if (sit_family)
-      return '가족과의 갈등이나 집에서 느끼는 답답함은 다른 어떤 것보다 마음 깊이 파고드는 것 같아요. 가장 가까운 사람에게서 받는 상처가 때론 가장 크게 느껴지니까요. 그 감정, 틀린 거 아니에요. 집에서 힘들수록 나만의 공간이나 나를 충전해줄 활동 하나를 찾아두는 게 도움이 돼요. ' + BUILD_B + ' ' + end;
-
-    if (sit_lonely)
-      return '혼자인 것 같은 느낌, 아무도 내 마음을 모르는 것 같은 그 외로움 — 정말 쓸쓸하죠. 그 감정 충분히 느껴도 괜찮아요. 오늘 이렇게 글로 꺼낼 수 있었다는 건 스스로를 돌보려는 마음이 살아있다는 거예요. 혼자 있어도 나 자신과 잘 지내는 사람이 결국 좋은 관계도 만들게 돼요. 관심 가는 활동에 아주 작게 한 발만 내딛어봐요. ' + BUILD_B + ' ' + end;
-
-    if (sit_tired)
-      return '몸도 마음도 다 지쳐있을 때 아무것도 하기 싫은 그 감정, 그게 나태한 게 절대 아니에요. 너무 오래 달려온 사람이 멈추는 거예요. 오늘은 진짜로 쉬어도 돼요 — 좋아하는 거 하나 하고, 일찍 자도 충분해요. 충전된 내일의 내가 오늘보다 훨씬 많은 걸 해낼 수 있어요. 회복하는 것도 성장의 일부예요. ' + BUILD_B + ' ' + end;
-
-    if (sit_fail)
-      return '잘 안됐을 때 느끼는 그 쓴맛과 자책감, 정말 마음이 무겁죠. 근데 있잖아요 — 실패를 느끼는 사람만이 진짜 도전하고 있는 사람이에요. 지금 이 순간을 "이 방법은 아니었구나"를 배운 소중한 경험으로 바라봐요. 다음엔 딱 한 가지만 다르게 해볼 수 있을지 생각해봐요. ' + BUILD_L + ' ' + end;
-
-    if (sit_study)
-      return '공부가 안 풀리거나 시험이 걱정될 때 그 답답함, 잘 하고 싶은 마음이 클수록 더 힘들게 느껴지죠. 그 마음 자체가 이미 열심히 살고 있다는 증거예요. 한꺼번에 다 해결하려 하지 말고, 오늘 딱 하나만 — 가장 모르는 부분 하나만 찾아봐요. 작게 쪼개면 훨씬 가볍게 시작할 수 있어요. ' + BUILD_L + ' ' + end;
-
-    if (sit_future)
-      return '진로나 미래에 대한 고민이 머릿속을 가득 채우고 있군요. 뭘 해야 할지 모르겠다는 그 막막함, 사실 그건 나를 진지하게 생각하고 있다는 신호예요. 지금 당장 정답을 찾으려 하지 말고, 관심 가는 것 하나를 작게 탐색해보는 것부터 시작해봐요. 꿈은 한 번에 정해지는 게 아니라 조금씩 발견해가는 거예요. ' + BUILD_D + ' ' + end;
-
-    if (sit_courage)
-      return '뭔가를 새롭게 시작하거나 도전했다는 게 느껴져서 정말 기분이 좋아졌어요! 시작한다는 것 자체가 이미 대부분의 사람들이 못 하는 걸 해낸 거예요. 완벽하지 않아도 괜찮아요. 오늘의 이 한 걸음이 나중에 엄청난 변화로 이어지게 돼요. ' + BUILD_D + ' ' + end;
-
-    if (sit_grow)
-      return '오늘 뭔가를 배우거나 깨달은 게 있었군요. 그냥 지나칠 수도 있었던 경험을 이렇게 의미 있게 바라봤다는 게 정말 대단한 거예요. 이런 순간들이 쌓여서 어느 날 "나 많이 달라졌네"를 느끼게 돼요. ' + BUILD_L + ' ' + end;
-
-    if (sit_good || feel_good)
-      return '오늘 뿌듯하거나 기쁜 순간이 있었던 것 같아서 같이 기분이 좋아지네요! 이 감정, 절대 작은 게 아니에요. 하루 중에 이런 순간을 발견하고 소중하게 여기는 것 자체가 정말 귀한 능력이에요. 이 느낌 꼭 기억해두세요 — 힘든 날이 와도 오늘의 이 기분이 다시 일어설 수 있는 힘이 되어줄 거예요. ' + BUILD_I + ' ' + end;
-
-    if (feel_hard)
-      return '오늘 감정이 많이 힘들었던 것 같아요. 그 감정 그대로 느껴도 괜찮아요 — 힘들 때 힘들다고 느끼는 게 당연한 거예요. 억지로 괜찮아지려 하지 않아도 돼요. 오늘 이렇게 솔직하게 적어준 것만으로도 충분해요. ' + BUILD_U + ' ' + end;
-
-    return '오늘 하루를 이렇게 솔직하게 꺼내 적어줘서 고마워요. 별것 아닌 것 같아도 자신의 하루를 돌아보는 이 시간이 정말 소중한 거예요. 이런 기록들이 쌓이면 나중에 "나는 이런 사람이구나"를 훨씬 선명하게 알게 돼요. ' + BUILD_U + ' ' + end;
+    if (sit_fight) {
+      s1='가까운 사람과 부딪혔을 때 느끼는 그 복잡하고 묵직한 감정이 고스란히 느껴져요.';
+      s2=hasIn(t2,['억울','속상','서운','섭섭'])?'억울하고 서운한 그 감정, 전혀 틀리지 않아요 — 가까울수록 더 아프게 느껴지는 게 당연하거든요.':'말이 엉켜버리거나 마음이 상했을 때 그 무게감, 충분히 이해해요 — 가까운 사이일수록 더 크게 느껴지니까요.';
+      s3='갈등이 생겼다는 건 서로에게 아직 기대와 마음이 있다는 증거이기도 해요.';
+      s4='지금 당장 해결하려 하지 않아도 괜찮아요 — 감정이 조금 가라앉은 후에 차분하게 다시 바라봐도 늦지 않아요.';
+      s5='상대방 입장에서 딱 한 번만 생각해보는 것, 그 작은 시도가 관계를 훨씬 깊고 단단하게 만들어줘요.';
+    } else if (sit_family) {
+      s1='가족과의 갈등이나 집에서 느끼는 답답함은 다른 어떤 상처보다 마음 깊이 파고드는 것 같아요.';
+      s2=hasIn(t2,['억울','화가','짜증'])?'그 억울하고 답답한 감정, 절대 틀리지 않아요 — 가장 가까운 사람의 말이 때론 가장 크게 느껴지니까요.':'가족이니까 더 기대가 크고, 그래서 더 서운하게 느껴지는 거예요 — 그 감정 충분히 이해해요.';
+      s3='집에서 힘들다는 건, 바깥에서 얼마나 많은 것을 혼자 버텨내고 있는지를 보여주는 거예요.';
+      s4='감정이 격해질 때는 그 자리에서 바로 반응하지 않고 잠깐 자리를 피하는 것만으로도 많은 게 달라져요.';
+      s5='나만의 공간이나 좋아하는 활동 하나를 찾아두는 것이 집에서의 에너지를 지키는 데 정말 도움이 돼요.';
+    } else if (sit_lonely) {
+      s1='혼자인 것 같고 아무도 내 마음을 몰라주는 것 같은 그 외로움, 정말 쓸쓸하고 힘들었겠어요.';
+      s2='그 감정, 충분히 느껴도 괜찮아요 — 외롭다고 느끼는 사람이 사실 가장 진심으로 연결을 원하는 사람이에요.';
+      s3='이 감정을 이렇게 솔직하게 꺼낼 수 있었다는 것 자체가 이미 자신을 돌보는 용기예요.';
+      s4='지금 당장 누군가와 연결되지 않아도 괜찮아요 — 먼저 자기 자신과 잘 지내는 시간을 쌓아가는 게 더 중요해요.';
+      s5='관심 가는 활동에 아주 작게 한 발만 내딛어봐요 — 비슷한 마음을 가진 사람은 생각보다 가까이 있어요.';
+    } else if (sit_tired) {
+      s1='몸도 마음도 다 지쳐버렸을 때 아무것도 하기 싫어지는 그 감정, 정말 충분히 느껴져요.';
+      s2='그게 나태한 게 절대 아니에요 — 너무 오래 열심히 달려온 사람만이 느끼는 피로예요.';
+      s3=hasIn(t1,['학교','공부','과제','시험','수업'])?'학교 생활과 공부까지 버텨오면서 쌓인 피로는 하루아침에 풀리지 않아요 — 그만큼 열심히 살았다는 거예요.':'지치는 것도 열심히 살아온 몸과 마음이 보내는 중요한 신호예요 — 이 신호를 무시하지 않아도 돼요.';
+      s4='오늘은 해야 할 것들을 내려놓고 진짜로 쉬어도 돼요 — 쉬는 것도 내일을 위한 중요한 일이니까요.';
+      s5='좋아하는 것 하나 하고, 일찍 자는 것만으로도 충전된 내일을 만들 수 있어요 — 회복하는 것도 성장의 일부예요.';
+    } else if (sit_fail) {
+      s1='잘 안됐을 때 느끼는 그 쓴맛과 자책감, 얼마나 마음이 무거웠을지 충분히 느껴져요.';
+      s2=hasIn(t2,['후회','창피','부끄'])?'후회가 드는 건 그만큼 진지하게 임했기 때문이에요 — 그 마음 자체가 이미 대단한 거예요.':'실패를 느낀다는 건 진짜로 도전했다는 증거예요 — 아무것도 안 한 사람은 실패도 없으니까요.';
+      s3='이 경험이 "이 방법은 아니었구나"를 알게 해준 소중한 순간이에요 — 그게 쌓여서 더 나은 길이 보여요.';
+      s4='자책하는 시간을 조금 줄이고, 그 에너지를 "다음엔 뭘 다르게 해볼까"로 옮겨봐요.';
+      s5='딱 한 가지만 바꿔보는 것부터 시작해봐요 — 작은 변화가 전혀 다른 결과를 만들어줘요.';
+    } else if (sit_study) {
+      s1=hasIn(t2,['걱정','불안','두렵'])?'시험이나 발표 앞에서 느끼는 그 긴장과 걱정, 잘 해내고 싶은 마음이 클수록 더 크게 느껴지죠.':'공부가 잘 안 풀리거나 이해가 안 될 때 그 답답함, 머리가 아닌 마음이 먼저 지치는 느낌이죠.';
+      s2='그 답답함 자체가 이미 포기하지 않고 끝까지 붙잡고 있다는 증거예요 — 그게 쉬운 일이 아니거든요.';
+      s3='잘 하고 싶은 마음이 있다는 것 자체가 이미 대부분의 사람들보다 한 걸음 앞서 있는 거예요.';
+      s4='먼저 10분만 자리를 벗어나 머리를 식혀봐요 — 억지로 붙잡고 있는 것보다 훨씬 효과적이에요.';
+      s5='돌아오면 오늘 딱 한 가지 — 가장 모르는 부분 하나만 찾아봐요. 작게 쪼개면 훨씬 가볍게 시작할 수 있어요.';
+    } else if (sit_future) {
+      s1='진로와 미래에 대한 고민이 머릿속 가득이군요 — 뭘 해야 할지 모르겠다는 그 막막함이 얼마나 무거운지 알아요.';
+      s2='그 막막함은 자신의 삶을 진지하게 생각하고 있다는 신호예요 — 고민하지 않는 사람은 오히려 성장이 없어요.';
+      s3='꿈은 한 번에 정해지는 게 아니라, 이런 고민들이 쌓이고 작은 탐색들이 모여서 조금씩 만들어지는 거예요.';
+      s4='지금 당장 정답을 찾으려 하지 말고, 가장 관심 가는 분야를 아주 작게 — 영상 하나, 책 한 챕터만 탐색해봐요.';
+      s5='그 작은 탐색들이 쌓이면 어느 순간 "나 이거 좋아하는구나"를 발견하게 돼요 — 그게 진로의 시작이에요.';
+    } else if (sit_courage) {
+      s1='뭔가를 새롭게 시작하거나 도전했다는 게 느껴져서, 읽으면서 마음이 설레었어요!';
+      s2='시작한다는 것 자체가 대부분의 사람들이 생각만 하고 못 하는 걸 해낸 거예요 — 그게 얼마나 대단한지 알아요?';
+      s3='완벽하지 않아도 괜찮아요 — 처음부터 잘 하는 사람은 없고, 시작한 사람만이 나아질 수 있어요.';
+      s4='잘 안되는 순간이 와도 "처음이니까 당연해"라고 스스로에게 말해줘요 — 그 여유가 계속할 수 있게 해줘요.';
+      s5='오늘의 이 한 걸음을 기억해두세요 — 나중에 돌아봤을 때 이 순간이 큰 변화의 시작점이었음을 알게 될 거예요.';
+    } else if (sit_grow) {
+      s1='오늘 뭔가를 배우거나 새롭게 깨달은 게 있었군요 — 그냥 지나칠 수 있었던 경험을 이렇게 의미 있게 바라봤다는 게 정말 귀해요.';
+      s2='이런 순간을 포착할 수 있다는 게 쉬운 능력이 아니에요 — 자신을 계속 성장시키려는 마음이 있기 때문이에요.';
+      s3='이런 깨달음들이 쌓이면 어느 날 문득 "나 많이 달라졌네"를 느끼게 돼요.';
+      s4='오늘의 이 배움을 어딘가에 짧게라도 적어두면, 나중에 꺼내볼 수 있는 소중한 자산이 돼요.';
+      s5='그리고 그 깨달음을 내일 한 가지 행동으로 연결해봐요 — 아는 것과 해보는 것 사이의 간격을 줄이는 게 진짜 성장이에요.';
+    } else if (sit_good || feel_good) {
+      s1='오늘 뿌듯하거나 기쁜 순간이 있었던 것 같아서, 읽으면서 같이 기분이 좋아졌어요!';
+      s2='이 감정, 절대 작은 게 아니에요 — 하루 중에 좋은 순간을 발견하고 소중하게 여기는 능력, 정말 귀한 거예요.';
+      s3='긍정적인 감정을 알아채는 사람이 힘든 순간에도 더 빨리 회복할 수 있어요.';
+      s4='이 느낌 꼭 기억해두세요 — 힘든 날이 와도 오늘의 이 기분이 다시 일어설 수 있는 힘이 되어줄 거예요.';
+      s5='오늘 이 기분을 만들어준 것이 무엇이었는지 떠올려봐요 — 그걸 알면 좋은 날을 더 자주 만들 수 있어요.';
+    } else if (feel_hard) {
+      s1='오늘 감정이 정말 많이 무거웠겠어요 — 그 감정이 고스란히 느껴져요.';
+      s2='힘들 때 힘들다고 느끼는 게 당연한 거예요 — 억지로 괜찮아지려 하지 않아도 돼요.';
+      s3='이렇게 솔직하게 꺼내준 것만으로도 이미 충분히 잘 하고 있는 거예요.';
+      s4='오늘 하루를 버텨낸 자신을 조금 더 다독여줘요 — 이 무게를 안고 하루를 보낸 것만으로도 대단한 거니까요.';
+      s5='지금 당장 무언가를 해결하려 하지 말고, 오늘 밤만큼은 좋아하는 것 하나로 자신을 채워줘요.';
+    } else {
+      s1='오늘 하루를 이렇게 솔직하게 꺼내 적어줘서 고마워요.';
+      s2='별것 아닌 것 같아도 자신의 하루를 돌아보는 이 시간이 정말 소중한 거예요.';
+      s3='자신에게 일어난 일과 감정을 바라보는 사람은 그렇지 않은 사람보다 훨씬 빨리 성장해요.';
+      s4='오늘 하루 중에 가장 기억에 남는 순간 하나를 마음속에 담아둬봐요 — 그게 나를 이해하는 첫 번째 단서예요.';
+      s5='이런 기록들이 쌓이면 나중에 "나는 이런 사람이구나"를 훨씬 선명하게 알게 돼요.';
+    }
+    return s1+' '+s2+' '+s3+' '+s4+' '+s5+' '+s6;
   }
 
   function resetDiary() {
@@ -4486,7 +4530,7 @@ function actMentorMatch() {
     document.getElementById('cd-signature').style.display = 'none';
     cdLastInput = '';
     clearTimeout(cdCommentTimer);
-    const btn = document.getElementById('diary-submit-btn');
+    var btn = document.getElementById('diary-submit-btn');
     btn.disabled = true;
     btn.style.opacity = '0.4';
     btn.style.cursor = 'not-allowed';
@@ -4850,14 +4894,4 @@ function actMentorMatch() {
     document.body.appendChild(t);
     requestAnimationFrame(function() {
       t.style.opacity = '1';
-      t.style.transform = 'translateX(-50%) translateY(0)';
-    });
-    setTimeout(function() {
-      t.style.opacity = '0';
-      t.style.transform = 'translateX(-50%) translateY(20px)';
-      setTimeout(function() { t.remove(); }, 350);
-    }, 3200);
-  }
-</script>
-</body>
-</html>
+      t.style.transform = 'tr
