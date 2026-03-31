@@ -3326,7 +3326,20 @@ function actMentorMatch() {
               <span style="font-size:20px;">🌟</span> 중요하게 생각하는 것 (직업가치관)
               <span style="font-size:12px;color:var(--muted);font-weight:500;">— 해당하는 것을 모두 선택하세요</span>
             </label>
-            <div id="dream-value-boxes" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+            <div id="dream-value-boxes" style="display:flex;flex-wrap:wrap;gap:8px;">
+              <button type="button" data-label="보수" id="dv-v1"  onclick="toggleDreamValue('v1')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">💰 보수</button>
+              <button type="button" data-label="명예" id="dv-v2"  onclick="toggleDreamValue('v2')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🏆 명예</button>
+              <button type="button" data-label="사회적 인정" id="dv-v3"  onclick="toggleDreamValue('v3')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">👏 사회적 인정</button>
+              <button type="button" data-label="영향력" id="dv-v4"  onclick="toggleDreamValue('v4')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">💡 영향력</button>
+              <button type="button" data-label="성장" id="dv-v5"  onclick="toggleDreamValue('v5')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🌱 성장</button>
+              <button type="button" data-label="사회 기여" id="dv-v6"  onclick="toggleDreamValue('v6')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🤝 사회 기여</button>
+              <button type="button" data-label="창의성" id="dv-v7"  onclick="toggleDreamValue('v7')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🎨 창의성</button>
+              <button type="button" data-label="️ 안정" id="dv-v8"  onclick="toggleDreamValue('v8')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">⚖️ 안정</button>
+              <button type="button" data-label="️ 자유·자율" id="dv-v9"  onclick="toggleDreamValue('v9')"  style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🕊️ 자유·자율</button>
+              <button type="button" data-label="도전" id="dv-v10" onclick="toggleDreamValue('v10')" style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🔥 도전</button>
+              <button type="button" data-label="가족·관계" id="dv-v11" onclick="toggleDreamValue('v11')" style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🏠 가족·관계</button>
+              <button type="button" data-label="전문성" id="dv-v12" onclick="toggleDreamValue('v12')" style="display:flex;align-items:center;gap:5px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🧠 전문성</button>
+            </div>
             <input type="hidden" id="dream-value" />
           </div>
 
@@ -3336,7 +3349,21 @@ function actMentorMatch() {
               <span style="font-size:20px;">🏫</span> 희망 고교
               <span style="font-size:12px;color:var(--muted);font-weight:500;">(복수 선택 가능)</span>
             </label>
-            <div id="dream-highschool-boxes" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
+            <div id="dream-highschool-boxes" style="display:flex;flex-wrap:wrap;gap:7px;">
+              <button type="button" data-label="특성화고" id="dhs-hs1"  onclick="toggleHighschool('hs1')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🔧 특성화고</button>
+              <button type="button" data-label="일반고" id="dhs-hs2"  onclick="toggleHighschool('hs2')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">📚 일반고</button>
+              <button type="button" data-label="과학고" id="dhs-hs3"  onclick="toggleHighschool('hs3')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🔬 과학고</button>
+              <button type="button" data-label="영재고" id="dhs-hs4"  onclick="toggleHighschool('hs4')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">💫 영재고</button>
+              <button type="button" data-label="외고" id="dhs-hs5"  onclick="toggleHighschool('hs5')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🌐 외고</button>
+              <button type="button" data-label="국제고" id="dhs-hs6"  onclick="toggleHighschool('hs6')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🌍 국제고</button>
+              <button type="button" data-label="자사고" id="dhs-hs7"  onclick="toggleHighschool('hs7')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🏅 자사고</button>
+              <button type="button" data-label="️ 마이스터고" id="dhs-hs8"  onclick="toggleHighschool('hs8')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">⚙️ 마이스터고</button>
+              <button type="button" data-label="예술고" id="dhs-hs9"  onclick="toggleHighschool('hs9')"  style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🎭 예술고</button>
+              <button type="button" data-label="체육고" id="dhs-hs10" onclick="toggleHighschool('hs10')" style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🏃 체육고</button>
+              <button type="button" data-label="대안학교" id="dhs-hs11" onclick="toggleHighschool('hs11')" style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🌿 대안학교</button>
+              <button type="button" data-label="다문화학교" id="dhs-hs12" onclick="toggleHighschool('hs12')" style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">🌏 다문화학교</button>
+              <button type="button" data-label="학력인정고" id="dhs-hs13" onclick="toggleHighschool('hs13')" style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">📜 학력인정고</button>
+            </div>
             <input type="hidden" id="dream-highschool" />
           </div>
 
@@ -3348,7 +3375,7 @@ function actMentorMatch() {
               <label style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
                 <span style="font-size:20px;">🏛️</span> 희망 대학
               </label>
-              <input type="text" id="dream-univ" placeholder="예) 서울대, 연세대, 카이스트, 세종대, 전문대, 아직 모르겠어요..."
+              <input type="text" id="dream-univ" autocomplete="off" name="dream-univ-field" placeholder="예) 서울대, 연세대, 카이스트, 세종대, 전문대, 아직 모르겠어요..."
                 style="width:100%;padding:14px;border-radius:14px;border:1.5px solid var(--border);font-family:inherit;font-size:14px;background:var(--bg);color:var(--fg);transition:border-color 0.2s;outline:none;"
                 onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='var(--border)'" />
             </div>
@@ -3426,250 +3453,39 @@ function actMentorMatch() {
 </section>
 
 <script>
-/* ══════════════════════════════════════════
-   DREAM — 커리어 디자인 AI 로드맵
-══════════════════════════════════════════ */
-var dreamRoadmapSaved = false;
-
-var DREAM_VALUES = [
-  {id:'v1',  emoji:'💰', label:'보수'},
-  {id:'v2',  emoji:'🏆', label:'명예'},
-  {id:'v3',  emoji:'👏', label:'사회적 인정'},
-  {id:'v4',  emoji:'💡', label:'영향력'},
-  {id:'v5',  emoji:'🌱', label:'성장'},
-  {id:'v6',  emoji:'🤝', label:'사회 기여'},
-  {id:'v7',  emoji:'🎨', label:'창의성'},
-  {id:'v8',  emoji:'⚖️', label:'안정'},
-  {id:'v9',  emoji:'🕊️', label:'자유·자율'},
-  {id:'v10', emoji:'🔥', label:'도전'},
-  {id:'v11', emoji:'👨‍👩‍👧', label:'가족·관계'},
-  {id:'v12', emoji:'🧠', label:'전문성'}
-];
-
-function initDreamValues() {
-  var box = document.getElementById('dream-value-boxes');
-  if (!box) return;
-  box.innerHTML = DREAM_VALUES.map(function(v) {
-    return '<button type="button" id="dv-' + v.id + '" onclick="toggleDreamValue(\'' + v.id + '\')" '
-      + 'style="display:flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">'
-      + '<span>' + v.emoji + '</span><span>' + v.label + '</span></button>';
-  }).join('');
-}
-
 function toggleDreamValue(id) {
   var btn = document.getElementById('dv-' + id);
-  var selected = btn.getAttribute('data-sel') === '1';
-  if (selected) {
-    btn.setAttribute('data-sel', '0');
-    btn.style.background = 'var(--bg)';
-    btn.style.borderColor = 'var(--border)';
-    btn.style.color = 'var(--muted)';
-  } else {
-    btn.setAttribute('data-sel', '1');
-    btn.style.background = '#EEF2FF';
-    btn.style.borderColor = '#6366F1';
-    btn.style.color = '#4338CA';
-  }
-  // sync hidden input
-  var chosen = DREAM_VALUES.filter(function(v) {
-    var b = document.getElementById('dv-' + v.id);
-    return b && b.getAttribute('data-sel') === '1';
-  }).map(function(v){ return v.label; });
-  document.getElementById('dream-value').value = chosen.join(', ');
-}
-
-// init on load
-document.addEventListener('DOMContentLoaded', function(){ initDreamValues(); initHighschool(); });
-setTimeout(function(){ initDreamValues(); initHighschool(); }, 300);
-
-var DREAM_HIGHSCHOOLS = [
-  {id:'hs1',  emoji:'🔧', label:'특성화고'},
-  {id:'hs2',  emoji:'📚', label:'일반고'},
-  {id:'hs3',  emoji:'🔬', label:'과학고'},
-  {id:'hs4',  emoji:'💫', label:'영재고'},
-  {id:'hs5',  emoji:'🌐', label:'외고'},
-  {id:'hs6',  emoji:'🌍', label:'국제고'},
-  {id:'hs7',  emoji:'🏅', label:'자사고'},
-  {id:'hs8',  emoji:'⚙️', label:'마이스터고'},
-  {id:'hs9',  emoji:'🎭', label:'예술고'},
-  {id:'hs10', emoji:'🏃', label:'체육고'},
-  {id:'hs11', emoji:'🌿', label:'대안학교'},
-  {id:'hs12', emoji:'🌏', label:'다문화학교'},
-  {id:'hs13', emoji:'📜', label:'학력인정고'}
-];
-
-function initHighschool() {
-  var box = document.getElementById('dream-highschool-boxes');
-  if (!box) return;
-  box.innerHTML = DREAM_HIGHSCHOOLS.map(function(v) {
-    return '<button type="button" id="dhs-' + v.id + '" onclick="toggleHighschool(\'' + v.id + '\')" '
-      + 'style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;color:var(--muted);transition:all 0.2s;white-space:nowrap;">'
-      + '<span>' + v.emoji + '</span><span>' + v.label + '</span></button>';
-  }).join('');
+  if (!btn) return;
+  var on = btn.getAttribute('data-sel') === '1';
+  btn.setAttribute('data-sel', on ? '0' : '1');
+  btn.style.background  = on ? '' : '#EEF2FF';
+  btn.style.borderColor = on ? '' : '#6366F1';
+  btn.style.color       = on ? '' : '#4338CA';
+  var vals = [];
+  document.querySelectorAll('[id^="dv-"]').forEach(function(b) {
+    if (b.getAttribute('data-sel') === '1') vals.push(b.getAttribute('data-label'));
+  });
+  document.getElementById('dream-value').value = vals.join(', ');
 }
 
 function toggleHighschool(id) {
   var btn = document.getElementById('dhs-' + id);
-  var selected = btn.getAttribute('data-sel') === '1';
-  if (selected) {
-    btn.setAttribute('data-sel', '0');
-    btn.style.background = 'var(--bg)';
-    btn.style.borderColor = 'var(--border)';
-    btn.style.color = 'var(--muted)';
-  } else {
-    btn.setAttribute('data-sel', '1');
-    btn.style.background = '#FFF7ED';
-    btn.style.borderColor = '#F59E0B';
-    btn.style.color = '#92400E';
-  }
-  var chosen = DREAM_HIGHSCHOOLS.filter(function(v) {
-    var b = document.getElementById('dhs-' + v.id);
-    return b && b.getAttribute('data-sel') === '1';
-  }).map(function(v){ return v.label; });
-  document.getElementById('dream-highschool').value = chosen.join(', ');
-}
-
-async function generateCareerRoadmap() {
-  var like  = document.getElementById('dream-like').value.trim();
-  var good  = document.getElementById('dream-good').value.trim();
-  var value = document.getElementById('dream-value').value.trim();
-  var major = document.getElementById('dream-major').value.trim();
-  var univ = (document.getElementById('dream-univ')||{}).value ? document.getElementById('dream-univ').value.trim() : '';
-  var highschool = document.getElementById('dream-highschool').value.trim();
-  var job   = document.getElementById('dream-job').value.trim();
-
-  if (!like && !good && !job) {
-    showToast('⚠️ 좋아하는 것, 잘하는 것, 희망 직업 중 하나 이상 입력해주세요!');
-    return;
-  }
-
-  // 로딩 시작
-  document.getElementById('dream-form-area').style.display = 'none';
-  document.getElementById('dream-loading').style.display = 'block';
-  document.getElementById('dream-result').style.display = 'none';
-
-  // 로딩 바 애니메이션
-  var bar = document.getElementById('dream-loading-bar');
-  var pct = 0;
-  var loadInterval = setInterval(function() {
-    pct = Math.min(pct + Math.random() * 12, 88);
-    bar.style.width = pct + '%';
-  }, 400);
-
-  var prompt = `당신은 청소년 진로 전문가이자 커리어 코치입니다. 아래 청소년의 자기 분석 정보를 바탕으로 따뜻하고 구체적인 진로 로드맵을 한국어로 작성해주세요.
-
-[학생 정보]
-- 좋아하는 것: ${like || '미입력'}
-- 잘하는 것: ${good || '미입력'}
-- 중요하게 생각하는 것(가치관): ${value || '미입력'}
-- 희망 대학: ${univ || '미입력'}
-- 희망 학과: ${major || '미입력'}
-- 희망 고교: ${highschool || '미입력'}
-- 희망 직업: ${job || '미입력'}
-
-다음 형식으로 작성해주세요:
-
-🌟 나의 강점 키워드
-(3~5개의 핵심 강점 키워드를 쉼표로 나열)
-
-💫 커리어 적성 분석
-(2~3문장으로 이 학생의 적성과 잠재력 분석)
-
-🗺️ 단계별 진로 로드맵
-
-[1단계 - DREAM] 지금 당장 할 수 있는 것 (현재~6개월)
-• 구체적 실천 2~3가지
-
-[2단계 - DISCOVER] 나를 발견하는 시간 (6개월~1년)
-• 구체적 실천 2~3가지
-
-[3단계 - DEVELOP] 역량을 키우는 시간 (1년~2년)
-• 구체적 실천 2~3가지
-
-[4단계 - DESIGN] 미래를 설계하는 시간 (2년~3년)
-• 구체적 실천 2~3가지
-
-🎯 추천 직업 Top 3
-(직업명: 한 줄 설명 형태로 3개)
-
-💌 응원 메시지
-(2~3문장의 따뜻한 응원 메시지)
-
-형식을 정확히 지키고, 학생이 이해하기 쉬운 언어로 작성해주세요.`;
-
-  try {
-    var response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    var data = await response.json();
-    var text = (data.content || []).map(function(b){ return b.text || ''; }).join('');
-
-    clearInterval(loadInterval);
-    bar.style.width = '100%';
-
-    setTimeout(function() {
-      document.getElementById('dream-loading').style.display = 'none';
-      renderDreamResult(text, like, good, value, major, highschool, job);
-      document.getElementById('dream-result').style.display = 'block';
-    }, 400);
-
-  } catch(e) {
-    clearInterval(loadInterval);
-    document.getElementById('dream-loading').style.display = 'none';
-    document.getElementById('dream-form-area').style.display = 'block';
-    showToast('⚠️ 로드맵 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
-  }
-}
-
-function renderDreamResult(text, like, good, value, major, highschool, job) {
-  // 키워드 추출 (강점 키워드 줄 파싱)
-  var kwMatch = text.match(/강점 키워드[\s\S]*?\n([^\n]+)/);
-  var keywords = [];
-  if (kwMatch) {
-    keywords = kwMatch[1].split(/[,、，]/).map(function(k){ return k.trim().replace(/^[-•*\s]+/, ''); }).filter(Boolean);
-  }
-  var colors = ['#6366F1','#7C3AED','#EC4899','#10B981','#F59E0B','#3B82F6'];
-  var kwHtml = keywords.slice(0,6).map(function(k,i){
-    return '<span style="background:' + colors[i%colors.length] + '18;color:' + colors[i%colors.length] + ';border:1px solid ' + colors[i%colors.length] + '33;padding:6px 16px;border-radius:99px;font-size:13px;font-weight:700;">' + k + '</span>';
-  }).join('');
-  document.getElementById('dream-keywords').innerHTML = kwHtml || '';
-
-  // 추천 직업 카드 (Top 3 파싱)
-  var jobMatch = text.match(/추천 직업[\s\S]*?Top 3([\s\S]*?)(?:💌|응원|$)/);
-  var jobCards = '';
-  if (jobMatch) {
-    var jobLines = jobMatch[1].split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l && /[:：]/.test(l); });
-    var jColors = [['#EEF2FF','#6366F1'],['#F5F3FF','#7C3AED'],['#FDF4FF','#EC4899']];
-    jobCards = jobLines.slice(0,3).map(function(l,i){
-      var parts = l.split(/[:：]/);
-      var name = parts[0].replace(/^[-•*\d.\s]+/,'').trim();
-      var desc = (parts[1]||'').trim();
-      var c = jColors[i] || jColors[0];
-      return '<div style="background:' + c[0] + ';border-radius:14px;padding:16px;border:1px solid ' + c[1] + '33;"><div style="font-size:20px;margin-bottom:6px;">💼</div><div style="font-size:14px;font-weight:800;color:' + c[1] + ';margin-bottom:4px;">' + name + '</div><div style="font-size:12px;color:var(--muted);line-height:1.6;">' + desc + '</div></div>';
-    }).join('');
-  }
-  document.getElementById('dream-job-cards').innerHTML = jobCards;
-
-  // 본문 (전체)
-  document.getElementById('dream-roadmap-content').textContent = text;
-
-  // 저장용 데이터 보관
-  window._dreamData = { like, good, value, major, highschool, job, roadmap: text, keywords };
+  if (!btn) return;
+  var on = btn.getAttribute('data-sel') === '1';
+  btn.setAttribute('data-sel', on ? '0' : '1');
+  btn.style.background  = on ? '' : '#FFF7ED';
+  btn.style.borderColor = on ? '' : '#F59E0B';
+  btn.style.color       = on ? '' : '#92400E';
+  var vals = [];
+  document.querySelectorAll('[id^="dhs-"]').forEach(function(b) {
+    if (b.getAttribute('data-sel') === '1') vals.push(b.getAttribute('data-label'));
+  });
+  document.getElementById('dream-highschool').value = vals.join(', ');
 }
 
 function resetCareerRoadmap() {
   document.getElementById('dream-result').style.display = 'none';
   document.getElementById('dream-form-area').style.display = 'block';
-  dreamRoadmapSaved = false;
 }
 
 function saveDreamRoadmap() {
@@ -3680,22 +3496,48 @@ function saveDreamRoadmap() {
     summary: '희망직업: ' + (data.job || '미입력') + ' | 희망학과: ' + (data.major || '미입력'),
     detail: data.roadmap || ''
   };
-  // pfStories에 추가 (기존 포트폴리오 시스템 활용)
-  try {
-    if (typeof pfStories !== 'undefined') {
-      pfStories.unshift(entry);
-      savePfStories();
-      renderStoryPortfolio();
-    }
-  } catch(e) {}
-
-  // localStorage에도 별도 저장
+  try { if (typeof pfStories !== 'undefined') { pfStories.unshift(entry); savePfStories(); renderStoryPortfolio(); } } catch(e) {}
   var saved = JSON.parse(localStorage.getItem('rbu_dream_roadmaps') || '[]');
   saved.unshift(entry);
   localStorage.setItem('rbu_dream_roadmaps', JSON.stringify(saved));
+  showToast('저장되었습니다!');
+}
 
-  showToast('💾 진로 로드맵이 포트폴리오에 저장되었습니다! 📋');
-  dreamRoadmapSaved = true;
+function renderDreamResult(text) {
+  var colors = ['#6366F1','#7C3AED','#EC4899','#10B981','#F59E0B','#3B82F6'];
+  var kwHtml = '';
+  var kwIdx = text.indexOf('강점키워드');
+  if (kwIdx !== -1) {
+    var kwLine = text.substring(kwIdx).split('\n')[0];
+    var colonIdx = kwLine.indexOf(':');
+    if (colonIdx !== -1) {
+      kwLine.substring(colonIdx + 1).split(',').forEach(function(k, i) {
+        k = k.trim().replace(/^[-\s]+/, '');
+        if (!k) return;
+        kwHtml += '<span style="background:' + colors[i%colors.length] + '22;color:' + colors[i%colors.length] + ';border:1px solid ' + colors[i%colors.length] + '44;padding:6px 14px;border-radius:99px;font-size:13px;font-weight:700;">' + k + '</span>';
+      });
+    }
+  }
+  document.getElementById('dream-keywords').innerHTML = kwHtml;
+
+  var jC = [['#EEF2FF','#6366F1'],['#F5F3FF','#7C3AED'],['#FDF4FF','#EC4899']];
+  var jobCards = '';
+  var topIdx = text.indexOf('Top3');
+  if (topIdx !== -1) {
+    var jobSection = text.substring(topIdx);
+    var endIdx = jobSection.indexOf('응원');
+    if (endIdx !== -1) jobSection = jobSection.substring(0, endIdx);
+    var jLines = jobSection.split('\n').filter(function(l){ return l.trim() && l.indexOf(':') !== -1 && /^[0-9]/.test(l.trim()); });
+    jLines.slice(0,3).forEach(function(l,i){
+      var clean = l.replace(/^[0-9]+\.\s*/, '');
+      var ci = clean.indexOf(':');
+      var name = ci !== -1 ? clean.substring(0,ci).trim() : clean.trim();
+      var desc = ci !== -1 ? clean.substring(ci+1).trim() : '';
+      jobCards += '<div style="background:' + jC[i][0] + ';border-radius:14px;padding:16px;border:1px solid ' + jC[i][1] + '44;"><div style="font-size:14px;font-weight:800;color:' + jC[i][1] + ';margin-bottom:4px;">' + name + '</div><div style="font-size:12px;color:#64748B;line-height:1.6;">' + desc + '</div></div>';
+    });
+  }
+  document.getElementById('dream-job-cards').innerHTML = jobCards;
+  document.getElementById('dream-roadmap-content').textContent = text;
 }
 </script>
 
