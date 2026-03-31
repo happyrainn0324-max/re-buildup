@@ -4748,12 +4748,16 @@ function actMentorMatch() {
     if (currentTab === 'signup') {
       var name      = document.getElementById('input-name').value.trim();
       var confirmPw = document.getElementById('input-confirm-pw').value;
-      if (!name)              { showError('이름을 입력해주세요.'); return; }
-      if (pw !== confirmPw)   { showError('비밀번호가 일치하지 않습니다.'); return; }
-      if (users[email])       { showError('이미 가입된 이메일입니다. 로그인 탭을 이용해주세요.'); return; }
+      if (!name)            { showError('이름을 입력해주세요.'); return; }
+      if (pw !== confirmPw) { showError('비밀번호가 일치하지 않습니다.'); return; }
+      if (users[email])     { showError('이미 가입된 이메일입니다. 로그인 탭을 이용해주세요.'); return; }
 
-      /* 회원 저장 */
-      users[email] = { name: name, pw: btoa(unescape(encodeURIComponent(pw))) };
+      /* 비밀번호 안전 저장 (한글·특수문자 포함 대응) */
+      var encoded;
+      try { encoded = btoa(unescape(encodeURIComponent(pw))); }
+      catch(e) { encoded = btoa(pw); }
+
+      users[email] = { name: name, pw: encoded };
       localStorage.setItem('rbu_users', JSON.stringify(users));
       localStorage.setItem('rbu_email', email);
       localStorage.setItem('rbu_name',  name);
@@ -4771,14 +4775,14 @@ function actMentorMatch() {
         return;
       }
 
-      /* 비밀번호 검증 */
-      var storedPw;
-      try {
-        storedPw = decodeURIComponent(escape(atob(user.pw)));
-      } catch(e) {
-        /* 구버전 btoa 저장 호환 */
-        storedPw = atob(user.pw);
+      /* 비밀번호 복호화 — 신버전(encodeURIComponent) + 구버전(btoa) 모두 호환 */
+      var storedPw = '';
+      try { storedPw = decodeURIComponent(escape(atob(user.pw))); }
+      catch(e) {
+        try { storedPw = atob(user.pw); }
+        catch(e2) { storedPw = user.pw; }
       }
+
       if (storedPw !== pw) {
         showError('비밀번호가 올바르지 않습니다.');
         return;
@@ -4818,9 +4822,10 @@ function actMentorMatch() {
     /* 표시명 */
     document.getElementById('user-display-name').textContent = name || email;
 
-    /* 매니저 버튼: 조은경만 표시 */
+    /* 매니저 버튼: 관리자 이메일만 표시 */
+    var ADMIN_EMAIL = 'happyrainn0324@gmail.com';
     var managerBtn = document.getElementById('manager-btn');
-    if (name === '조은경') {
+    if (email === ADMIN_EMAIL) {
       managerBtn.style.display = 'inline-flex';
     } else {
       managerBtn.style.display = 'none';
@@ -4900,4 +4905,16 @@ function actMentorMatch() {
     document.body.appendChild(t);
     requestAnimationFrame(function() {
       t.style.opacity = '1';
-      t.style.transform = 'tr
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    setTimeout(function() {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(20px)';
+      setTimeout(function() { if(t.parentNode) t.parentNode.removeChild(t); }, 350);
+    }, 3200);
+  }
+
+</script>
+</body>
+</html>
