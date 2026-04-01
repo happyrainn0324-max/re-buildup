@@ -353,11 +353,26 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
   <div class="sb-item" onclick="goto('member-detail-view',this)">
     <span class="ic">🔍</span>회원 상세
   </div>
+  <div class="sb-item" onclick="goto('hero-stats',this)">
+    <span class="ic">🏆</span>히어로 게임 현황
+  </div>
+  <div class="sb-item" onclick="goto('book-stats',this)">
+    <span class="ic">📚</span>독서 포트폴리오 현황
+  </div>
+  <div class="sb-item" onclick="goto('checkin-stats',this)">
+    <span class="ic">📔</span>체크인 현황
+  </div>
+  <div class="sb-item" onclick="goto('memo-board',this)">
+    <span class="ic">📝</span>상담 메모
+  </div>
 
   <div class="sb-section">관리</div>
+  <div class="sb-item" onclick="openAddModal()">
+    <span class="ic">➕</span>회원 추가
+  </div>
   <div class="sb-item" onclick="goto('alerts',this)">
     <span class="ic">🔔</span>알림
-    <span class="sb-badge">3</span>
+    <span class="sb-badge" id="sb-alert-badge">3</span>
   </div>
   <div class="sb-item" onclick="window.open('index.html','_self')">
     <span class="ic">🏠</span>홈으로
@@ -372,8 +387,9 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
 <div id="topbar">
   <div class="tb-title" id="page-title">전체 현황</div>
   <div class="tb-right">
+    <button class="btn btn-ghost btn-sm" onclick="manualSync()" title="index.html 가입 회원 동기화">🔄 회원 동기화</button>
     <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV 내보내기</button>
-
+    <button class="btn btn-primary btn-sm" onclick="openAddModal()">＋ 회원 추가</button>
   </div>
 </div>
 
@@ -438,12 +454,50 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
   </div>
 
   <!-- 월별 응답 추이 간이 차트 -->
-  <div class="card">
+  <div class="card" style="margin-bottom:18px">
     <div style="padding:18px 20px 12px;border-bottom:1px solid var(--border)">
       <div style="font-size:14px;font-weight:800">월별 응답 추이 (2025)</div>
     </div>
     <div style="padding:18px 20px">
       <div id="monthly-chart" class="bar-chart"></div>
+    </div>
+  </div>
+
+  <!-- 기타 활동 요약 -->
+  <div class="g3">
+    <div class="card card-hover" style="padding:20px 22px;cursor:pointer;border-top:3px solid #F59E0B" onclick="goto('book-stats',document.querySelectorAll('.sb-item')[5])">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:24px">📚</div>
+        <div style="font-weight:800;font-size:14px">독서 포트폴리오</div>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;font-size:11px">바로가기 →</button>
+      </div>
+      <div style="font-size:28px;font-weight:900;color:#F59E0B" id="ov-book-total">-</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">전체 독서 기록 수</div>
+      <div style="margin-top:10px;font-size:12px;color:var(--muted)" id="ov-book-members">-</div>
+    </div>
+    <div class="card card-hover" style="padding:20px 22px;cursor:pointer;border-top:3px solid #6366F1" onclick="goto('checkin-stats',document.querySelectorAll('.sb-item')[6])">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:24px">📔</div>
+        <div style="font-weight:800;font-size:14px">오늘의 체크인</div>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;font-size:11px">바로가기 →</button>
+      </div>
+      <div style="font-size:28px;font-weight:900;color:#6366F1" id="ov-ci-today">-</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">오늘 체크인 완료 회원</div>
+      <div style="margin-top:10px;display:flex;gap:12px">
+        <span style="font-size:11px;color:var(--muted)">😊 <b id="ov-ci-e">-</b></span>
+        <span style="font-size:11px;color:var(--muted)">💚 <b id="ov-ci-r">-</b></span>
+        <span style="font-size:11px;color:var(--muted)">🎯 <b id="ov-ci-c">-</b></span>
+      </div>
+    </div>
+    <div class="card card-hover" style="padding:20px 22px;cursor:pointer;border-top:3px solid #F59E0B" onclick="goto('hero-stats',document.querySelectorAll('.sb-item')[4])">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:24px">🏆</div>
+        <div style="font-weight:800;font-size:14px">히어로 게임</div>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;font-size:11px">바로가기 →</button>
+      </div>
+      <div style="font-size:28px;font-weight:900;color:#F59E0B" id="ov-hero-score">-</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">전체 누적 점수</div>
+      <div style="margin-top:10px;font-size:12px;color:var(--muted)" id="ov-hero-level">-</div>
     </div>
   </div>
 </div>
@@ -546,6 +600,299 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
   </div>
 </div>
 
+<!-- ────── 히어로 게임 현황 ────── -->
+<div id="sec-hero-stats" class="section-area">
+  <!-- 상단 요약 -->
+  <div class="g4" style="margin-bottom:18px">
+    <div class="card stat-card card-hover" style="border-top:3px solid #F59E0B">
+      <div class="stat-ico">🏆</div>
+      <div class="stat-lbl">총 획득 점수</div>
+      <div class="stat-val" style="color:#F59E0B" id="hero-ov-score">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #6366F1">
+      <div class="stat-ico">🃏</div>
+      <div class="stat-lbl">획득 카드 수</div>
+      <div class="stat-val" style="color:#6366F1" id="hero-ov-cards">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #22C55E">
+      <div class="stat-ico">⭐</div>
+      <div class="stat-lbl">현재 레벨</div>
+      <div class="stat-val" style="color:#22C55E;font-size:18px" id="hero-ov-level">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #EC4899">
+      <div class="stat-ico">📂</div>
+      <div class="stat-lbl">플레이한 회원 수</div>
+      <div class="stat-val" style="color:#EC4899" id="hero-ov-players">-</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- 회원별 히어로 현황 -->
+    <div class="card">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:800">👤 회원별 히어로 게임 현황</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>회원</th><th>레벨</th><th>점수</th><th>카드</th></tr></thead>
+          <tbody id="hero-member-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 레벨 분포 차트 -->
+    <div class="card" style="padding:20px 24px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px">📊 레벨 분포</div>
+      <div id="hero-level-chart"></div>
+
+      <div style="margin-top:20px;font-size:13px;font-weight:800;margin-bottom:12px">🏅 레벨 기준표</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:#FEF9C3">
+          <span style="font-size:16px">⭐</span>
+          <div style="flex:1;font-size:12px;font-weight:700">전설</div>
+          <div style="font-size:12px;color:var(--muted)">500점 이상</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:#EDE9FE">
+          <span style="font-size:16px">🦸</span>
+          <div style="flex:1;font-size:12px;font-weight:700">영웅</div>
+          <div style="font-size:12px;color:var(--muted)">300점 이상</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:#DBEAFE">
+          <span style="font-size:16px">📚</span>
+          <div style="flex:1;font-size:12px;font-weight:700">지식인</div>
+          <div style="font-size:12px;color:var(--muted)">150점 이상</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:#DCFCE7">
+          <span style="font-size:16px">🧭</span>
+          <div style="flex:1;font-size:12px;font-weight:700">탐험가</div>
+          <div style="font-size:12px;color:var(--muted)">50점 이상</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:#F1F5F9">
+          <span style="font-size:16px">🌱</span>
+          <div style="flex:1;font-size:12px;font-weight:700">견습생</div>
+          <div style="font-size:12px;color:var(--muted)">0점 이상</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 독서 포트폴리오 현황 ────── -->
+<div id="sec-book-stats" class="section-area">
+
+  <!-- 요약 카드 -->
+  <div class="g4" style="margin-bottom:18px">
+    <div class="card stat-card card-hover" style="border-top:3px solid #F59E0B">
+      <div class="stat-ico">📖</div>
+      <div class="stat-lbl">총 독서 기록</div>
+      <div class="stat-val" style="color:#F59E0B" id="book-ov-total">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #6366F1">
+      <div class="stat-ico">👥</div>
+      <div class="stat-lbl">참여 회원 수</div>
+      <div class="stat-val" style="color:#6366F1" id="book-ov-members">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #22C55E">
+      <div class="stat-ico">📚</div>
+      <div class="stat-lbl">가장 많이 읽은 책</div>
+      <div class="stat-val" style="color:#22C55E;font-size:13px;line-height:1.3;margin-top:6px" id="book-ov-top">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #EC4899">
+      <div class="stat-ico">🗓️</div>
+      <div class="stat-lbl">오늘 기록 수</div>
+      <div class="stat-val" style="color:#EC4899" id="book-ov-today">-</div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:18px">
+    <!-- 회원별 독서 기록 -->
+    <div class="card">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:14px;font-weight:800">👤 회원별 독서 기록</div>
+        <select class="fsel" id="book-flt-member" onchange="renderBookStats()">
+          <option value="">전체 회원</option>
+        </select>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>회원</th><th>기록 수</th><th>최근 도서</th><th>최근 날짜</th></tr></thead>
+          <tbody id="book-member-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 도서별 기록 빈도 -->
+    <div class="card" style="padding:20px 24px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px">📊 도서별 기록 빈도 TOP 10</div>
+      <div id="book-title-chart"></div>
+    </div>
+  </div>
+
+  <!-- 전체 독서 로그 -->
+  <div class="card">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-size:14px;font-weight:800">📋 전체 독서 포트폴리오 로그</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="fsearch" placeholder="🔍 책 제목·회원 검색…" oninput="renderBookStats()" id="book-search" style="min-width:160px"/>
+        <select class="fsel" onchange="renderBookStats()" id="book-flt-date">
+          <option value="">전체 기간</option>
+          <option value="7">최근 7일</option>
+          <option value="30">최근 30일</option>
+        </select>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>회원</th><th>도서명</th><th>한줄 요약</th><th>소감</th><th>배운점</th><th>날짜</th></tr></thead>
+        <tbody id="book-log-tbody"></tbody>
+      </table>
+    </div>
+    <div id="book-log-empty" style="display:none;text-align:center;padding:40px;color:var(--muted)">
+      <div style="font-size:36px;margin-bottom:8px">📚</div>
+      <div style="font-size:13px;font-weight:600">독서 기록이 없습니다</div>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 체크인 현황 ────── -->
+<div id="sec-checkin-stats" class="section-area">
+
+  <!-- 요약 카드 -->
+  <div class="g4" style="margin-bottom:18px">
+    <div class="card stat-card card-hover" style="border-top:3px solid #6366F1">
+      <div class="stat-ico">📔</div>
+      <div class="stat-lbl">전체 체크인 수</div>
+      <div class="stat-val" style="color:#6366F1" id="ci-ov-total">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #22C55E">
+      <div class="stat-ico">✅</div>
+      <div class="stat-lbl">오늘 체크인</div>
+      <div class="stat-val" style="color:#22C55E" id="ci-ov-today">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #F59E0B">
+      <div class="stat-ico">😊</div>
+      <div class="stat-lbl">평균 감정 안정도</div>
+      <div class="stat-val" style="color:#F59E0B" id="ci-ov-emotion">-</div>
+    </div>
+    <div class="card stat-card card-hover" style="border-top:3px solid #8B5CF6">
+      <div class="stat-ico">💚</div>
+      <div class="stat-lbl">평균 회복탄력성</div>
+      <div class="stat-val" style="color:#8B5CF6" id="ci-ov-resilience">-</div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:18px">
+    <!-- 회원별 체크인 현황 -->
+    <div class="card">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:14px;font-weight:800">👤 회원별 체크인 현황</div>
+        <select class="fsel" id="ci-flt-member" onchange="renderCheckinStats()">
+          <option value="">전체 회원</option>
+        </select>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>회원</th><th>총 횟수</th><th>오늘</th><th>평균 감정</th><th>평균 회복</th><th>평균 진로</th></tr></thead>
+          <tbody id="ci-member-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 날짜별 추이 차트 -->
+    <div class="card" style="padding:20px 24px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px">📊 최근 14일 체크인 추이</div>
+      <div id="ci-trend-chart" style="display:flex;align-items:flex-end;gap:4px;height:100px"></div>
+      <div id="ci-trend-labels" style="display:flex;gap:4px;margin-top:6px"></div>
+
+      <div style="margin-top:20px">
+        <div style="font-size:13px;font-weight:800;margin-bottom:10px">📈 3대 지표 전체 평균</div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="ci-avg-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 전체 체크인 로그 -->
+  <div class="card">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-size:14px;font-weight:800">📋 체크인 상세 로그</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select class="fsel" onchange="renderCheckinStats()" id="ci-flt-date">
+          <option value="">전체 기간</option>
+          <option value="7">최근 7일</option>
+          <option value="30">최근 30일</option>
+        </select>
+        <select class="fsel" onchange="renderCheckinStats()" id="ci-flt-score">
+          <option value="">전체 점수</option>
+          <option value="high">우수 (70점↑)</option>
+          <option value="low">주의 (50점↓)</option>
+        </select>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>회원</th><th>날짜</th><th>시간</th><th>오늘의 일</th><th>감정</th><th>다짐</th><th>감정</th><th>회복</th><th>진로</th></tr></thead>
+        <tbody id="ci-log-tbody"></tbody>
+      </table>
+    </div>
+    <div id="ci-log-empty" style="display:none;text-align:center;padding:40px;color:var(--muted)">
+      <div style="font-size:36px;margin-bottom:8px">📔</div>
+      <div style="font-size:13px;font-weight:600">체크인 기록이 없습니다</div>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 상담 메모 ────── -->
+<div id="sec-memo-board" class="section-area">
+  <!-- 메모 작성 -->
+  <div class="card" style="padding:20px 24px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:800;margin-bottom:14px">✏️ 새 상담 메모 작성</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:var(--muted)">대상 회원</div>
+        <select class="fsel" style="width:100%" id="memo-member-sel">
+          <option value="">전체 (공지)</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:var(--muted)">분류</div>
+        <select class="fsel" style="width:100%" id="memo-type">
+          <option value="상담">💬 상담</option>
+          <option value="진로">🎯 진로</option>
+          <option value="행동">🔥 행동 관찰</option>
+          <option value="위기">🆘 위기 징후</option>
+          <option value="칭찬">🌟 칭찬/성장</option>
+          <option value="공지">📢 공지</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:var(--muted)">메모 내용</div>
+    <textarea id="memo-text" class="fsearch" style="width:100%;min-height:90px;padding:10px 14px;resize:vertical;margin-bottom:12px" placeholder="상담 내용, 관찰 사항, 특이 사항 등을 기록하세요…"></textarea>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-primary" onclick="addMemo()">💾 메모 저장</button>
+      <span style="font-size:11px;color:var(--muted)">저장된 메모는 브라우저에 보관됩니다</span>
+    </div>
+  </div>
+
+  <!-- 메모 필터 -->
+  <div class="filter-row">
+    <select class="fsel" onchange="renderMemos()" id="memo-flt-member">
+      <option value="">전체 회원</option>
+    </select>
+    <select class="fsel" onchange="renderMemos()" id="memo-flt-type">
+      <option value="">전체 분류</option>
+      <option value="상담">💬 상담</option>
+      <option value="진로">🎯 진로</option>
+      <option value="행동">🔥 행동 관찰</option>
+      <option value="위기">🆘 위기 징후</option>
+      <option value="칭찬">🌟 칭찬/성장</option>
+      <option value="공지">📢 공지</option>
+    </select>
+    <input class="fsearch" placeholder="🔍 메모 내용 검색…" oninput="renderMemos()" id="memo-search"/>
+    <span style="font-size:12px;color:var(--muted)">총 <b id="memo-count">0</b>건</span>
+  </div>
+
+  <!-- 메모 목록 -->
+  <div id="memo-list"></div>
+</div>
+
 </div><!-- /main -->
 
 <!-- ══════════════ ADD MEMBER MODAL ══════════════ -->
@@ -627,54 +974,78 @@ function saveMembers(){
 
 /* index.html 가입자 데이터 읽기 */
 function syncFromIndex(){
-  // index.html의 localStorage 키 패턴: rbu_email, rbu_name
-  // 여러 계정은 rbu_accounts 에 배열로 저장됨
   try {
-    const accounts = JSON.parse(localStorage.getItem('rbu_accounts') || '[]');
+    // index.html은 rbu_users = { "email@x.com": { name, pw } } 구조로 저장
+    const users = JSON.parse(localStorage.getItem('rbu_users') || '{}');
     let changed = false;
-    accounts.forEach(function(acc) {
-      if(!MEMBERS.find(m=>m.email===acc.email)){
-        const newM = {
-          id: Date.now() + Math.random(),
-          name: acc.name || acc.email.split('@')[0],
-          email: acc.email,
-          phone: acc.phone || '–',
-          section: 'B',
-          resilience: 50, career: 40,
-          lastDate: fmtDate(today()),
-          avColor: AV_COLORS[MEMBERS.length % AV_COLORS.length],
-          responses: {},
-          checkin: [],    // 회복 체크인 [{date, d1, d2, d3, eScore, rScore, cScore}]
-          bucket: [],     // 버킷리스트 [{date, b1, b2, b3}]
-          passage: [],    // 필사 [{date, text, author}]
-          joinDate: acc.joinDate || fmtDate(today())
-        };
-        MEMBERS.push(newM);
-        changed = true;
-      }
+
+    Object.entries(users).forEach(function([email, info]) {
+      const name = info.name || email.split('@')[0];
+      // 이미 MEMBERS에 있으면 건너뜀
+      if(MEMBERS.find(m => m.email === email)) return;
+
+      const newM = {
+        id: Date.now() + Math.random(),
+        name,
+        email,
+        phone: '–',
+        section: 'B',
+        resilience: 50,
+        career: 40,
+        lastDate: fmtDate(today()),
+        joinDate: info.joinDate || fmtDate(today()),
+        avColor: AV_COLORS[MEMBERS.length % AV_COLORS.length],
+        responses: {},
+        checkin: [],
+        bucket: [],
+        passage: [],
+        attendance: {}
+      };
+      MEMBERS.push(newM);
+      changed = true;
     });
-    // 기존 회원의 활동 데이터 동기화
+
+    // 모든 회원의 활동 데이터 실시간 동기화
     MEMBERS.forEach(function(m){
       const email = m.email;
-      // 회복 체크인
+
+      // 회복 체크인 로그 (rbu_checkin_log_{email} — submitDiary 저장)
       try {
-        const ciKeys = Object.keys(localStorage).filter(k=>k.startsWith('rbu_checkin_'+email));
-        m.checkin = ciKeys.map(k=>{try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}).filter(Boolean);
+        const ciLogs = JSON.parse(localStorage.getItem('rbu_checkin_log_' + email) || '[]');
+        if(ciLogs.length > 0){
+          m.checkin = ciLogs;
+          const latestCi = ciLogs.reduce((mx, c) => c.date > mx ? c.date : mx, '');
+          if(latestCi > m.lastDate) m.lastDate = latestCi;
+        }
       } catch(e){}
+
       // 버킷리스트
       try {
-        const bk = JSON.parse(localStorage.getItem('rbu_bucket_'+email)||'{}');
-        if(bk.b1||bk.b2||bk.b3) m.bucket = [{date:m.lastDate, b1:bk.b1||'', b2:bk.b2||'', b3:bk.b3||''}];
+        const bk = JSON.parse(localStorage.getItem('rbu_bucket_' + email) || '{}');
+        if(bk.b1 || bk.b2 || bk.b3){
+          m.bucket = [{ date: m.lastDate, b1: bk.b1||'', b2: bk.b2||'', b3: bk.b3||'' }];
+        }
       } catch(e){}
+
       // 필사
       try {
-        const ps = JSON.parse(localStorage.getItem('rbu_passages_'+email)||'[]');
-        m.passage = ps;
+        const ps = JSON.parse(localStorage.getItem('rbu_passages_' + email) || '[]');
+        if(ps.length) m.passage = ps;
+      } catch(e){}
+
+      // 히어로 게임 점수 (개인별)
+      try {
+        const hs = parseInt(localStorage.getItem('hero_score_' + email) || '0');
+        const hc = parseInt(localStorage.getItem('hero_cards_' + email) || '0');
+        if(hs > 0) m.heroScore = hs;
+        if(hc > 0) m.heroCards = hc;
       } catch(e){}
     });
+
     if(changed) saveMembers();
-  } catch(e){}
+  } catch(e){ console.warn('syncFromIndex error:', e); }
 }
+
 
 /* ── 샘플 응답 텍스트 ── */
 const SAMPLE = {
@@ -748,24 +1119,36 @@ function generateSampleMembers(){
 }
 
 /* ── MEMBERS 초기화 ── */
-// localStorage 초기화 후 샘플 1명으로 새로 시작
-localStorage.removeItem(STORAGE_KEY);
-let MEMBERS = generateSampleMembers();
-saveMembers();
+// 저장된 데이터가 있으면 복원, 없으면 샘플 1명으로 시작
+let MEMBERS = loadMembers();
+if(!MEMBERS || MEMBERS.length === 0){
+  MEMBERS = generateSampleMembers();
+  saveMembers();
+}
+// index.html 가입 회원 자동 동기화 (매 로드마다 실행)
 syncFromIndex();
 
 /* ══════════════════════════════════════════
    SIDEBAR NAV
 ══════════════════════════════════════════ */
 const SEC_MAP = {
-  overview:'sec-overview',members:'sec-members',
+  overview:'sec-overview', members:'sec-members',
   'by-section':'sec-by-section',
-  'member-detail-view':'sec-member-detail-view',alerts:'sec-alerts'
+  'member-detail-view':'sec-member-detail-view',
+  alerts:'sec-alerts',
+  'hero-stats':'sec-hero-stats',
+  'book-stats':'sec-book-stats',
+  'checkin-stats':'sec-checkin-stats',
+  'memo-board':'sec-memo-board'
 };
 const TITLES = {
-  overview:'전체 현황',members:'회원 목록',
+  overview:'전체 현황', members:'회원 목록',
   'by-section':'섹션별 응답',
-  'member-detail-view':'회원 상세',alerts:'알림'
+  'member-detail-view':'회원 상세', alerts:'알림',
+  'hero-stats':'🏆 진로 히어로 게임 현황',
+  'book-stats':'📚 진로 독서 포트폴리오 현황',
+  'checkin-stats':'📔 오늘의 체크인 현황',
+  'memo-board':'📝 상담 메모'
 };
 function goto(key, el){
   document.querySelectorAll('.section-area').forEach(s=>s.classList.remove('active'));
@@ -777,6 +1160,10 @@ function goto(key, el){
   if(key==='alerts') renderAlerts();
   if(key==='members') renderMembers();
   if(key==='overview') renderOverview();
+  if(key==='hero-stats') renderHeroStats();
+  if(key==='book-stats') renderBookStats();
+  if(key==='checkin-stats') renderCheckinStats();
+  if(key==='memo-board') { renderMemos(); populateMemoSels(); }
 }
 
 /* ══════════════════════════════════════════
@@ -790,6 +1177,9 @@ function renderOverview(){
   document.getElementById('sb-total').textContent = total;
   document.getElementById('ov-resp').textContent = totalResp+'건';
   document.getElementById('ov-avg').textContent = avgRes+'점';
+  const activeCnt = MEMBERS.filter(m=>{ const d=new Date(m.lastDate); return (today()-d)<14*86400000; }).length;
+  document.getElementById('ov-active').textContent = activeCnt+'명';
+  document.getElementById('ov-active-pct').textContent = Math.round(activeCnt/total*100)+'%';
   const sec_counts = {};
   SECTIONS.forEach(s=>{sec_counts[s]=MEMBERS.filter(m=>Object.keys(m.responses).includes(s)).length;});
   document.getElementById('section-progress-bars').innerHTML = SECTIONS.map(s=>`
@@ -803,8 +1193,9 @@ function renderOverview(){
   const all = [];
   MEMBERS.forEach(m=>SECTIONS.forEach(s=>(m.responses[s]||[]).forEach(r=>all.push({m,s,r}))));
   all.sort((a,b)=>b.r.date.localeCompare(a.r.date));
-  document.getElementById('recent-tbody').innerHTML = all.slice(0,8).map(({m,s,r})=>`
-    <tr onclick="openRespModal(${m.id},'${s}')">
+  document.getElementById('recent-tbody').innerHTML = all.slice(0,8).map(({m,s,r})=>{
+    const idx = MEMBERS.indexOf(m);
+    return `<tr onclick="openRespModal(${idx},'${s}')">
       <td><div style="display:flex;align-items:center;gap:8px">
         <div class="av av-sm" style="background:${m.avColor}">${m.name[0]}</div>
         <span style="font-weight:600">${m.name}</span>
@@ -812,7 +1203,8 @@ function renderOverview(){
       <td><span class="badge sec-${s}">${SEC_EMOJI[s]} ${s}</span></td>
       <td>${scorePill(r.score)}</td>
       <td style="color:var(--muted);font-size:11px">${r.date}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   const months = ['1월','2월','3월','4월','5월','6월','7월'];
   const vals = [18,24,31,27,39,44,totalResp>0?Math.min(totalResp,52):48];
   const maxVal = Math.max(...vals);
@@ -822,6 +1214,46 @@ function renderOverview(){
       <div class="bar-fill" style="height:${Math.round(v/maxVal*80)+10}px;background:${i===vals.length-1?'linear-gradient(180deg,#818CF8,#6366F1)':'#C7D2FE'}"></div>
       <div class="bar-lbl">${months[i]}</div>
     </div>`).join('');
+
+  /* ── 독서 포트폴리오 요약 ── */
+  try {
+    let bookTotal = 0, bookMemberSet = new Set();
+    MEMBERS.forEach(m=>{
+      const bl = (()=>{try{return JSON.parse(localStorage.getItem('rbu_booklog_'+m.email)||'[]');}catch(e){return[];}})();
+      const pf = (()=>{try{return JSON.parse(localStorage.getItem('rbu_pf_'+m.email)||'[]');}catch(e){return[];}})();
+      const cnt = bl.length + pf.length;
+      bookTotal += cnt;
+      if(cnt>0) bookMemberSet.add(m.id);
+    });
+    document.getElementById('ov-book-total').textContent = bookTotal+'건';
+    document.getElementById('ov-book-members').textContent = bookMemberSet.size+'명이 독서 포트폴리오 참여 중';
+  } catch(e){}
+
+  /* ── 체크인 요약 ── */
+  try {
+    const todayStr = fmtDate(today());
+    let ciTodayCnt=0, allCi=[];
+    MEMBERS.forEach(m=>{
+      const logs=(()=>{try{return JSON.parse(localStorage.getItem('rbu_checkin_log_'+m.email)||'[]');}catch(e){return[];}})();
+      allCi=allCi.concat(logs);
+      if(logs.some(l=>l.date===todayStr)) ciTodayCnt++;
+    });
+    const avgE2 = allCi.length ? Math.round(allCi.reduce((s,l)=>s+(l.eScore||0),0)/allCi.length) : 0;
+    const avgR2 = allCi.length ? Math.round(allCi.reduce((s,l)=>s+(l.rScore||0),0)/allCi.length) : 0;
+    const avgC2 = allCi.length ? Math.round(allCi.reduce((s,l)=>s+(l.cScore||0),0)/allCi.length) : 0;
+    document.getElementById('ov-ci-today').textContent = ciTodayCnt+'명';
+    document.getElementById('ov-ci-e').textContent = (avgE2||'-')+(avgE2?'%':'');
+    document.getElementById('ov-ci-r').textContent = (avgR2||'-')+(avgR2?'%':'');
+    document.getElementById('ov-ci-c').textContent = (avgC2||'-')+(avgC2?'%':'');
+  } catch(e){}
+
+  /* ── 히어로 게임 요약 ── */
+  try {
+    const heroTotal = parseInt(localStorage.getItem('hero_total_score')||'0');
+    const heroLv = getHeroLevel(heroTotal);
+    document.getElementById('ov-hero-score').textContent = heroTotal+'점';
+    document.getElementById('ov-hero-level').textContent = '현재 레벨: '+heroLv.label;
+  } catch(e){}
 }
 
 /* ══════════════════════════════════════════
@@ -836,8 +1268,10 @@ function renderMembers(){
     return matchQ && matchS;
   });
   document.getElementById('member-count-lbl').textContent = list.length;
-  document.getElementById('members-tbody').innerHTML = list.map((m,i)=>`
-    <tr onclick="openMemberFromTable(${m.id})">
+  document.getElementById('members-tbody').innerHTML = list.map((m,i)=>{
+    const idx = MEMBERS.indexOf(m);
+    return `
+    <tr onclick="openMemberFromTable(${idx})">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
       <td><div style="display:flex;align-items:center;gap:9px">
         <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
@@ -849,14 +1283,15 @@ function renderMembers(){
       <td>${miniProg(m.resilience,'#6366F1')}</td>
       <td>${miniProg(m.career,'#22C55E')}</td>
       <td style="font-size:11px;color:var(--muted)">${m.lastDate}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMemberFromTable(${m.id})">상세 →</button></td>
-    </tr>`).join('');
+      <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMemberFromTable(${idx})">상세 →</button></td>
+    </tr>`;
+  }).join('');
 }
 function filterMembers(){ renderMembers(); }
-function openMemberFromTable(id){
-  document.getElementById('detail-member-sel').value = id;
+function openMemberFromTable(idx){
+  document.getElementById('detail-member-sel').value = idx;
   goto('member-detail-view', null);
-  renderMemberDetail(id);
+  renderMemberDetail(idx);
 }
 
 /* ══════════════════════════════════════════
@@ -865,10 +1300,10 @@ function openMemberFromTable(id){
 function populateMemberSel(){
   const sel = document.getElementById('flt-sec-member');
   sel.innerHTML = '<option value="">전체 회원</option>';
-  MEMBERS.forEach(m=>{ const o=document.createElement('option'); o.value=m.id; o.textContent=m.name; sel.appendChild(o); });
+  MEMBERS.forEach((m,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=m.name; sel.appendChild(o); });
   const sel2 = document.getElementById('detail-member-sel');
   sel2.innerHTML = '<option value="">회원을 선택하세요</option>';
-  MEMBERS.forEach(m=>{ const o=document.createElement('option'); o.value=m.id; o.textContent=m.name; sel2.appendChild(o); });
+  MEMBERS.forEach((m,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=m.name; sel2.appendChild(o); });
 }
 function renderBySection(){
   const sec = document.getElementById('flt-sec-tab').value;
@@ -899,15 +1334,17 @@ function renderBySection(){
   entries.forEach(e=>{ if(!byMember[e.m.id]) byMember[e.m.id]={m:e.m,entries:[]}; byMember[e.m.id].entries.push(e.r); });
   const dark=SEC_COLOR[sec], bg=SEC_BG[sec];
   if(!entries.length){ document.getElementById('sec-response-list').innerHTML=`<div style="text-align:center;padding:48px;color:var(--muted)"><div style="font-size:40px;margin-bottom:10px">🗂️</div><div style="font-size:14px;font-weight:600">해당 조건의 응답이 없습니다</div></div>`; return; }
-  document.getElementById('sec-response-list').innerHTML = Object.values(byMember).map(({m,entries:rs})=>`
-    <div class="resp-card">
+  document.getElementById('sec-response-list').innerHTML = Object.values(byMember).map(({m,entries:rs})=>{
+    const idx = MEMBERS.indexOf(m);
+    return `<div class="resp-card">
       <div class="resp-header" style="background:${bg}">
         <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
         <div style="flex:1"><div style="font-weight:800;font-size:13px">${m.name}</div><div style="font-size:10px;color:var(--muted)">${m.email} · ${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} · ${rs.length}건</div></div>
-        <div style="display:flex;gap:6px;align-items:center">${scorePill(Math.round(rs.reduce((s,r)=>s+r.score,0)/rs.length),'평균')}<button class="btn btn-ghost btn-sm" onclick="openRespModal(${m.id},'${sec}')">전체보기</button></div>
+        <div style="display:flex;gap:6px;align-items:center">${scorePill(Math.round(rs.reduce((s,r)=>s+r.score,0)/rs.length),'평균')}<button class="btn btn-ghost btn-sm" onclick="openRespModal(${idx},'${sec}')">전체보기</button></div>
       </div>
       <div class="resp-body">${rs.map(r=>`<div class="resp-entry"><div class="resp-meta"><span style="font-weight:700;color:${dark}">${r.date}</span>${scorePill(r.score)}</div><div class="resp-text">${r.text}</div></div>`).join('')}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 /* ══════════════════════════════════════════
@@ -1098,8 +1535,8 @@ function renderExtraActivity(m){
 /* ══════════════════════════════════════════
    MEMBER DETAIL
 ══════════════════════════════════════════ */
-function renderMemberDetail(id){
-  if(!id){
+function renderMemberDetail(idx){
+  if(idx==='' || idx===null || idx===undefined){
     document.getElementById('member-detail-content').innerHTML=`
       <div style="text-align:center;padding:60px;color:var(--muted)">
         <div style="font-size:48px">👆</div>
@@ -1107,7 +1544,7 @@ function renderMemberDetail(id){
       </div>`;
     return;
   }
-  const m = MEMBERS.find(x=>String(x.id)==String(id));
+  const m = MEMBERS[parseInt(idx)];
   if(!m) return;
 
   const allResp = SECTIONS.flatMap(s=>(m.responses[s]||[]).map(r=>({s,r})));
@@ -1311,15 +1748,163 @@ function toggleSecDetail(id){
 
 
 /* ══════════════════════════════════════════
-   ALERTS
+   🏆 진로 히어로 게임 현황
 ══════════════════════════════════════════ */
+const HERO_LEVELS_MGR = [
+  {min:500, label:'⭐ 전설',  color:'#F59E0B', bg:'#FEF9C3'},
+  {min:300, label:'🦸 영웅',  color:'#8B5CF6', bg:'#EDE9FE'},
+  {min:150, label:'📚 지식인',color:'#3B82F6', bg:'#DBEAFE'},
+  {min:50,  label:'🧭 탐험가',color:'#22C55E', bg:'#DCFCE7'},
+  {min:0,   label:'🌱 견습생',color:'#64748B', bg:'#F1F5F9'},
+];
+function getHeroLevel(score){
+  for(const l of HERO_LEVELS_MGR) if(score>=l.min) return l;
+  return HERO_LEVELS_MGR[HERO_LEVELS_MGR.length-1];
+}
+function getHeroData(email){
+  // index.html의 hero localStorage 키: hero_total_score, hero_total_cards, hero_level
+  // 다중 회원 지원: hero_score_{email}, hero_cards_{email}
+  const score = parseInt(localStorage.getItem('hero_score_'+email)||localStorage.getItem('hero_total_score')||'0');
+  const cards = parseInt(localStorage.getItem('hero_cards_'+email)||localStorage.getItem('hero_total_cards')||'0');
+  return {score, cards, level: getHeroLevel(score)};
+}
+function renderHeroStats(){
+  // 각 회원의 히어로 데이터 수집
+  const data = MEMBERS.map(m=>({m, ...getHeroData(m.email)}));
+  const totalScore = data.reduce((s,d)=>s+d.score,0);
+  const totalCards = data.reduce((s,d)=>s+d.cards,0);
+  const players = data.filter(d=>d.score>0).length;
+  // 현재 로그인 사용자 기준 레벨
+  const myScore = parseInt(localStorage.getItem('hero_total_score')||'0');
+  const myLevel = getHeroLevel(myScore);
+
+  document.getElementById('hero-ov-score').textContent = totalScore+'점';
+  document.getElementById('hero-ov-cards').textContent = totalCards+'장';
+  document.getElementById('hero-ov-level').textContent = myLevel.label;
+  document.getElementById('hero-ov-players').textContent = players+'명';
+
+  // 회원별 테이블
+  document.getElementById('hero-member-tbody').innerHTML = data.map(d=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="av av-sm" style="background:${d.m.avColor}">${d.m.name[0]}</div>
+        <span style="font-weight:600;font-size:12px">${d.m.name}</span>
+      </div></td>
+      <td><span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${d.level.bg};color:${d.level.color}">${d.level.label}</span></td>
+      <td style="font-weight:800;color:${d.level.color}">${d.score}점</td>
+      <td style="font-size:12px;color:var(--muted)">${d.cards}장</td>
+    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">등록된 회원이 없습니다</td></tr>';
+
+  // 레벨 분포 차트
+  const lvCounts = {};
+  HERO_LEVELS_MGR.forEach(l=>{ lvCounts[l.label]=0; });
+  data.forEach(d=>{ lvCounts[d.level.label]=(lvCounts[d.level.label]||0)+1; });
+  const total = data.length||1;
+  document.getElementById('hero-level-chart').innerHTML = HERO_LEVELS_MGR.map(l=>{
+    const cnt = lvCounts[l.label]||0;
+    const pct = Math.round(cnt/total*100);
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:700;color:${l.color}">${l.label}</span>
+        <span style="font-size:11px;color:var(--muted)">${cnt}명 (${pct}%)</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;background:${l.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════
+   📝 상담 메모
+══════════════════════════════════════════ */
+const MEMO_KEY = 'rbu_manager_memos';
+const MEMO_TYPE_COLOR = {
+  상담:'#3B82F6', 진로:'#6366F1', 행동:'#F59E0B',
+  위기:'#EF4444', 칭찬:'#22C55E', 공지:'#8B5CF6'
+};
+const MEMO_TYPE_BG = {
+  상담:'#DBEAFE', 진로:'#EEF2FF', 행동:'#FEF3C7',
+  위기:'#FEE2E2', 칭찬:'#DCFCE7', 공지:'#EDE9FE'
+};
+const MEMO_TYPE_EMOJI = {상담:'💬',진로:'🎯',행동:'🔥',위기:'🆘',칭찬:'🌟',공지:'📢'};
+
+function loadMemos(){ try{ return JSON.parse(localStorage.getItem(MEMO_KEY)||'[]'); }catch(e){return [];} }
+function saveMemos(list){ localStorage.setItem(MEMO_KEY, JSON.stringify(list)); }
+
+function populateMemoSels(){
+  ['memo-member-sel','memo-flt-member'].forEach(id=>{
+    const sel = document.getElementById(id);
+    const defOpt = id==='memo-member-sel'?'<option value="">전체 (공지)</option>':'<option value="">전체 회원</option>';
+    sel.innerHTML = defOpt + MEMBERS.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  });
+}
+
+function addMemo(){
+  const memId = document.getElementById('memo-member-sel').value;
+  const type  = document.getElementById('memo-type').value;
+  const text  = document.getElementById('memo-text').value.trim();
+  if(!text){ showToast('⚠️ 메모 내용을 입력해주세요.'); return; }
+  const m = memId ? MEMBERS.find(x=>String(x.id)===memId) : null;
+  const list = loadMemos();
+  list.unshift({
+    id: Date.now(),
+    memberId: memId||null,
+    memberName: m ? m.name : '전체',
+    type, text,
+    date: fmtDate(today()),
+    time: new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})
+  });
+  saveMemos(list);
+  document.getElementById('memo-text').value = '';
+  renderMemos();
+  showToast('✅ 메모가 저장되었습니다!');
+}
+
+function deleteMemo(id){
+  if(!confirm('이 메모를 삭제할까요?')) return;
+  saveMemos(loadMemos().filter(m=>m.id!==id));
+  renderMemos();
+}
+
+function renderMemos(){
+  let list = loadMemos();
+  const fMem  = (document.getElementById('memo-flt-member')||{value:''}).value;
+  const fType = (document.getElementById('memo-flt-type')||{value:''}).value;
+  const fQ    = ((document.getElementById('memo-search')||{value:''}).value||'').toLowerCase();
+
+  if(fMem)  list = list.filter(m=>String(m.memberId)===fMem);
+  if(fType) list = list.filter(m=>m.type===fType);
+  if(fQ)    list = list.filter(m=>m.text.toLowerCase().includes(fQ)||m.memberName.includes(fQ));
+
+  document.getElementById('memo-count').textContent = list.length;
+  if(!list.length){
+    document.getElementById('memo-list').innerHTML = `<div style="text-align:center;padding:48px;color:var(--muted)"><div style="font-size:40px;margin-bottom:10px">📝</div><div style="font-size:14px;font-weight:600">메모가 없습니다</div></div>`;
+    return;
+  }
+  document.getElementById('memo-list').innerHTML = list.map(memo=>{
+    const col = MEMO_TYPE_COLOR[memo.type]||'#64748B';
+    const bg  = MEMO_TYPE_BG[memo.type]||'#F1F5F9';
+    const em  = MEMO_TYPE_EMOJI[memo.type]||'📝';
+    return `<div class="card" style="padding:18px 22px;margin-bottom:10px;border-left:4px solid ${col}">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:36px;height:36px;border-radius:10px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${em}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+            <span style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;background:${bg};color:${col}">${memo.type}</span>
+            <span style="font-size:12px;font-weight:700">${memo.memberName}</span>
+            <span style="font-size:11px;color:var(--muted);margin-left:auto">${memo.date} ${memo.time}</span>
+          </div>
+          <div style="font-size:13px;line-height:1.8;color:var(--fg)">${memo.text}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="deleteMemo(${memo.id})" style="color:var(--danger);flex-shrink:0" title="삭제">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 const ALERTS = [
   {icon:'🆕',text:'김지은 회원이 B 섹션 응답을 완료했습니다.',time:'10분 전',read:false,color:'#EEF2FF'},
   {icon:'📈',text:'김지은 회원의 회복탄력성이 +12점 올랐습니다.',time:'1시간 전',read:false,color:'#DCFCE7'},
   {icon:'🔥',text:'김지은 회원이 3일 연속 응답했습니다!',time:'3시간 전',read:false,color:'#FEF3C7'},
-  
-  
-  
   {icon:'📊',text:'이번 주 응답률이 지난주 대비 23% 증가했습니다.',time:'4일 전',read:true,color:'#EDE9FE'},
 ];
 function renderAlerts(){
@@ -1335,8 +1920,8 @@ function markAllRead(){ ALERTS.forEach(a=>a.read=true); renderAlerts(); }
 /* ══════════════════════════════════════════
    RESPONSE DETAIL MODAL
 ══════════════════════════════════════════ */
-function openRespModal(memberId, sec){
-  const m=MEMBERS.find(x=>String(x.id)==String(memberId));
+function openRespModal(memberIdx, sec){
+  const m = MEMBERS[parseInt(memberIdx)];
   if(!m) return;
   const rs=m.responses[sec]||[], dark=SEC_COLOR[sec], bg=SEC_BG[sec];
   document.getElementById('resp-modal-content').innerHTML=`
@@ -1422,9 +2007,281 @@ function showToast(msg){
 /* ══════════════════════════════════════════
    INIT
 ══════════════════════════════════════════ */
-populateMemberSel();
+/* ══════════════════════════════════════════
+   📚 독서 포트폴리오 현황
+══════════════════════════════════════════ */
+function getBookLogs(email){
+  try { return JSON.parse(localStorage.getItem('rbu_booklog_' + email) || '[]'); } catch(e){ return []; }
+}
+function getPfStories(email){
+  try { return JSON.parse(localStorage.getItem('rbu_pf_' + email) || '[]'); } catch(e){ return []; }
+}
+
+function populateBookFilterSel(){
+  const sel = document.getElementById('book-flt-member');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">전체 회원</option>' + MEMBERS.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+}
+
+function renderBookStats(){
+  populateBookFilterSel();
+  const fMem  = (document.getElementById('book-flt-member')||{value:''}).value;
+  const fDays = parseInt((document.getElementById('book-flt-date')||{value:''}).value)||0;
+  const fQ    = ((document.getElementById('book-search')||{value:''}).value||'').toLowerCase();
+  const todayStr = fmtDate(today());
+
+  // 전체 로그 수집
+  let allLogs = [];
+  MEMBERS.forEach(m=>{
+    if(fMem && String(m.id)!==fMem) return;
+    const bookLogs = getBookLogs(m.email).map(l=>({...l, memberName:m.name, memberId:m.id, avColor:m.avColor, src:'booklog'}));
+    const pfLogs   = getPfStories(m.email).map(l=>({title:l.title, date:l.date, summary:l.text, feeling:'', lesson:'', memberName:m.name, memberId:m.id, avColor:m.avColor, src:'pf'}));
+    allLogs = allLogs.concat(bookLogs, pfLogs);
+  });
+
+  // 날짜 필터
+  if(fDays){
+    const cutoff = fmtDate(addDays(today(), -fDays));
+    allLogs = allLogs.filter(l=>{
+      const d = l.date ? l.date.replace(/\./g,'-').slice(0,10) : '';
+      return d >= cutoff;
+    });
+  }
+
+  // 검색 필터
+  if(fQ) allLogs = allLogs.filter(l=>(l.title||'').toLowerCase().includes(fQ) || (l.memberName||'').includes(fQ));
+
+  // 요약
+  const todayLogs = allLogs.filter(l=>(l.date||'').replace(/\./g,'-').slice(0,10)===todayStr);
+  const memberSet = new Set(allLogs.map(l=>l.memberId));
+  document.getElementById('book-ov-total').textContent   = allLogs.length + '건';
+  document.getElementById('book-ov-members').textContent = memberSet.size + '명';
+  document.getElementById('book-ov-today').textContent   = todayLogs.length + '건';
+
+  // 가장 많이 읽은 책
+  const titleCount = {};
+  allLogs.forEach(l=>{ const t=l.title||'미제목'; titleCount[t]=(titleCount[t]||0)+1; });
+  const topTitle = Object.entries(titleCount).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('book-ov-top').textContent = topTitle ? topTitle[0].slice(0,12)+(topTitle[0].length>12?'…':'') : '-';
+
+  // 회원별 테이블
+  const byMember = {};
+  allLogs.forEach(l=>{
+    if(!byMember[l.memberId]) byMember[l.memberId]={name:l.memberName, avColor:l.avColor, logs:[]};
+    byMember[l.memberId].logs.push(l);
+  });
+  document.getElementById('book-member-tbody').innerHTML = Object.values(byMember)
+    .sort((a,b)=>b.logs.length-a.logs.length)
+    .map(d=>{
+      const latest = d.logs.sort((a,b)=>((b.date||'')>(a.date||'')?1:-1))[0];
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:8px">
+          <div class="av av-sm" style="background:${d.avColor}">${d.name[0]}</div>
+          <span style="font-weight:600;font-size:12px">${d.name}</span>
+        </div></td>
+        <td style="font-weight:800;color:#F59E0B">${d.logs.length}권</td>
+        <td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${latest ? latest.title : '-'}</td>
+        <td style="font-size:11px;color:var(--muted)">${latest ? (latest.date||'').slice(0,10) : '-'}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">기록 없음</td></tr>';
+
+  // 도서별 빈도 차트 TOP10
+  const topTitles = Object.entries(titleCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxCnt = topTitles[0]?.[1] || 1;
+  document.getElementById('book-title-chart').innerHTML = topTitles.map(([title,cnt])=>`
+    <div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:600;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${title}</span>
+        <span style="font-size:11px;font-weight:700;color:#F59E0B">${cnt}회</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:${Math.round(cnt/maxCnt*100)}%;background:linear-gradient(90deg,#F59E0B,#FCD34D)"></div></div>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">기록 없음</div>';
+
+  // 전체 로그 테이블
+  const sorted = [...allLogs].sort((a,b)=>((b.date||'')>(a.date||'')?1:-1));
+  if(!sorted.length){
+    document.getElementById('book-log-tbody').innerHTML='';
+    document.getElementById('book-log-empty').style.display='block';
+  } else {
+    document.getElementById('book-log-empty').style.display='none';
+    document.getElementById('book-log-tbody').innerHTML = sorted.map(l=>`
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:6px">
+          <div class="av av-sm" style="background:${l.avColor}">${l.memberName[0]}</div>
+          <span style="font-size:12px;font-weight:600">${l.memberName}</span>
+        </div></td>
+        <td style="font-weight:700;font-size:12px;max-width:120px">${l.title||'-'}</td>
+        <td style="font-size:11px;color:var(--muted);max-width:140px">${((l.summary||'').length>30?(l.summary||'').slice(0,30)+'…':(l.summary||''))}</td>
+        <td style="font-size:11px;color:var(--muted);max-width:100px">${((l.feeling||'').length>20?(l.feeling||'').slice(0,20)+'…':(l.feeling||''))}</td>
+        <td style="font-size:11px;color:var(--muted);max-width:100px">${((l.lesson||'').length>20?(l.lesson||'').slice(0,20)+'…':(l.lesson||''))}</td>
+        <td style="font-size:11px;color:var(--muted);white-space:nowrap">${(l.date||'').slice(0,10)}</td>
+      </tr>`).join('');
+  }
+}
+
+/* ══════════════════════════════════════════
+   📔 체크인 현황
+══════════════════════════════════════════ */
+function getCheckinLogs(email){
+  try { return JSON.parse(localStorage.getItem('rbu_checkin_log_' + email) || '[]'); } catch(e){ return []; }
+}
+
+function populateCiFilterSel(){
+  const sel = document.getElementById('ci-flt-member');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">전체 회원</option>' + MEMBERS.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+}
+
+function renderCheckinStats(){
+  populateCiFilterSel();
+  const fMem   = (document.getElementById('ci-flt-member')||{value:''}).value;
+  const fDays  = parseInt((document.getElementById('ci-flt-date')||{value:''}).value)||0;
+  const fScore = (document.getElementById('ci-flt-score')||{value:''}).value;
+  const todayStr = fmtDate(today());
+
+  // 전체 로그 수집
+  let allLogs = [];
+  MEMBERS.forEach(m=>{
+    if(fMem && String(m.id)!==fMem) return;
+    const logs = getCheckinLogs(m.email).map(l=>({...l, memberName:m.name, memberId:m.id, avColor:m.avColor}));
+    allLogs = allLogs.concat(logs);
+  });
+
+  // 날짜 필터
+  if(fDays){
+    const cutoff = fmtDate(addDays(today(),-fDays));
+    allLogs = allLogs.filter(l=>l.date >= cutoff);
+  }
+
+  // 점수 필터
+  if(fScore==='high') allLogs = allLogs.filter(l=>l.eScore>=70 && l.rScore>=70);
+  if(fScore==='low')  allLogs = allLogs.filter(l=>l.eScore<50 || l.rScore<50);
+
+  const todayLogs = allLogs.filter(l=>l.date===todayStr);
+  const avgE = allLogs.length ? Math.round(allLogs.reduce((s,l)=>s+(l.eScore||0),0)/allLogs.length) : 0;
+  const avgR = allLogs.length ? Math.round(allLogs.reduce((s,l)=>s+(l.rScore||0),0)/allLogs.length) : 0;
+  const avgC = allLogs.length ? Math.round(allLogs.reduce((s,l)=>s+(l.cScore||0),0)/allLogs.length) : 0;
+
+  document.getElementById('ci-ov-total').textContent      = allLogs.length + '회';
+  document.getElementById('ci-ov-today').textContent      = todayLogs.length + '명';
+  document.getElementById('ci-ov-emotion').textContent    = (avgE||'-') + (avgE?'%':'');
+  document.getElementById('ci-ov-resilience').textContent = (avgR||'-') + (avgR?'%':'');
+
+  // 회원별 테이블
+  const byMember = {};
+  allLogs.forEach(l=>{
+    if(!byMember[l.memberId]) byMember[l.memberId]={name:l.memberName, avColor:l.avColor, logs:[]};
+    byMember[l.memberId].logs.push(l);
+  });
+  document.getElementById('ci-member-tbody').innerHTML = Object.values(byMember)
+    .sort((a,b)=>b.logs.length-a.logs.length)
+    .map(d=>{
+      const hasToday = d.logs.some(l=>l.date===todayStr);
+      const mAvgE = Math.round(d.logs.reduce((s,l)=>s+(l.eScore||0),0)/d.logs.length);
+      const mAvgR = Math.round(d.logs.reduce((s,l)=>s+(l.rScore||0),0)/d.logs.length);
+      const mAvgC = Math.round(d.logs.reduce((s,l)=>s+(l.cScore||0),0)/d.logs.length);
+      const scoreCol = s => s>=70?'var(--success)':s>=50?'var(--warn)':'var(--danger)';
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:8px">
+          <div class="av av-sm" style="background:${d.avColor}">${d.name[0]}</div>
+          <span style="font-weight:600;font-size:12px">${d.name}</span>
+        </div></td>
+        <td style="font-weight:800;color:#6366F1">${d.logs.length}회</td>
+        <td>${hasToday?'<span style="background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700">✅ 완료</span>':'<span style="background:#F1F5F9;color:#94A3B8;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700">–</span>'}</td>
+        <td style="font-weight:700;color:${scoreCol(mAvgE)}">${mAvgE}%</td>
+        <td style="font-weight:700;color:${scoreCol(mAvgR)}">${mAvgR}%</td>
+        <td style="font-weight:700;color:${scoreCol(mAvgC)}">${mAvgC}%</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">체크인 기록 없음</td></tr>';
+
+  // 최근 14일 추이 바 차트
+  const days14 = [];
+  for(let d=13;d>=0;d--) days14.push(fmtDate(addDays(today(),-d)));
+  const dayCounts = {};
+  days14.forEach(d=>{ dayCounts[d]=0; });
+  allLogs.forEach(l=>{ if(dayCounts[l.date]!==undefined) dayCounts[l.date]++; });
+  const maxDayCnt = Math.max(1, ...Object.values(dayCounts));
+
+  document.getElementById('ci-trend-chart').innerHTML = days14.map(d=>{
+    const cnt = dayCounts[d]||0;
+    const h = Math.max(4, Math.round(cnt/maxDayCnt*90));
+    const isToday = d===todayStr;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div style="font-size:9px;font-weight:700;color:${cnt>0?'#6366F1':'var(--muted)'}">${cnt||''}</div>
+      <div style="width:100%;height:${h}px;border-radius:4px 4px 0 0;background:${isToday?'#6366F1':cnt>0?'#C7D2FE':'#E2E8F0'}"></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('ci-trend-labels').innerHTML = days14.map(d=>{
+    const isToday = d===todayStr;
+    return `<div style="flex:1;text-align:center;font-size:8px;color:${isToday?'#6366F1':'var(--muted)'};font-weight:${isToday?700:400}">${d.slice(5)}</div>`;
+  }).join('');
+
+  // 3대 지표 평균 바
+  document.getElementById('ci-avg-bars').innerHTML = [
+    {label:'😊 감정 안정도', val:avgE, color:'#F59E0B'},
+    {label:'💚 회복탄력성',  val:avgR, color:'#22C55E'},
+    {label:'🎯 진로준비도',  val:avgC, color:'#6366F1'},
+  ].map(({label,val,color})=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:600">${label}</span>
+        <span style="font-size:12px;font-weight:800;color:${color}">${val}%</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:${val}%;background:${color}"></div></div>
+    </div>`).join('');
+
+  // 전체 로그 테이블
+  const sorted = [...allLogs].sort((a,b)=>b.date>a.date?1:b.date<a.date?-1:(b.time||'')>(a.time||'')?1:-1);
+  const scoreCol = s => s>=70?'var(--success)':s>=50?'var(--warn)':'var(--danger)';
+  if(!sorted.length){
+    document.getElementById('ci-log-tbody').innerHTML='';
+    document.getElementById('ci-log-empty').style.display='block';
+  } else {
+    document.getElementById('ci-log-empty').style.display='none';
+    document.getElementById('ci-log-tbody').innerHTML = sorted.map(l=>`
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:6px">
+          <div class="av av-sm" style="background:${l.avColor}">${l.memberName[0]}</div>
+          <span style="font-size:12px;font-weight:600">${l.memberName}</span>
+        </div></td>
+        <td style="font-size:11px;font-weight:700;white-space:nowrap;color:${l.date===todayStr?'#6366F1':'var(--muted)'}">${l.date||'-'}</td>
+        <td style="font-size:11px;color:var(--muted);white-space:nowrap">${l.time||'-'}</td>
+        <td style="font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.d1||''}">${(l.d1||'').slice(0,25)}${(l.d1||'').length>25?'…':''}</td>
+        <td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.d2||''}">${(l.d2||'').slice(0,20)}${(l.d2||'').length>20?'…':''}</td>
+        <td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.d3||''}">${(l.d3||'').slice(0,20)}${(l.d3||'').length>20?'…':''}</td>
+        <td style="font-weight:700;color:${scoreCol(l.eScore||0)}">${l.eScore||'-'}%</td>
+        <td style="font-weight:700;color:${scoreCol(l.rScore||0)}">${l.rScore||'-'}%</td>
+        <td style="font-weight:700;color:${scoreCol(l.cScore||0)}">${l.cScore||'-'}%</td>
+      </tr>`).join('');
+  }
+}
+
+/* ── 수동 동기화 ── */
+function manualSync(){
+  const before = MEMBERS.length;
+  syncFromIndex();
+  saveMembers();
+  const after = MEMBERS.length;
+  const added = after - before;
+  populateMemberSel();
+  populateMemoSels();
+  populateBookFilterSel();
+  populateCiFilterSel();
+  renderOverview();
+  renderMembers();
+  document.getElementById('sb-total').textContent = MEMBERS.length;
+  if(added > 0){
+    showToast('✅ ' + added + '명의 새 회원이 동기화되었습니다!');
+  } else {
+    showToast('✔ 동기화 완료 — 새 회원 없음 (총 ' + MEMBERS.length + '명)');
+  }
+}
 renderOverview();
 renderMembers();
+renderMemos();
+populateBookFilterSel();
+populateCiFilterSel();
 
 </script>
 </body>

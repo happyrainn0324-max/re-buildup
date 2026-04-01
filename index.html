@@ -263,7 +263,7 @@
       <a href="#about" class="nav-link">소개</a>
       <a href="#services" class="nav-link">핵심 콘텐츠</a>
       <a href="#experience" class="nav-link">체험</a>
-      <a href="#archive" class="nav-link">사례</a>
+      <a href="#archive" class="nav-link">히어로 게임</a>
       <a href="#dashboard" class="nav-link">대시보드</a>
     </nav>
 
@@ -1448,20 +1448,20 @@ window.addEventListener('resize', function() {
         </div>
       </div>
 
-      <!-- 진로 멘토 연결 -->
+      <!-- 진로 히어로 게임 -->
       <div class="card card-hover" style="padding:28px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-          <div style="width:64px;height:64px;min-width:64px;border-radius:18px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:28px;">🤝</div>
-          <p style="font-weight:800;font-size:20px;line-height:1.3;white-space:nowrap;">진로 멘토 연결</p>
+          <div style="width:64px;height:64px;min-width:64px;border-radius:18px;background:linear-gradient(135deg,#FFF7ED,#FEF3C7);display:flex;align-items:center;justify-content:center;font-size:28px;">🏆</div>
+          <p style="font-weight:800;font-size:20px;line-height:1.3;white-space:nowrap;">진로 히어로 게임</p>
         </div>
-        <p style="color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:16px;flex:1;">현직자·대학생 멘토와 연결되고 실제 회복 사례를 통해 용기를 얻습니다.</p>
-        <div id="svc-detail-6" style="display:none;width:100%;margin-bottom:16px;padding:16px;background:#FFF7ED;border-radius:14px;border-left:4px solid #F97316;">
-          <p style="font-weight:700;font-size:14px;margin-bottom:8px;color:#C2410C;">📋 주요 내용</p>
-          <p style="font-size:13px;color:var(--muted);line-height:1.8;">· 관심 분야별 현직자·대학생 멘토 매칭<br/>· 익명 질문 및 실시간 채팅 상담 지원<br/>· 멘토의 회복 스토리 공유 콘텐츠 제공<br/>· 상담기관 연계 및 전문가 연결 서비스</p>
+        <p style="color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:16px;flex:1;">10개 분야별 국내·국외 위인 퀴즈로 진로 영감을 얻고 나만의 히어로를 찾아보세요!</p>
+        <div id="svc-detail-6" style="display:none;width:100%;margin-bottom:16px;padding:16px;background:#FFFBEB;border-radius:14px;border-left:4px solid #F59E0B;">
+          <p style="font-weight:700;font-size:14px;margin-bottom:8px;color:#92400E;">🎮 주요 내용</p>
+          <p style="font-size:13px;color:var(--muted);line-height:1.8;">· 10개 분야 × 국내+국외 위인 10명씩 총 100명<br/>· 생애, 국적, 직업, 업적, 진로장벽, 가치관, 명언 수록<br/>· 4지선다 퀴즈로 점수와 레벨 획득<br/>· 정답 후 위인 카드 상세 확인 가능</p>
         </div>
         <div style="display:flex;gap:8px;width:100%;">
           <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;" onclick="toggleSvc(6,this)">자세히 보기 →</button>
-          <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;" onclick="openActivity('mentor')">▶ 지금 바로 실행하기</button>
+          <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;" onclick="openActivity('hero')">▶ 지금 바로 실행하기</button>
         </div>
       </div>
 
@@ -1840,27 +1840,107 @@ window.addEventListener('resize', function() {
       </div>
     </div>
 
-    <!-- 6. 진로 멘토 연결 -->
-    <div id="act-mentor" style="display:none;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-        <div style="width:52px;height:52px;border-radius:14px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:24px;">🤝</div>
-        <div><p style="font-weight:800;font-size:20px;">진로 멘토 연결</p><p style="font-size:13px;color:#F97316;font-weight:600;">관심 분야 선택 → 멘토 매칭</p></div>
+    <!-- 6. 진로 히어로 게임 -->
+    <div id="act-mentor" style="display:none;"></div>
+    <div id="act-hero" style="display:none;">
+      <!-- 분야 선택 화면 -->
+      <div id="hero-field-screen">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#FFF7ED,#FEF3C7);display:flex;align-items:center;justify-content:center;font-size:24px;">🏆</div>
+          <div><p style="font-weight:800;font-size:20px;">진로 히어로 게임</p><p style="font-size:13px;color:#F59E0B;font-weight:600;">분야 선택 → 퀴즈 → 위인 카드 획득!</p></div>
+        </div>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:14px;">퀴즈를 풀고 위인의 진로 스토리에서 나의 히어로를 찾아보세요 🌟</p>
+        <div id="hero-score-bar" style="display:flex;gap:12px;margin-bottom:16px;padding:12px 16px;background:var(--muted-bg);border-radius:14px;font-size:13px;font-weight:600;">
+          <span>🏅 총점 <span id="hero-total-score" style="color:#6366F1;">0</span>점</span>
+          <span>|</span>
+          <span>⚡ 레벨 <span id="hero-level-label" style="color:#F59E0B;">견습생</span></span>
+          <span>|</span>
+          <span>🃏 카드 <span id="hero-card-count" style="color:#22C55E;">0</span>장</span>
+        </div>
+        <p style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;">📂 분야를 선택하세요</p>
+        <div id="hero-field-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
       </div>
-      <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">어떤 분야에 관심이 있나요?</p>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;" id="act-mentor-btns">
-        <button onclick="actMentorPick(this,'💻 개발/IT')" style="padding:13px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.2s;">💻 개발 / IT</button>
-        <button onclick="actMentorPick(this,'🎨 디자인/예술')" style="padding:13px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.2s;">🎨 디자인 / 예술</button>
-        <button onclick="actMentorPick(this,'💊 보건/의료')" style="padding:13px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.2s;">💊 보건 / 의료</button>
-        <button onclick="actMentorPick(this,'📚 교육/상담')" style="padding:13px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.2s;">📚 교육 / 상담</button>
-        <button onclick="actMentorPick(this,'🍳 요리/서비스')" style="padding:13px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.2s;">🍳 요리 / 서비스</button>
-        <button onclick="actMentorPick(this,'🎬 미디어/콘텐츠')" style="padding:13px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.2s;">🎬 미디어 / 콘텐츠</button>
+
+      <!-- 국내/국외 선택 -->
+      <div id="hero-origin-screen" style="display:none;">
+        <button onclick="heroBack('field')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);margin-bottom:14px;font-family:inherit;">← 분야 다시 선택</button>
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-size:36px;margin-bottom:8px;" id="hero-field-icon"></div>
+          <p style="font-weight:800;font-size:18px;" id="hero-field-title"></p>
+          <p style="font-size:13px;color:var(--muted);">국내 위인 / 국외 위인 중 선택하세요</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <button onclick="heroPickOrigin('domestic')" style="padding:20px;border-radius:16px;border:2px solid var(--border);background:var(--bg);cursor:pointer;font-family:inherit;transition:all 0.2s;" onmouseover="this.style.borderColor='#6366F1'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:28px;margin-bottom:6px;">🇰🇷</div>
+            <p style="font-weight:700;font-size:15px;">국내 위인</p>
+            <p style="font-size:12px;color:var(--muted);">한국의 역사적 인물</p>
+          </button>
+          <button onclick="heroPickOrigin('foreign')" style="padding:20px;border-radius:16px;border:2px solid var(--border);background:var(--bg);cursor:pointer;font-family:inherit;transition:all 0.2s;" onmouseover="this.style.borderColor='#6366F1'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:28px;margin-bottom:6px;">🌍</div>
+            <p style="font-weight:700;font-size:15px;">국외 위인</p>
+            <p style="font-size:12px;color:var(--muted);">세계의 역사적 인물</p>
+          </button>
+        </div>
       </div>
-      <div id="act-mentor-result" style="display:none;padding:16px;background:#FFF7ED;border-radius:14px;border-left:4px solid #F97316;margin-bottom:16px;">
-        <p id="act-mentor-name" style="font-size:15px;font-weight:800;color:#C2410C;margin-bottom:6px;"></p>
-        <p id="act-mentor-info" style="font-size:13px;color:var(--muted);line-height:1.8;white-space:pre-line;margin-bottom:12px;"></p>
-        <a href="https://pf.kakao.com/_xbxeCEX" target="_blank" style="display:inline-block;padding:10px 20px;background:#FEE500;border-radius:12px;font-size:14px;font-weight:700;color:#000;text-decoration:none;">카카오로 상담 연결 →</a>
+
+      <!-- 퀴즈 화면 -->
+      <div id="hero-quiz-screen" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <button onclick="heroBack('origin')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);font-family:inherit;">← 돌아가기</button>
+          <span id="hero-quiz-counter" style="font-size:13px;font-weight:600;color:var(--muted);"></span>
+        </div>
+        <div style="background:#E2E8F0;border-radius:99px;height:6px;margin-bottom:16px;">
+          <div id="hero-quiz-prog" style="background:linear-gradient(90deg,#6366F1,#818CF8);height:6px;border-radius:99px;transition:width 0.4s;width:0%;"></div>
+        </div>
+        <div style="display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:10px;" id="hero-quiz-badge"></div>
+        <p style="font-size:16px;font-weight:700;line-height:1.6;margin-bottom:20px;" id="hero-quiz-q"></p>
+        <div id="hero-quiz-opts" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="hero-quiz-feedback" style="display:none;margin-top:14px;padding:14px;border-radius:14px;" ></div>
+        <button id="hero-quiz-next-btn" onclick="heroNextQuiz()" style="display:none;width:100%;margin-top:12px;padding:13px;border-radius:14px;background:linear-gradient(135deg,#6366F1,#818CF8);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">다음 문제 →</button>
       </div>
-      <button onclick="actMentorMatch()" style="width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,#F97316,#FB923C);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">🤝 멘토 매칭하기</button>
+
+      <!-- 결과 화면 -->
+      <div id="hero-result-screen" style="display:none;text-align:center;">
+        <div style="font-size:48px;margin-bottom:12px;" id="hero-result-emoji"></div>
+        <p style="font-size:22px;font-weight:800;margin-bottom:6px;" id="hero-result-title"></p>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:16px;" id="hero-result-desc"></p>
+        <div style="display:flex;justify-content:center;gap:16px;margin-bottom:20px;">
+          <div style="text-align:center;">
+            <p style="font-size:28px;font-weight:800;color:#6366F1;" id="hero-res-score"></p>
+            <p style="font-size:12px;color:var(--muted);">획득 점수</p>
+          </div>
+          <div style="text-align:center;">
+            <p style="font-size:28px;font-weight:800;color:#22C55E;" id="hero-res-correct"></p>
+            <p style="font-size:12px;color:var(--muted);">정답 수</p>
+          </div>
+        </div>
+        <!-- 위인 카드 -->
+        <div id="hero-unlocked-card" style="margin-bottom:16px;padding:20px;border-radius:18px;border:2px solid #6366F133;background:linear-gradient(135deg,#F5F3FF,#EEF2FF);text-align:left;">
+          <p style="font-size:12px;font-weight:700;color:#6366F1;margin-bottom:10px;">🃏 획득한 위인 카드</p>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="font-size:40px;" id="hc-emoji"></div>
+            <div style="flex:1;">
+              <p style="font-weight:800;font-size:16px;margin-bottom:2px;" id="hc-name"></p>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:8px;" id="hc-meta"></p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">
+                <div style="padding:6px 8px;background:#fff;border-radius:8px;border:1px solid var(--border);"><span style="font-weight:700;">🌍 국적</span><br/><span id="hc-nation" style="color:var(--muted);"></span></div>
+                <div style="padding:6px 8px;background:#fff;border-radius:8px;border:1px solid var(--border);"><span style="font-weight:700;">💼 직업</span><br/><span id="hc-job" style="color:var(--muted);"></span></div>
+                <div style="padding:6px 8px;background:#fff;border-radius:8px;border:1px solid var(--border);"><span style="font-weight:700;">🏅 업적</span><br/><span id="hc-achievement" style="color:var(--muted);"></span></div>
+                <div style="padding:6px 8px;background:#fff;border-radius:8px;border:1px solid var(--border);"><span style="font-weight:700;">🧱 진로장벽</span><br/><span id="hc-barrier" style="color:var(--muted);"></span></div>
+                <div style="padding:6px 8px;background:#fff;border-radius:8px;border:1px solid var(--border);"><span style="font-weight:700;">💎 핵심가치</span><br/><span id="hc-value" style="color:var(--muted);"></span></div>
+                <div style="padding:6px 8px;background:#fff;border-radius:8px;border:1px solid var(--border);"><span style="font-weight:700;">✨ 배울 점</span><br/><span id="hc-lesson" style="color:var(--muted);"></span></div>
+              </div>
+              <div style="margin-top:8px;padding:8px 10px;background:#6366F111;border-radius:10px;border-left:3px solid #6366F1;">
+                <p style="font-size:12px;font-style:italic;color:#4338CA;line-height:1.6;" id="hc-quote"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="heroRestart()" style="flex:1;padding:12px;border-radius:14px;background:linear-gradient(135deg,#6366F1,#818CF8);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">🔄 다시 하기</button>
+          <button onclick="heroBack('field')" style="flex:1;padding:12px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--fg);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📂 분야 변경</button>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -2569,13 +2649,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // -- 활동 모달 제어 --
-var actTitles = { diag:'act-diag', story:'act-story', strength:'act-strength', mission:'act-mission', portfolio:'act-portfolio', mentor:'act-mentor' };
+var actTitles = { diag:'act-diag', story:'act-story', strength:'act-strength', mission:'act-mission', portfolio:'act-portfolio', mentor:'act-mentor', hero:'act-hero' };
 function openActivity(type) {
   Object.values(actTitles).forEach(function(id) { document.getElementById(id).style.display = 'none'; });
   document.getElementById(actTitles[type]).style.display = 'block';
   var overlay = document.getElementById('activity-overlay');
   overlay.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  if(type==='hero') {
+    heroState.totalScore = parseInt(localStorage.getItem('hero_total_score')||'0');
+    heroState.totalCards = parseInt(localStorage.getItem('hero_total_cards')||'0');
+    heroState.level = localStorage.getItem('hero_level')||'견습생';
+    document.getElementById('hero-field-screen').style.display='block';
+    document.getElementById('hero-origin-screen').style.display='none';
+    document.getElementById('hero-quiz-screen').style.display='none';
+    document.getElementById('hero-result-screen').style.display='none';
+    heroInitFieldBtns();
+  }
 }
 function closeActivity(e) {
   if (!e || e.target === document.getElementById('activity-overlay')) {
@@ -3259,28 +3349,1166 @@ function actBookLogSave(btn) {
 }
 
 
-// -- 6. 멘토 연결 --
-var actMentorData = {
-  '개발/IT':     { name:'김현우 멘토 (웹 개발자)', info:'비전공자에서 개발자로 전향한 경험을 나눠드려요.\n진로 고민부터 포트폴리오까지 함께 만들어요!' },
-  '디자인/예술': { name:'이소연 멘토 (UX 디자이너)', info:'예술을 좋아하는 마음 그대로 직업으로 연결한 이야기,\n같이 들어볼래요?' },
-  '보건/의료':   { name:'박지민 멘토 (간호사)', info:'보건 계열 진학부터 실제 현장까지\n궁금한 게 있으면 무엇이든 물어보세요!' },
-  '교육/상담':   { name:'최다은 멘토 (청소년 상담사)', info:'힘든 시기를 지나 상담사가 된 이야기를\n나눠드릴게요. 먼저 한번 이야기해봐요.' },
-  '요리/서비스': { name:'정민준 멘토 (셰프)', info:'요리 학원부터 레스토랑까지의 여정,\n같이 꿈 이야기해봐요!' },
-  '미디어/콘텐츠':{ name:'한예진 멘토 (콘텐츠 크리에이터)', info:'유튜브·SNS 콘텐츠 제작 경험을 공유해요.\n나만의 채널 만들기, 같이 시작해봐요!' },
+// -- 6. 진로 히어로 게임 --
+var HERO_FIELDS = [
+  { id:'science',   icon:'🔬', label:'과학/기술' },
+  { id:'art',       icon:'🎨', label:'예술/문화' },
+  { id:'social',    icon:'✊', label:'사회/인권' },
+  { id:'edu',       icon:'📚', label:'교육/철학' },
+  { id:'sports',    icon:'🏅', label:'스포츠/체육' },
+  { id:'business',  icon:'💼', label:'경제/경영' },
+  { id:'literature',icon:'✍️', label:'문학/역사' },
+  { id:'medicine',  icon:'💊', label:'의학/복지' },
+  { id:'nature',    icon:'🌿', label:'환경/탐험' },
+  { id:'it',        icon:'💻', label:'IT/발명' },
+];
+
+var HERO_DB = {
+  science: {
+    domestic: [
+      { name:'장영실', emoji:'⚙️', years:'1390?–1442?', nation:'조선(한국)', job:'발명가·과학자', achievement:'측우기·앙부일구·자격루 발명, 세계 최초 우량계 제작', barrier:'노비 출신으로 신분 차별', value:'혁신·실용', quote:'하늘을 측정할 수 있다면 사람의 삶도 바꿀 수 있다.', lesson:'신분의 한계를 능력으로 극복한 창의적 문제 해결',
+        quizzes:[
+          { q:'장영실이 발명한 세계 최초 우량계의 이름은?',opts:['측우기','앙부일구','자격루','혼천의'],ans:0 },
+          { q:'장영실을 발탁한 조선의 왕은?',opts:['태종','세종대왕','세조','성종'],ans:1 },
+          { q:'장영실이 만든 자동 물시계의 이름은?',opts:['앙부일구','자격루','측우기','간의'],ans:1 },
+          { q:'장영실의 출신 신분은?',opts:['양반','중인','노비','상인'],ans:2 },
+          { q:'장영실의 핵심 가치관은?',opts:['명예','혁신·실용','권력','부'],ans:1 },
+        ]
+      },
+      { name:'이천', emoji:'🔭', years:'1376–1451', nation:'조선(한국)', job:'과학자·군사기술자', achievement:'화기 개발, 훈민정음 주조 참여, 갑인자 활자 제작', barrier:'전쟁 속 자원 부족', value:'국방·실학', quote:'기술은 나라를 지키는 방패다.', lesson:'국가를 위한 실용 기술 개발의 중요성',
+        quizzes:[
+          { q:'이천이 제작한 금속활자의 이름은?',opts:['갑인자','병진자','경오자','정유자'],ans:0 },
+          { q:'이천의 주요 업적 분야는?',opts:['농업','화기·활자','예술','의학'],ans:1 },
+          { q:'이천이 활동한 시대는?',opts:['고려','조선 초','조선 중','조선 말'],ans:1 },
+          { q:'이천의 핵심 가치관은?',opts:['명예','사랑','국방·실학','예술'],ans:2 },
+          { q:'이천의 주요 진로장벽은?',opts:['신분 차별','전쟁 속 자원 부족','외국어 장벽','경제적 빈곤'],ans:1 },
+        ]
+      },
+      { name:'최무선', emoji:'🔥', years:'1325–1395', nation:'고려(한국)', job:'발명가·무기 개발자', achievement:'화약 독자 개발, 화포 제조, 왜구 격퇴에 기여', barrier:'화약 기술 외국 독점', value:'자주·창의', quote:'우리 손으로 우리 나라를 지킨다.', lesson:'외세 기술에 의존하지 않고 독자 기술을 개발한 자주 정신',
+        quizzes:[
+          { q:'최무선이 독자 개발한 것은?',opts:['화살','화약·화포','투석기','쇠뇌'],ans:1 },
+          { q:'최무선이 화약 개발로 격퇴한 적은?',opts:['몽골','여진','왜구','거란'],ans:2 },
+          { q:'최무선의 핵심 가치관은?',opts:['부','명예','자주·창의','권력'],ans:2 },
+          { q:'최무선의 주요 진로장벽은?',opts:['신분 차별','화약 기술의 외국 독점','경제적 빈곤','전쟁 부재'],ans:1 },
+          { q:'최무선이 활동한 시대는?',opts:['삼국','통일신라','고려 말','조선 초'],ans:2 },
+        ]
+      },
+      { name:'홍대용', emoji:'🌐', years:'1731–1783', nation:'조선(한국)', job:'실학자·과학사상가', achievement:'지구자전설 주장, 의산문답 저술, 무한우주론 전개', barrier:'성리학 중심 사회에서 이단 취급', value:'실학·개방', quote:'하늘 아래 모든 사람이 평등하다.', lesson:'시대를 앞선 과학적 사고로 세계관을 넓힌 선구자',
+        quizzes:[
+          { q:'홍대용이 주장한 우주 관련 이론은?',opts:['천동설','지동설·지구자전설','창조설','팽창설'],ans:1 },
+          { q:'홍대용의 대표 저서는?',opts:['목민심서','의산문답','동의보감','택리지'],ans:1 },
+          { q:'홍대용이 속한 학문 사조는?',opts:['성리학','실학','도교','불교'],ans:1 },
+          { q:'홍대용의 핵심 가치관은?',opts:['부','명예','실학·개방','권력'],ans:2 },
+          { q:'홍대용의 주요 진로장벽은?',opts:['경제적 빈곤','성리학 중심 사회에서 이단 취급','신분 차별','외국어 장벽'],ans:1 },
+        ]
+      },
+      { name:'이원철', emoji:'🌠', years:'1896–1963', nation:'한국', job:'천문학자', achievement:'한국 최초 이학박사, 중앙관상대 초대 대장, 근대 천문학 개척', barrier:'일제 강점기 학문 탄압', value:'과학·자립', quote:'별을 보는 자는 미래를 본다.', lesson:'식민지 시대에도 과학 독립을 향해 나아간 선구자',
+        quizzes:[
+          { q:'이원철이 설립에 기여한 기관은?',opts:['기상청','중앙관상대','과학원','천문대'],ans:1 },
+          { q:'이원철의 업적 분야는?',opts:['의학','천문학','화학','물리학'],ans:1 },
+          { q:'이원철의 주요 진로장벽은?',opts:['신분 차별','일제 강점기 학문 탄압','경제적 빈곤','언어 장벽'],ans:1 },
+          { q:'이원철의 핵심 가치관은?',opts:['부','명예','과학·자립','권력'],ans:2 },
+          { q:'이원철이 한국 최초로 취득한 것은?',opts:['의학 박사','이학 박사','공학 박사','철학 박사'],ans:1 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'마리 퀴리', emoji:'☢️', years:'1867–1934', nation:'폴란드/프랑스', job:'물리학자·화학자', achievement:'방사능 연구, 노벨상 2회(물리·화학) 수상 최초 여성', barrier:'여성·이민자 차별', value:'탐구·끈기', quote:'인생에서 두려워할 것은 없습니다. 이해해야 할 것만 있습니다.', lesson:'편견에 굴하지 않고 진리를 탐구하는 용기',
+        quizzes:[
+          { q:'마리 퀴리가 노벨상을 받은 횟수는?',opts:['1회','2회','3회','없음'],ans:1 },
+          { q:'마리 퀴리의 출신 국가는?',opts:['독일','프랑스','폴란드','영국'],ans:2 },
+          { q:'마리 퀴리가 발견한 원소가 아닌 것은?',opts:['라듐','폴로늄','우라늄','퀴륨'],ans:2 },
+          { q:'마리 퀴리의 주요 진로장벽은?',opts:['경제적 빈곤','여성·이민자 차별','언어 장벽','나이'],ans:1 },
+          { q:'마리 퀴리의 핵심 가치관은?',opts:['권력','탐구·끈기','명예','부'],ans:1 },
+        ]
+      },
+      { name:'아이작 뉴턴', emoji:'🍎', years:'1643–1727', nation:'영국', job:'수학자·물리학자', achievement:'만유인력 법칙, 미적분 발명, 광학 연구', barrier:'어린 시절 가난과 조산아 출생', value:'관찰·논리', quote:'나는 해변에서 놀던 어린아이에 불과하다.', lesson:'끊임없는 관찰과 사색으로 세계의 법칙을 발견',
+        quizzes:[
+          { q:'뉴턴이 발견한 물리 법칙은?',opts:['상대성 이론','만유인력 법칙','열역학 법칙','전자기학'],ans:1 },
+          { q:'뉴턴이 공동 발명한 수학 분야는?',opts:['기하학','대수학','미적분','통계학'],ans:2 },
+          { q:'뉴턴의 출신 국가는?',opts:['프랑스','독일','영국','이탈리아'],ans:2 },
+          { q:'뉴턴의 주요 진로장벽은?',opts:['신분 차별','어린 시절 가난·조산아','여성 차별','종교 탄압'],ans:1 },
+          { q:'뉴턴의 핵심 가치관은?',opts:['탐구·끈기','관찰·논리','예술','자유'],ans:1 },
+        ]
+      },
+      { name:'알베르트 아인슈타인', emoji:'🌌', years:'1879–1955', nation:'독일/미국', job:'물리학자', achievement:'특수·일반 상대성 이론 발표, 노벨물리학상, E=mc² 발견', barrier:'나치 독일로 인한 망명, 유대인 차별', value:'상상력·자유', quote:'상상력이 지식보다 더 중요하다.', lesson:'상상력으로 우주의 법칙을 바꾼 세기의 과학자',
+        quizzes:[
+          { q:'아인슈타인이 발표한 이론은?',opts:['만유인력','상대성 이론','양자역학','열역학'],ans:1 },
+          { q:'아인슈타인의 유명한 공식은?',opts:['F=ma','E=mc²','PV=nRT','a²+b²=c²'],ans:1 },
+          { q:'아인슈타인의 주요 진로장벽은?',opts:['경제적 빈곤','나치 독일·유대인 차별로 인한 망명','신분 차별','언어 장벽'],ans:1 },
+          { q:'아인슈타인의 핵심 가치관은?',opts:['권력','부','상상력·자유','명예'],ans:2 },
+          { q:'아인슈타인이 받은 상은?',opts:['노벨화학상','노벨물리학상','노벨평화상','필즈상'],ans:1 },
+        ]
+      },
+      { name:'찰스 다윈', emoji:'🦕', years:'1809–1882', nation:'영국', job:'생물학자·자연탐험가', achievement:'진화론 발표(종의 기원), 비글호 탐험, 자연선택설 확립', barrier:'종교적 반발과 사회적 압박', value:'관찰·진리', quote:'생존하는 것은 강한 종이 아니라 변화에 적응하는 종이다.', lesson:'사회적 압박에도 진리를 추구한 과학적 용기',
+        quizzes:[
+          { q:'다윈이 저술한 진화론 책은?',opts:['종의 기원','일반 상대성 이론','코스모스','대화'],ans:0 },
+          { q:'다윈이 탐험에 사용한 배의 이름은?',opts:['인데버호','비글호','메이플라워호','산타마리아호'],ans:1 },
+          { q:'다윈의 핵심 가치관은?',opts:['부','명예','관찰·진리','권력'],ans:2 },
+          { q:'다윈의 주요 진로장벽은?',opts:['경제적 빈곤','종교적 반발과 사회적 압박','신분 차별','언어 장벽'],ans:1 },
+          { q:'다윈 진화론의 핵심 개념은?',opts:['창조설','자연 선택·진화','지적 설계','천동설'],ans:1 },
+        ]
+      },
+      { name:'갈릴레오 갈릴레이', emoji:'🔭', years:'1564–1642', nation:'이탈리아', job:'천문학자·물리학자', achievement:'망원경 개량, 지동설 지지, 낙하 법칙 발견', barrier:'종교 재판소로부터 이단 선고', value:'진리·용기', quote:'그래도 지구는 돈다.', lesson:'권력에 굴하지 않고 과학적 진실을 지킨 용기',
+        quizzes:[
+          { q:'갈릴레이가 지지한 우주 이론은?',opts:['천동설','지동설','창조설','팽창설'],ans:1 },
+          { q:'갈릴레이가 개량한 도구는?',opts:['현미경','망원경','온도계','나침반'],ans:1 },
+          { q:'갈릴레이의 주요 진로장벽은?',opts:['경제적 빈곤','종교 재판소로부터 이단 선고','신분 차별','전쟁'],ans:1 },
+          { q:'갈릴레이의 핵심 가치관은?',opts:['권력','부','진리·용기','명예'],ans:2 },
+          { q:'갈릴레이의 출신 국가는?',opts:['프랑스','독일','영국','이탈리아'],ans:3 },
+        ]
+      },
+    ]
+  },
+  art: {
+    domestic: [
+      { name:'김환기', emoji:'🎨', years:'1913–1974', nation:'한국', job:'화가', achievement:'한국 추상미술의 선구자, 점·선·면의 독창적 화풍 창조', barrier:'전쟁과 이민 생활의 고난', value:'한국미·창조', quote:'점 하나에 우주가 담긴다.', lesson:'전통미를 현대 추상으로 승화시킨 독창성',
+        quizzes:[
+          { q:'김환기의 대표 화풍은?',opts:['사실주의','인상주의','추상미술','팝아트'],ans:2 },
+          { q:'김환기가 주로 활동한 해외 도시는?',opts:['파리·뉴욕','도쿄·베이징','런던·로마','시드니·LA'],ans:0 },
+          { q:'김환기의 핵심 가치관은?',opts:['권력','한국미·창조','부','명예'],ans:1 },
+          { q:'김환기의 주요 진로장벽은?',opts:['신분 차별','전쟁과 이민 생활의 고난','성별 차별','언어 장벽'],ans:1 },
+          { q:'김환기 작품의 주요 조형 요소는?',opts:['점·선·면','입체·조각','사진·영상','무용·공연'],ans:0 },
+        ]
+      },
+      { name:'신사임당', emoji:'🌸', years:'1504–1551', nation:'조선(한국)', job:'화가·시인·교육자', achievement:'초충도 등 섬세한 초충화, 이이(율곡)의 어머니, 5만원권 초상', barrier:'여성이라는 신분적 한계', value:'예술·교육', quote:'예술은 마음을 담는 그릇이다.', lesson:'시대 제약을 넘어 예술과 교육으로 자기를 실현',
+        quizzes:[
+          { q:'신사임당의 대표 그림 시리즈는?',opts:['산수화','초충도','인물화','풍속화'],ans:1 },
+          { q:'신사임당은 누구의 어머니인가요?',opts:['이순신','이이(율곡)','정약용','세종대왕'],ans:1 },
+          { q:'신사임당의 얼굴이 실린 지폐는?',opts:['1000원','5000원','10000원','50000원'],ans:3 },
+          { q:'신사임당의 핵심 가치관은?',opts:['권력','예술·교육','부','명예'],ans:1 },
+          { q:'신사임당의 주요 진로장벽은?',opts:['전쟁','여성이라는 신분적 한계','가난','외국어 장벽'],ans:1 },
+        ]
+      },
+      { name:'안견', emoji:'🖌️', years:'?–1464?', nation:'조선(한국)', job:'화가', achievement:'몽유도원도 제작, 조선 전기 최고 화가, 안평대군의 총애', barrier:'중인 신분으로 벽에 부딪힘', value:'예술적 완성·상상', quote:'꿈속의 세계도 붓으로 담을 수 있다.', lesson:'상상을 현실로 구현하는 예술가의 집념',
+        quizzes:[
+          { q:'안견의 대표작은?',opts:['민화','몽유도원도','초충도','풍속화'],ans:1 },
+          { q:'안견의 출신 신분은?',opts:['양반','중인','노비','왕족'],ans:1 },
+          { q:'안견을 후원한 왕족은?',opts:['세종대왕','안평대군','태종','수양대군'],ans:1 },
+          { q:'안견의 핵심 가치관은?',opts:['권력','부','예술적 완성·상상','명예'],ans:2 },
+          { q:'안견이 활동한 시대는?',opts:['고려','조선 전기','조선 중기','조선 말'],ans:1 },
+        ]
+      },
+      { name:'백남준', emoji:'📺', years:'1932–2006', nation:'한국/미국', job:'비디오 아티스트', achievement:'비디오 아트 창시, 세계 최초 위성 생중계 예술, 현대 미디어 아트 개척', barrier:'전쟁과 이방인으로서의 삶', value:'실험·혁신', quote:'나는 TV를 갖고 피카소처럼 놀았다.', lesson:'기술을 예술로 바꾼 경계 없는 창의적 실험',
+        quizzes:[
+          { q:'백남준이 창시한 예술 장르는?',opts:['행위예술','비디오 아트','설치미술','팝아트'],ans:1 },
+          { q:'백남준의 주요 진로장벽은?',opts:['신분 차별','전쟁과 이방인으로서의 삶','언어 장벽','경제적 빈곤'],ans:1 },
+          { q:'백남준의 핵심 가치관은?',opts:['명예','실험·혁신','부','권력'],ans:1 },
+          { q:'백남준이 주로 사용한 매체는?',opts:['유화','조각','TV·비디오','사진'],ans:2 },
+          { q:'백남준이 태어난 나라는?',opts:['미국','일본','한국','독일'],ans:2 },
+        ]
+      },
+      { name:'이중섭', emoji:'🐂', years:'1916–1956', nation:'한국', job:'화가', achievement:'소 그림으로 한국 민족 정서 표현, 은지화 기법 독창 개발', barrier:'한국전쟁과 가난, 가족 이산', value:'사랑·정체성', quote:'사랑하는 것은 힘든 일이지만 그림 속에서 나는 자유롭다.', lesson:'극한의 고통 속에서도 예술혼을 불태운 화가',
+        quizzes:[
+          { q:'이중섭의 대표 소재는?',opts:['꽃','소','새','물고기'],ans:1 },
+          { q:'이중섭이 개발한 독창적 기법은?',opts:['수묵화','은지화','유화','판화'],ans:1 },
+          { q:'이중섭의 주요 진로장벽은?',opts:['신분 차별','한국전쟁과 가난·가족 이산','언어 장벽','외국 차별'],ans:1 },
+          { q:'이중섭의 핵심 가치관은?',opts:['부','명예','사랑·정체성','권력'],ans:2 },
+          { q:'이중섭이 활동한 시대는?',opts:['일제강점기·한국전쟁기','조선 말기','고려 말','현대'],ans:0 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'레오나르도 다빈치', emoji:'🖼️', years:'1452–1519', nation:'이탈리아', job:'화가·발명가·과학자', achievement:'모나리자·최후의 만찬, 비행기·헬리콥터 설계 선구', barrier:'사생아 출신으로 정규 교육 제한', value:'호기심·통합', quote:'배우기를 멈추는 자는 늙은 것이다.', lesson:'경계를 넘는 융합적 사고로 르네상스를 이끈 지성',
+        quizzes:[
+          { q:'레오나르도 다빈치의 대표 작품이 아닌 것은?',opts:['모나리자','최후의 만찬','게르니카','비트루비우스 인체도'],ans:2 },
+          { q:'다빈치의 출신 국가는?',opts:['프랑스','스페인','이탈리아','독일'],ans:2 },
+          { q:'다빈치의 주요 진로장벽은?',opts:['사생아 출신·교육 제한','전쟁','여성 차별','신분 차별'],ans:0 },
+          { q:'다빈치의 핵심 가치관은?',opts:['권력','부','호기심·통합','명예'],ans:2 },
+          { q:'다빈치가 설계한 발명품이 아닌 것은?',opts:['헬리콥터 원형','잠수함 원형','증기기관','비행기 원형'],ans:2 },
+        ]
+      },
+      { name:'프리다 칼로', emoji:'🌺', years:'1907–1954', nation:'멕시코', job:'화가', achievement:'자화상 중심의 초현실주의 회화, 멕시코 민족 정체성 표현', barrier:'소아마비·교통사고로 인한 장애', value:'자기표현·정체성', quote:'나는 결코 꿈을 그리지 않는다. 나 자신의 현실을 그릴 뿐이다.', lesson:'고통을 예술로 승화시킨 불굴의 자기표현',
+        quizzes:[
+          { q:'프리다 칼로의 대표 화풍은?',opts:['인상주의','초현실주의','추상미술','바로크'],ans:1 },
+          { q:'프리다 칼로의 출신 국가는?',opts:['아르헨티나','브라질','멕시코','쿠바'],ans:2 },
+          { q:'프리다 칼로의 주요 진로장벽은?',opts:['경제적 빈곤','소아마비·교통사고 장애','전쟁','성별 차별'],ans:1 },
+          { q:'프리다 칼로의 핵심 가치관은?',opts:['권력','명예','자기표현·정체성','부'],ans:2 },
+          { q:'프리다 칼로 작품의 주요 소재는?',opts:['풍경화','자화상','추상','인물군상'],ans:1 },
+        ]
+      },
+      { name:'빈센트 반 고흐', emoji:'🌻', years:'1853–1890', nation:'네덜란드', job:'화가', achievement:'별이 빛나는 밤·해바라기 등 후기 인상주의 걸작, 현대 미술에 지대한 영향', barrier:'생전 무명, 정신 질환과 극심한 빈곤', value:'열정·표현', quote:'나는 찾고 있다. 분투하고 있다. 온 마음을 다해 그 안에 있다.', lesson:'인정받지 못해도 끝까지 창작을 놓지 않은 예술혼',
+        quizzes:[
+          { q:'반 고흐의 대표 작품이 아닌 것은?',opts:['별이 빛나는 밤','해바라기','모나리자','자화상'],ans:2 },
+          { q:'반 고흐의 출신 국가는?',opts:['프랑스','독일','네덜란드','벨기에'],ans:2 },
+          { q:'반 고흐의 주요 진로장벽은?',opts:['신분 차별','생전 무명·정신 질환·극심한 빈곤','전쟁','언어 장벽'],ans:1 },
+          { q:'반 고흐의 핵심 가치관은?',opts:['권력','부','열정·표현','명예'],ans:2 },
+          { q:'반 고흐가 속한 미술 사조는?',opts:['바로크','고전주의','후기 인상주의','현대 추상'],ans:2 },
+        ]
+      },
+      { name:'루트비히 판 베토벤', emoji:'🎵', years:'1770–1827', nation:'독일', job:'작곡가', achievement:'교향곡 9번·월광 소나타 등 불후의 명작, 청각 장애를 극복한 음악가', barrier:'청각 장애(완전 실청)', value:'의지·초월', quote:'나는 운명의 목을 조르겠다.', lesson:'가장 필요한 감각을 잃고도 인류 최고의 음악을 만든 불굴의 의지',
+        quizzes:[
+          { q:'베토벤이 작곡한 교향곡의 번호는?',opts:['5번과 7번','9번 포함 9개','6번과 10번','8번만'],ans:1 },
+          { q:'베토벤의 주요 진로장벽은?',opts:['경제적 빈곤','청각 장애(완전 실청)','신분 차별','전쟁'],ans:1 },
+          { q:'베토벤의 핵심 가치관은?',opts:['부','명예','의지·초월','권력'],ans:2 },
+          { q:'베토벤의 출신 국가는?',opts:['오스트리아','프랑스','독일','이탈리아'],ans:2 },
+          { q:'베토벤의 유명한 명언은?',opts:['"나는 운명의 목을 조르겠다"','"Stay hungry stay foolish"','"너 자신을 알라"','"그래도 지구는 돈다"'],ans:0 },
+        ]
+      },
+      { name:'파블로 피카소', emoji:'🎭', years:'1881–1973', nation:'스페인', job:'화가·조각가', achievement:'큐비즘 창시, 게르니카·아비뇽의 처녀들 제작, 20세기 미술 혁명', barrier:'스페인 내전과 망명 생활', value:'혁신·저항', quote:'모든 아이는 예술가다. 문제는 어른이 되어도 예술가로 남는 것이다.', lesson:'기존 예술의 틀을 깨고 새로운 시각 언어를 만든 혁명가',
+        quizzes:[
+          { q:'피카소가 창시한 미술 사조는?',opts:['초현실주의','큐비즘','인상주의','팝아트'],ans:1 },
+          { q:'피카소의 출신 국가는?',opts:['프랑스','이탈리아','스페인','포르투갈'],ans:2 },
+          { q:'피카소의 주요 진로장벽은?',opts:['경제적 빈곤','스페인 내전과 망명 생활','신분 차별','언어 장벽'],ans:1 },
+          { q:'피카소의 핵심 가치관은?',opts:['부','명예','혁신·저항','권력'],ans:2 },
+          { q:'피카소의 대표 반전(反戰) 작품은?',opts:['아비뇽의 처녀들','게르니카','모나리자','최후의 만찬'],ans:1 },
+        ]
+      },
+    ]
+  },
+  social: {
+    domestic: [
+      { name:'유관순', emoji:'🕊️', years:'1902–1920', nation:'한국(일제강점기)', job:'독립운동가', achievement:'3·1운동 주도, 아우내 장터 만세 운동 이끔', barrier:'일제 식민지배·투옥·고문', value:'자유·애국', quote:'내 손톱이 빠져나가고 내 다리가 부러져도 그 고통은 이길 수 있습니다.', lesson:'두려움 없이 정의를 위해 싸우는 용기',
+        quizzes:[
+          { q:'유관순이 주도한 만세 운동의 지역은?',opts:['서울','아우내 장터','평양','부산'],ans:1 },
+          { q:'유관순이 순국한 나이는?',opts:['17세','18세','19세','20세'],ans:1 },
+          { q:'유관순의 핵심 가치관은?',opts:['부','명예','자유·애국','지식'],ans:2 },
+          { q:'유관순의 주요 진로장벽은?',opts:['경제적 빈곤','성별 차별','일제 식민지배·투옥·고문','언어 장벽'],ans:2 },
+          { q:'유관순이 다닌 학교는?',opts:['배재학당','이화학당','숭실학교','연희전문'],ans:1 },
+        ]
+      },
+      { name:'전태일', emoji:'✊', years:'1948–1970', nation:'한국', job:'노동운동가', achievement:'근로기준법 준수 요구 분신, 한국 노동운동의 상징', barrier:'극심한 빈곤과 노동착취', value:'연대·정의', quote:'우리는 기계가 아니다!', lesson:'약자를 위해 목숨을 바친 연대와 정의의 정신',
+        quizzes:[
+          { q:'전태일이 요구한 핵심 내용은?',opts:['임금 인상','근로기준법 준수','노동 시간 단축','정치 참여'],ans:1 },
+          { q:'전태일이 일하던 시장은?',opts:['남대문시장','동대문시장','평화시장','광장시장'],ans:2 },
+          { q:'전태일의 핵심 가치관은?',opts:['연대·정의','부','명예','지식'],ans:0 },
+          { q:'전태일의 주요 진로장벽은?',opts:['전쟁','극심한 빈곤과 노동착취','신분 차별','외국어 장벽'],ans:1 },
+          { q:'전태일의 행동이 미친 사회적 영향은?',opts:['교육 개혁','한국 노동운동 발전','농업 혁명','문화 개혁'],ans:1 },
+        ]
+      },
+      { name:'안창호', emoji:'🦅', years:'1878–1938', nation:'한국(일제강점기)', job:'독립운동가·교육자', achievement:'흥사단 창립, 독립운동 조직화, 실력 양성 운동 주도', barrier:'일제 탄압과 수차례 투옥', value:'자강·교육', quote:'낙망은 청년의 죽음이요, 청년의 죽음은 민족의 죽음이다.', lesson:'실력을 키워 독립을 쟁취하려 한 교육 독립운동가',
+        quizzes:[
+          { q:'안창호가 창립한 단체는?',opts:['신간회','흥사단','독립협회','조선어학회'],ans:1 },
+          { q:'안창호의 주요 진로장벽은?',opts:['경제적 빈곤','일제 탄압과 수차례 투옥','신분 차별','언어 장벽'],ans:1 },
+          { q:'안창호의 핵심 가치관은?',opts:['부','명예','자강·교육','권력'],ans:2 },
+          { q:'안창호가 강조한 독립 방법은?',opts:['무장투쟁','외교','실력 양성·교육','경제 독립'],ans:2 },
+          { q:'안창호의 별호는?',opts:['백범','도산','만해','소파'],ans:1 },
+        ]
+      },
+      { name:'김구', emoji:'🇰🇷', years:'1876–1949', nation:'한국', job:'독립운동가·정치가', achievement:'대한민국 임시정부 주석, 한인애국단 조직, 독립운동 상징', barrier:'일제 탄압·암살 위협', value:'자주·통일', quote:'나는 우리나라가 세계에서 가장 아름다운 나라가 되기를 원한다.', lesson:'평생을 독립과 통일을 위해 헌신한 민족의 지도자',
+        quizzes:[
+          { q:'김구가 이끈 임시정부의 명칭은?',opts:['상해 임시정부','대한민국 임시정부','한국 망명 정부','독립군 정부'],ans:1 },
+          { q:'김구의 호는?',opts:['도산','백범','만해','소파'],ans:1 },
+          { q:'김구의 주요 진로장벽은?',opts:['경제적 빈곤','일제 탄압·암살 위협','신분 차별','외국어 장벽'],ans:1 },
+          { q:'김구의 핵심 가치관은?',opts:['부','명예','자주·통일','권력'],ans:2 },
+          { q:'김구의 자서전 제목은?',opts:['나의 소원','백범일지','독립의 꿈','자유의 길'],ans:1 },
+        ]
+      },
+      { name:'이태석 신부', emoji:'⛪', years:'1962–2010', nation:'한국', job:'의사·신부', achievement:'수단 톤즈에서 의료봉사, 학교 설립, 나환자 치료', barrier:'내전 중 아프리카 오지에서의 활동', value:'헌신·사랑', quote:'나는 여기 있을 것입니다, 여러분 곁에.', lesson:'전쟁터에서 의술과 사랑으로 생명을 지킨 현대의 슈바이처',
+        quizzes:[
+          { q:'이태석 신부가 봉사한 나라는?',opts:['케냐','에티오피아','수단','나이지리아'],ans:2 },
+          { q:'이태석의 주요 활동 분야는?',opts:['IT','의료봉사·교육','환경','농업'],ans:1 },
+          { q:'이태석의 주요 진로장벽은?',opts:['신분 차별','내전 중 아프리카 오지에서의 활동','언어 장벽','경제적 빈곤'],ans:1 },
+          { q:'이태석의 핵심 가치관은?',opts:['부','명예','헌신·사랑','권력'],ans:2 },
+          { q:'이태석이 활동한 지역의 마을 이름은?',opts:['통바','톤즈','킬리만자로','나이로비'],ans:1 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'넬슨 만델라', emoji:'✊', years:'1918–2013', nation:'남아프리카공화국', job:'반아파르트헤이트 운동가·대통령', achievement:'27년 투옥 후 남아공 최초 흑인 대통령, 노벨평화상 수상', barrier:'아파르트헤이트 인종 차별·투옥', value:'용서·자유', quote:'위대한 일은 항상 불가능해 보인다, 해내기 전까지는.', lesson:'증오 대신 용서로 화해를 이끈 지도자의 품격',
+        quizzes:[
+          { q:'넬슨 만델라가 투옥된 기간은?',opts:['17년','27년','37년','47년'],ans:1 },
+          { q:'만델라가 반대한 제도는?',opts:['군사독재','아파르트헤이트','식민지배','계급제'],ans:1 },
+          { q:'만델라가 받은 상은?',opts:['노벨평화상','노벨경제학상','노벨문학상','퓰리처상'],ans:0 },
+          { q:'만델라의 핵심 가치관은?',opts:['권력','부','용서·자유','명예'],ans:2 },
+          { q:'만델라가 대통령이 된 나라는?',opts:['나이지리아','케냐','남아프리카공화국','짐바브웨'],ans:2 },
+        ]
+      },
+      { name:'말랄라 유사프자이', emoji:'📖', years:'2001–', nation:'파키스탄', job:'교육 운동가', achievement:'여성 교육권 운동, 17세 최연소 노벨평화상 수상', barrier:'탈레반 총격·생명 위협', value:'교육·용기', quote:'한 명의 아이, 한 명의 교사, 한 권의 책이 세상을 바꿀 수 있다.', lesson:'두려움을 이기고 신념을 지키는 젊음의 용기',
+        quizzes:[
+          { q:'말랄라가 노벨평화상을 받은 나이는?',opts:['15세','17세','20세','22세'],ans:1 },
+          { q:'말랄라가 활동한 국가는?',opts:['아프가니스탄','인도','파키스탄','이란'],ans:2 },
+          { q:'말랄라의 주요 진로장벽은?',opts:['경제적 빈곤','탈레반 총격·생명 위협','신분 차별','언어 장벽'],ans:1 },
+          { q:'말랄라의 핵심 가치관은?',opts:['권력','교육·용기','부','명예'],ans:1 },
+          { q:'말랄라가 노벨상을 받은 분야는?',opts:['문학','화학','평화','경제'],ans:2 },
+        ]
+      },
+      { name:'마틴 루터 킹 주니어', emoji:'🌟', years:'1929–1968', nation:'미국', job:'인권운동가·목사', achievement:'비폭력 민권운동 주도, "나에게는 꿈이 있습니다" 연설, 노벨평화상', barrier:'인종 차별·암살 위협', value:'비폭력·평등', quote:'날 수 없다면 뛰어라. 뛸 수 없다면 걸어라. 무슨 일이 있어도 앞으로 나아가야 한다.', lesson:'비폭력으로 세상을 바꾼 평화의 전도사',
+        quizzes:[
+          { q:'마틴 루터 킹의 유명한 연설 제목은?',opts:['"자유가 있다"','"나에게는 꿈이 있습니다"','"우리는 이긴다"','"평화가 온다"'],ans:1 },
+          { q:'킹 목사의 운동 방식은?',opts:['무장투쟁','비폭력 저항','경제 제재','외교 협상'],ans:1 },
+          { q:'킹 목사의 주요 진로장벽은?',opts:['경제적 빈곤','인종 차별·암살 위협','신분 차별','언어 장벽'],ans:1 },
+          { q:'킹 목사의 핵심 가치관은?',opts:['부','명예','비폭력·평등','권력'],ans:2 },
+          { q:'킹 목사가 받은 상은?',opts:['노벨평화상','노벨문학상','퓰리처상','맨부커상'],ans:0 },
+        ]
+      },
+      { name:'간디', emoji:'🕊️', years:'1869–1948', nation:'인도', job:'독립운동가·사상가', achievement:'비폭력 불복종 운동으로 인도 독립, 사티아그라하 철학 창시', barrier:'영국 식민 지배·수차례 투옥', value:'비폭력·진실', quote:'당신이 세상에서 보고 싶은 변화가 되어라.', lesson:'무기 없이 제국을 무너뜨린 비폭력의 힘',
+        quizzes:[
+          { q:'간디가 창시한 저항 철학은?',opts:['공산주의','사티아그라하(비폭력 진리)','사회주의','자본주의'],ans:1 },
+          { q:'간디의 출신 국가는?',opts:['파키스탄','방글라데시','인도','스리랑카'],ans:2 },
+          { q:'간디의 주요 진로장벽은?',opts:['경제적 빈곤','영국 식민 지배·수차례 투옥','신분 차별','언어 장벽'],ans:1 },
+          { q:'간디의 핵심 가치관은?',opts:['부','명예','비폭력·진실','권력'],ans:2 },
+          { q:'간디의 유명한 소금 행진이 저항한 것은?',opts:['세금 제도','소금세 및 식민 통치','교육 제도','토지 제도'],ans:1 },
+        ]
+      },
+      { name:'테레사 수녀', emoji:'💛', years:'1910–1997', nation:'알바니아/인도', job:'수녀·인도주의자', achievement:'사랑의 선교회 창립, 인도 빈민 봉사, 노벨평화상 수상', barrier:'극심한 빈곤과 질병 속 봉사', value:'사랑·봉사', quote:'혼자라면 우리는 거의 아무것도 할 수 없다. 함께라면 우리는 너무나 많은 것을 할 수 있다.', lesson:'가장 낮은 곳에서 가장 숭고한 사랑을 실천한 성인',
+        quizzes:[
+          { q:'테레사 수녀가 창립한 단체는?',opts:['국경없는의사회','사랑의 선교회','적십자','유니세프'],ans:1 },
+          { q:'테레사 수녀가 주로 활동한 나라는?',opts:['아프리카','인도','중국','브라질'],ans:1 },
+          { q:'테레사 수녀의 주요 진로장벽은?',opts:['신분 차별','극심한 빈곤과 질병 속 봉사','언어 장벽','전쟁'],ans:1 },
+          { q:'테레사 수녀의 핵심 가치관은?',opts:['부','명예','사랑·봉사','권력'],ans:2 },
+          { q:'테레사 수녀가 받은 상은?',opts:['노벨평화상','노벨문학상','노벨의학상','맨부커상'],ans:0 },
+        ]
+      },
+    ]
+  },
+  edu: {
+    domestic: [
+      { name:'퇴계 이황', emoji:'📜', years:'1501–1570', nation:'조선(한국)', job:'철학자·교육자', achievement:'성리학 집대성, 도산서원 설립, 1000원권 초상', barrier:'당쟁과 관직 압박', value:'학문·수양', quote:'배움은 끝이 없고, 스스로를 갈고닦는 것이 시작이다.', lesson:'끊임없는 자기 수양과 후학 양성의 모범',
+        quizzes:[
+          { q:'퇴계 이황이 설립한 교육기관은?',opts:['성균관','도산서원','국자감','향교'],ans:1 },
+          { q:'이황의 얼굴이 실린 지폐는?',opts:['500원','1000원','5000원','10000원'],ans:1 },
+          { q:'이황의 핵심 가치관은?',opts:['부','권력','학문·수양','명예'],ans:2 },
+          { q:'이황이 집대성한 학문은?',opts:['도교','불교','성리학','실학'],ans:2 },
+          { q:'이황의 주요 진로장벽은?',opts:['신분 차별','당쟁과 관직 압박','경제적 빈곤','전쟁'],ans:1 },
+        ]
+      },
+      { name:'정약용', emoji:'📗', years:'1762–1836', nation:'조선(한국)', job:'실학자·철학자', achievement:'목민심서·경세유표 저술, 거중기 설계, 실학 집대성', barrier:'천주교 박해로 18년 유배', value:'실용·백성', quote:'관리는 백성을 위해 존재한다.', lesson:'역경을 학문 발전의 기회로 전환한 실천적 지식인',
+        quizzes:[
+          { q:'정약용이 저술한 책이 아닌 것은?',opts:['목민심서','경세유표','흠흠신서','동의보감'],ans:3 },
+          { q:'정약용이 유배된 기간은?',opts:['8년','12년','18년','22년'],ans:2 },
+          { q:'정약용의 핵심 가치관은?',opts:['권력','부','실용·백성','명예'],ans:2 },
+          { q:'정약용의 주요 진로장벽은?',opts:['전쟁','천주교 박해로 인한 유배','신분 차별','언어 장벽'],ans:1 },
+          { q:'정약용이 설계한 기구는?',opts:['측우기','거중기','자격루','혼천의'],ans:1 },
+        ]
+      },
+      { name:'세종대왕', emoji:'👑', years:'1397–1450', nation:'조선(한국)', job:'왕·교육·과학 후원자', achievement:'훈민정음 창제, 집현전 설립, 과학·음악·농업 발전 주도', barrier:'왕위 승계 갈등, 심한 눈병', value:'백성·소통', quote:'내가 이 글자를 만드는 것은 백성을 위함이다.', lesson:'백성을 위해 언어를 만든 역사상 가장 위대한 군주',
+        quizzes:[
+          { q:'세종대왕이 창제한 문자는?',opts:['이두','훈민정음','향찰','구결'],ans:1 },
+          { q:'세종대왕이 설립한 학문 기관은?',opts:['성균관','집현전','도산서원','홍문관'],ans:1 },
+          { q:'세종대왕의 핵심 가치관은?',opts:['권력','부','백성·소통','명예'],ans:2 },
+          { q:'세종대왕의 주요 진로장벽은?',opts:['신분 차별','왕위 갈등·심한 눈병','외국어 장벽','전쟁'],ans:1 },
+          { q:'세종대왕의 얼굴이 실린 지폐는?',opts:['1000원','5000원','10000원','50000원'],ans:2 },
+        ]
+      },
+      { name:'율곡 이이', emoji:'🖊️', years:'1536–1584', nation:'조선(한국)', job:'철학자·교육자·정치가', achievement:'성학집요·격몽요결 저술, 십만양병설 주장, 5000원권 초상', barrier:'당쟁의 소용돌이', value:'개혁·교육', quote:'학문은 하루라도 게을리 해서는 안 된다.', lesson:'실천적 개혁과 교육으로 나라를 바로잡으려 한 지성인',
+        quizzes:[
+          { q:'율곡 이이의 얼굴이 실린 지폐는?',opts:['1000원','5000원','10000원','50000원'],ans:1 },
+          { q:'이이가 저술한 교육서는?',opts:['목민심서','격몽요결','의산문답','성호사설'],ans:1 },
+          { q:'이이의 핵심 가치관은?',opts:['부','명예','개혁·교육','권력'],ans:2 },
+          { q:'이이의 주요 진로장벽은?',opts:['신분 차별','당쟁의 소용돌이','경제적 빈곤','외국어 장벽'],ans:1 },
+          { q:'이이가 주장한 국방 정책은?',opts:['오만양병설','십만양병설','이십만양병설','백만양병설'],ans:1 },
+        ]
+      },
+      { name:'방정환', emoji:'🧒', years:'1899–1931', nation:'한국', job:'아동문학가·사회운동가', achievement:'어린이날 제정, 잡지 어린이 창간, 어린이 인권 운동 선구', barrier:'일제 탄압과 짧은 생애', value:'어린이 존중·사랑', quote:'어린이를 내려다보지 말고 올려다보아라.', lesson:'어린이를 인격체로 존중한 한국 아동운동의 아버지',
+        quizzes:[
+          { q:'방정환이 제정한 날은?',opts:['어버이날','어린이날','스승의날','청소년의날'],ans:1 },
+          { q:'방정환이 창간한 잡지는?',opts:['소년','어린이','학생','새벗'],ans:1 },
+          { q:'방정환의 주요 진로장벽은?',opts:['경제적 빈곤','일제 탄압과 짧은 생애','신분 차별','언어 장벽'],ans:1 },
+          { q:'방정환의 핵심 가치관은?',opts:['부','명예','어린이 존중·사랑','권력'],ans:2 },
+          { q:'방정환이 사망한 나이는?',opts:['28세','32세','38세','42세'],ans:1 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'소크라테스', emoji:'🏛️', years:'BC 470–399', nation:'고대 그리스(아테네)', job:'철학자', achievement:'산파술(대화법) 창안, 서양 철학의 아버지', barrier:'사형 선고(불경죄)', value:'진리·성찰', quote:'너 자신을 알라.', lesson:'진리 앞에서 타협하지 않는 철학자의 용기',
+        quizzes:[
+          { q:'소크라테스의 대화법 별칭은?',opts:['변증법','산파술','귀납법','연역법'],ans:1 },
+          { q:'소크라테스가 사형당한 이유는?',opts:['반역죄','절도죄','불경죄·청년 선동','살인죄'],ans:2 },
+          { q:'소크라테스의 핵심 가치관은?',opts:['권력','부','진리·성찰','명예'],ans:2 },
+          { q:'소크라테스의 출신 도시는?',opts:['스파르타','아테네','코린트','테베'],ans:1 },
+          { q:'소크라테스의 유명한 명언은?',opts:['"나는 생각한다 고로 존재한다"','"너 자신을 알라"','"인생은 짧고 예술은 길다"','"지식이 힘이다"'],ans:1 },
+        ]
+      },
+      { name:'공자', emoji:'☯️', years:'BC 551–479', nation:'중국(노나라)', job:'사상가·교육자', achievement:'유교 창시, 논어 편찬, 제자 3000명 교육', barrier:'정치적 실패와 방랑 14년', value:'인(仁)·예(禮)', quote:'배우고 때때로 익히면 또한 기쁘지 아니한가.', lesson:'실패를 배움으로 바꾼 끊임없는 교육자의 열정',
+        quizzes:[
+          { q:'공자가 창시한 사상은?',opts:['도교','불교','유교','이슬람'],ans:2 },
+          { q:'공자의 가르침이 담긴 책은?',opts:['도덕경','논어','불경','성경'],ans:1 },
+          { q:'공자의 핵심 가치관은?',opts:['권력','부','인(仁)·예(禮)','명예'],ans:2 },
+          { q:'공자가 방랑한 기간은?',opts:['7년','10년','14년','20년'],ans:2 },
+          { q:'공자의 제자 수는 대략 몇 명인가요?',opts:['300명','1000명','3000명','5000명'],ans:2 },
+        ]
+      },
+      { name:'마리아 몬테소리', emoji:'🌱', years:'1870–1952', nation:'이탈리아', job:'교육자·의사', achievement:'몬테소리 교육법 창시, 아동 중심 교육 혁명, 세계 최초 여의사 중 한 명', barrier:'여성 의사·교육자로서의 차별', value:'아동 존중·자립', quote:'아이를 도와주는 최선의 방법은 스스로 할 수 있게 하는 것이다.', lesson:'아이를 주체로 바라본 혁명적 교육 철학',
+        quizzes:[
+          { q:'몬테소리가 창시한 것은?',opts:['소크라테스 교육법','몬테소리 교육법','프뢰벨 교육법','듀이 교육법'],ans:1 },
+          { q:'몬테소리의 출신 국가는?',opts:['프랑스','독일','이탈리아','스페인'],ans:2 },
+          { q:'몬테소리의 주요 진로장벽은?',opts:['경제적 빈곤','여성 의사·교육자로서의 차별','신분 차별','언어 장벽'],ans:1 },
+          { q:'몬테소리의 핵심 가치관은?',opts:['부','명예','아동 존중·자립','권력'],ans:2 },
+          { q:'몬테소리 교육법의 핵심 원리는?',opts:['교사 중심 교육','아동 자율·자립 중심','경쟁 교육','암기 교육'],ans:1 },
+        ]
+      },
+      { name:'존 듀이', emoji:'🎓', years:'1859–1952', nation:'미국', job:'철학자·교육학자', achievement:'경험 중심 교육 철학 창시, 진보주의 교육 운동 주도', barrier:'보수적 전통 교육과의 충돌', value:'경험·민주주의', quote:'교육은 삶을 위한 준비가 아니라, 교육 자체가 삶이다.', lesson:'삶과 교육을 하나로 연결한 민주주의 교육 철학자',
+        quizzes:[
+          { q:'존 듀이의 교육 철학의 핵심 키워드는?',opts:['암기','경험 중심·실용주의','경쟁','권위'],ans:1 },
+          { q:'존 듀이의 출신 국가는?',opts:['영국','프랑스','미국','캐나다'],ans:2 },
+          { q:'존 듀이의 주요 진로장벽은?',opts:['경제적 빈곤','보수적 전통 교육과의 충돌','신분 차별','언어 장벽'],ans:1 },
+          { q:'존 듀이의 핵심 가치관은?',opts:['부','명예','경험·민주주의','권력'],ans:2 },
+          { q:'듀이가 강조한 교육 방식은?',opts:['주입식 암기','경험을 통한 학습','시험 중심','교사 강의 중심'],ans:1 },
+        ]
+      },
+      { name:'넬슨 만델라(교육)', emoji:'✏️', years:'1918–2013', nation:'남아프리카공화국', job:'교육 개혁가·지도자', achievement:'아파르트헤이트 철폐 후 교육 기회 평등 추진, 교육을 무기로 강조', barrier:'교육 받을 권리조차 박탈된 흑인 사회', value:'교육·평등', quote:'교육은 세상을 바꾸는 가장 강력한 무기다.', lesson:'배움을 통해 자유와 평등을 쟁취한 지도자',
+        quizzes:[
+          { q:'만델라가 강조한 변화의 무기는?',opts:['경제력','군사력','교육','외교'],ans:2 },
+          { q:'만델라의 주요 진로장벽은?',opts:['경제적 빈곤','교육 받을 권리조차 박탈된 흑인 사회','언어 장벽','신분 차별'],ans:1 },
+          { q:'만델라의 핵심 가치관은?',opts:['부','권력','교육·평등','명예'],ans:2 },
+          { q:'만델라가 대통령 당선 후 추진한 것은?',opts:['군비 증강','교육 기회 평등','외교 확대','경제 성장'],ans:1 },
+          { q:'만델라의 유명한 교육 관련 명언에서 교육을 비유한 것은?',opts:['열쇠','무기','사다리','빛'],ans:1 },
+        ]
+      },
+    ]
+  },
+  sports: {
+    domestic: [
+      { name:'손기정', emoji:'🏃', years:'1912–2002', nation:'한국(일제강점기)', job:'마라톤 선수', achievement:'1936 베를린 올림픽 마라톤 금메달, 세계 신기록', barrier:'일장기 달고 출전(일제 강점기)', value:'인내·민족혼', quote:'나는 조선인으로서 달렸다.', lesson:'시련 속에서도 민족 자존을 지킨 스포츠 영웅',
+        quizzes:[
+          { q:'손기정이 금메달을 딴 올림픽은?',opts:['1932 LA','1936 베를린','1948 런던','1952 헬싱키'],ans:1 },
+          { q:'손기정의 주요 진로장벽은?',opts:['부상','일장기 달고 출전(일제 강점기)','경제적 빈곤','나이 제한'],ans:1 },
+          { q:'손기정의 핵심 가치관은?',opts:['명예','인내·민족혼','부','권력'],ans:1 },
+          { q:'손기정이 뛴 종목은?',opts:['단거리','중거리','마라톤','경보'],ans:2 },
+          { q:'손기정이 베를린에서 세운 기록의 의미는?',opts:['국내 신기록','아시아 신기록','세계 신기록','올림픽 최초 금메달'],ans:2 },
+        ]
+      },
+      { name:'박찬호', emoji:'⚾', years:'1973–', nation:'한국', job:'야구 선수(투수)', achievement:'MLB 최초 한국인 선발투수, 통산 124승 기록', barrier:'인종 차별과 언어 장벽', value:'도전·개척', quote:'포기하지 않으면 길은 반드시 열린다.', lesson:'차별을 극복하고 코리안 드림을 개척한 도전 정신',
+        quizzes:[
+          { q:'박찬호가 처음 진출한 MLB 팀은?',opts:['뉴욕 양키스','LA 다저스','보스턴 레드삭스','시카고 컵스'],ans:1 },
+          { q:'박찬호의 MLB 통산 승수는?',opts:['87승','124승','156승','200승'],ans:1 },
+          { q:'박찬호의 주요 진로장벽은?',opts:['부상','인종 차별과 언어 장벽','가난','코치 갈등'],ans:1 },
+          { q:'박찬호의 핵심 가치관은?',opts:['명예','도전·개척','부','권력'],ans:1 },
+          { q:'박찬호가 활동한 리그는?',opts:['NPB(일본)','MLB(미국)','KBO(한국)','유럽 리그'],ans:1 },
+        ]
+      },
+      { name:'김연아', emoji:'⛸️', years:'1990–', nation:'한국', job:'피겨스케이팅 선수', achievement:'2010 밴쿠버 올림픽 금메달, 세계 최고 점수 경신, 피겨 여왕', barrier:'열악한 국내 훈련 환경과 부족한 지원', value:'완벽·인내', quote:'포기하고 싶을 때가 가장 가까이 있을 때다.', lesson:'불리한 환경을 극복하고 세계 정상에 오른 완벽주의자',
+        quizzes:[
+          { q:'김연아가 금메달을 딴 올림픽은?',opts:['2006 토리노','2010 밴쿠버','2014 소치','2018 평창'],ans:1 },
+          { q:'김연아의 종목은?',opts:['쇼트트랙','스피드스케이팅','피겨스케이팅','아이스하키'],ans:2 },
+          { q:'김연아의 주요 진로장벽은?',opts:['부상','열악한 국내 훈련 환경과 부족한 지원','인종 차별','나이 제한'],ans:1 },
+          { q:'김연아의 핵심 가치관은?',opts:['명예','완벽·인내','부','권력'],ans:1 },
+          { q:'김연아의 별명은?',opts:['피겨 여왕','빙상 요정','스케이트 선녀','얼음 공주'],ans:0 },
+        ]
+      },
+      { name:'이봉주', emoji:'🏅', years:'1970–', nation:'한국', job:'마라톤 선수', achievement:'보스턴 마라톤 우승, 올림픽 은메달, 한국 마라톤 역대 최고 기록', barrier:'빈곤한 성장 환경과 선천적 체형 핸디캡', value:'끈기·도전', quote:'포기하지 않는 것이 진정한 챔피언이다.', lesson:'불리한 조건을 이겨내고 세계 무대를 제패한 마라토너',
+        quizzes:[
+          { q:'이봉주가 우승한 마라톤 대회는?',opts:['뉴욕 마라톤','보스턴 마라톤','런던 마라톤','도쿄 마라톤'],ans:1 },
+          { q:'이봉주의 종목은?',opts:['단거리','중거리','마라톤','경보'],ans:2 },
+          { q:'이봉주의 주요 진로장벽은?',opts:['부상','빈곤한 성장 환경과 체형 핸디캡','인종 차별','나이 제한'],ans:1 },
+          { q:'이봉주의 핵심 가치관은?',opts:['명예','끈기·도전','부','권력'],ans:1 },
+          { q:'이봉주가 올림픽에서 받은 메달은?',opts:['금메달','은메달','동메달','4위 입상'],ans:1 },
+        ]
+      },
+      { name:'류현진', emoji:'⚾', years:'1987–', nation:'한국', job:'야구 선수(투수)', achievement:'KBO 최고 선수 후 MLB 진출, 2019 사이영상 2위, 한국인 MLB 최다 탈삼진', barrier:'팔꿈치 부상과 재활의 어려움', value:'집중·성실', quote:'공 하나하나에 최선을 다한다.', lesson:'부상을 딛고 다시 정상에 오른 성실한 에이스',
+        quizzes:[
+          { q:'류현진이 진출한 MLB 팀(첫 팀)은?',opts:['뉴욕 양키스','LA 다저스','보스턴 레드삭스','토론토 블루제이스'],ans:1 },
+          { q:'류현진의 주요 진로장벽은?',opts:['인종 차별','팔꿈치 부상과 재활','언어 장벽','경제적 빈곤'],ans:1 },
+          { q:'류현진의 핵심 가치관은?',opts:['명예','집중·성실','부','권력'],ans:1 },
+          { q:'류현진이 2019년 근접한 상은?',opts:['MVP','사이영상','골드글러브','실버슬러거'],ans:1 },
+          { q:'류현진의 대표 포지션은?',opts:['타자','포수','투수','내야수'],ans:2 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'무하마드 알리', emoji:'🥊', years:'1942–2016', nation:'미국', job:'권투 선수', achievement:'세계 헤비급 챔피언 3회, 인권·반전 운동가', barrier:'인종 차별·병역 거부로 선수 자격 박탈', value:'신념·평화', quote:'불가능? 그건 아무것도 아니야.', lesson:'링 밖에서도 정의를 위해 싸운 스포츠의 전설',
+        quizzes:[
+          { q:'무하마드 알리가 세계 챔피언이 된 횟수는?',opts:['1회','2회','3회','4회'],ans:2 },
+          { q:'알리의 주요 진로장벽은?',opts:['부상','인종 차별·병역 거부로 자격 박탈','경제적 빈곤','나이'],ans:1 },
+          { q:'알리의 핵심 가치관은?',opts:['명예','권력','신념·평화','부'],ans:2 },
+          { q:'알리의 본명은?',opts:['카시어스 클레이','제임스 알리','로버트 무하마드','마이클 클레이'],ans:0 },
+          { q:'알리가 반대한 것은?',opts:['올림픽 참가','베트남 전쟁 참전','경기 규칙','권투 글러브'],ans:1 },
+        ]
+      },
+      { name:'세레나 윌리엄스', emoji:'🎾', years:'1981–', nation:'미국', job:'테니스 선수', achievement:'그랜드슬램 23회 우승, 여성 테니스 역대 최다 우승', barrier:'인종·성별 차별, 건강 문제', value:'탁월·도전', quote:'나는 항상 나 자신을 증명해야 했다.', lesson:'차별을 뛰어넘어 역사를 새로 쓴 스포츠 여왕',
+        quizzes:[
+          { q:'세레나 윌리엄스의 그랜드슬램 우승 횟수는?',opts:['15회','19회','23회','27회'],ans:2 },
+          { q:'세레나의 주요 진로장벽은?',opts:['부상','인종·성별 차별 및 건강 문제','경제적 빈곤','나이 제한'],ans:1 },
+          { q:'세레나의 핵심 가치관은?',opts:['명예','부','탁월·도전','권력'],ans:2 },
+          { q:'세레나가 주로 활동한 스포츠는?',opts:['골프','농구','테니스','수영'],ans:2 },
+          { q:'세레나의 출신 국가는?',opts:['프랑스','영국','미국','캐나다'],ans:2 },
+        ]
+      },
+      { name:'미하엘 조던', emoji:'🏀', years:'1963–', nation:'미국', job:'농구 선수', achievement:'NBA 챔피언십 6회, MVP 5회, 농구 역사상 최고 선수', barrier:'고등학교 주전 탈락 경험', value:'탁월·집념', quote:'나는 9000번 이상 슛을 놓쳤다. 그래서 성공했다.', lesson:'실패를 연습 삼아 역대 최고 선수가 된 집념의 아이콘',
+        quizzes:[
+          { q:'마이클 조던의 NBA 챔피언십 우승 횟수는?',opts:['3회','5회','6회','8회'],ans:2 },
+          { q:'조던의 주요 진로장벽은?',opts:['부상','고등학교 주전 탈락 경험','인종 차별','나이 제한'],ans:1 },
+          { q:'조던의 핵심 가치관은?',opts:['명예','부','탁월·집념','권력'],ans:2 },
+          { q:'조던이 활동한 팀(주 소속)은?',opts:['LA 레이커스','시카고 불스','보스턴 셀틱스','뉴욕 닉스'],ans:1 },
+          { q:'조던의 등번호는?',opts:['23번','33번','45번','6번'],ans:0 },
+        ]
+      },
+      { name:'펠레', emoji:'⚽', years:'1940–2022', nation:'브라질', job:'축구 선수', achievement:'FIFA 월드컵 3회 우승, 역대 최고 축구 선수, 1000골 이상 득점', barrier:'빈곤한 환경과 맨발 훈련', value:'열정·기쁨', quote:'성공은 우연이 아니다. 훈련, 인내, 배움, 희생이다.', lesson:'극빈에서 출발해 축구 역사를 새로 쓴 영원한 왕',
+        quizzes:[
+          { q:'펠레가 월드컵을 우승한 횟수는?',opts:['1회','2회','3회','4회'],ans:2 },
+          { q:'펠레의 출신 국가는?',opts:['아르헨티나','포르투갈','브라질','우루과이'],ans:2 },
+          { q:'펠레의 주요 진로장벽은?',opts:['부상','빈곤한 환경과 맨발 훈련','인종 차별','나이 제한'],ans:1 },
+          { q:'펠레의 핵심 가치관은?',opts:['명예','부','열정·기쁨','권력'],ans:2 },
+          { q:'펠레가 달성한 통산 골 수는 대략 얼마인가요?',opts:['500골 이상','700골 이상','1000골 이상','1500골 이상'],ans:2 },
+        ]
+      },
+      { name:'윌마 루돌프', emoji:'🏃‍♀️', years:'1940–1994', nation:'미국', job:'육상 선수', achievement:'1960 로마 올림픽 3관왕, 소아마비 극복 후 세계 최고 단거리 선수', barrier:'소아마비와 빈곤, 인종 차별', value:'극복·희망', quote:'승리는 불가능해 보이는 것을 가능하게 만드는 것이다.', lesson:'장애와 차별을 극복하고 세계 최고가 된 희망의 아이콘',
+        quizzes:[
+          { q:'윌마 루돌프가 3관왕을 달성한 올림픽은?',opts:['1956 멜버른','1960 로마','1964 도쿄','1968 멕시코'],ans:1 },
+          { q:'루돌프가 극복한 질병은?',opts:['소아마비','심장병','시각 장애','청각 장애'],ans:0 },
+          { q:'루돌프의 주요 진로장벽은?',opts:['나이 제한','소아마비와 빈곤·인종 차별','언어 장벽','코치 갈등'],ans:1 },
+          { q:'루돌프의 핵심 가치관은?',opts:['명예','부','극복·희망','권력'],ans:2 },
+          { q:'루돌프의 출신 국가는?',opts:['영국','프랑스','미국','캐나다'],ans:2 },
+        ]
+      },
+    ]
+  },
+  business: {
+    domestic: [
+      { name:'유일한', emoji:'💊', years:'1895–1971', nation:'한국', job:'기업인·독립운동가', achievement:'유한양행 창업, 전 재산 사회 환원, 기업 윤리의 표본', barrier:'일제 강점기와 전쟁', value:'정직·사회환원', quote:'기업은 사회의 것이다.', lesson:'이익보다 사회적 책임을 앞세운 기업 윤리의 선구자',
+        quizzes:[
+          { q:'유일한이 창업한 기업은?',opts:['삼성','유한양행','LG','롯데'],ans:1 },
+          { q:'유일한의 주요 진로장벽은?',opts:['경제적 빈곤','일제 강점기와 전쟁','신분 차별','외국어 장벽'],ans:1 },
+          { q:'유일한의 핵심 가치관은?',opts:['이윤','권력','정직·사회환원','명예'],ans:2 },
+          { q:'유일한이 한 특별한 행동은?',opts:['주식 상장','전 재산 사회 환원','해외 진출','정치 참여'],ans:1 },
+          { q:'유일한의 업적 분야는?',opts:['IT','제약·독립운동','건설','금융'],ans:1 },
+        ]
+      },
+      { name:'정주영', emoji:'🏗️', years:'1915–2001', nation:'한국', job:'기업인(현대그룹 창업자)', achievement:'현대그룹 설립, 조선·건설·자동차 산업 개척, 소떼 방북', barrier:'극심한 가난과 학력 부족', value:'도전·불굴', quote:'이봐, 해봤어?', lesson:'가난에서 출발해 산업화를 이끈 기업가 정신의 상징',
+        quizzes:[
+          { q:'정주영이 창업한 그룹은?',opts:['삼성','현대','LG','SK'],ans:1 },
+          { q:'정주영의 주요 진로장벽은?',opts:['극심한 가난과 학력 부족','신분 차별','외국어 장벽','전쟁'],ans:0 },
+          { q:'정주영의 핵심 가치관은?',opts:['명예','부','도전·불굴','권력'],ans:2 },
+          { q:'정주영의 유명한 어록은?',opts:['"불가능은 없다"','"이봐, 해봤어?"','"꿈을 꾸라"','"성실이 답이다"'],ans:1 },
+          { q:'정주영이 북한에 보낸 것은?',opts:['자동차','소떼','쌀','전자제품'],ans:1 },
+        ]
+      },
+      { name:'이병철', emoji:'🏢', years:'1910–1987', nation:'한국', job:'기업인(삼성그룹 창업자)', achievement:'삼성그룹 창업, 반도체 산업 진출 결단, 한국 경제 성장 주도', barrier:'일제 강점기와 6·25 전쟁', value:'혁신·선도', quote:'사업은 창조다.', lesson:'한국 경제의 기틀을 놓은 도전적 경영자',
+        quizzes:[
+          { q:'이병철이 창업한 그룹은?',opts:['현대','LG','삼성','SK'],ans:2 },
+          { q:'이병철의 주요 진로장벽은?',opts:['경제적 빈곤','일제 강점기와 6·25 전쟁','신분 차별','외국어 장벽'],ans:1 },
+          { q:'이병철의 핵심 가치관은?',opts:['부','명예','혁신·선도','권력'],ans:2 },
+          { q:'이병철이 말년에 결단한 산업은?',opts:['자동차','조선','반도체','석유'],ans:2 },
+          { q:'삼성이 처음 시작한 사업은?',opts:['전자','무역·식품','건설','금융'],ans:1 },
+        ]
+      },
+      { name:'방시혁', emoji:'🎵', years:'1972–', nation:'한국', job:'음악 프로듀서·기업인(하이브 창업자)', achievement:'BTS 기획·제작, 하이브(빅히트엔터테인먼트) 창업, K-POP 세계화 주도', barrier:'음악 산업의 높은 진입 장벽과 실패 경험', value:'창의·글로벌', quote:'음악으로 세계를 움직일 수 있다.', lesson:'K-POP을 세계 문화로 끌어올린 음악 사업가',
+        quizzes:[
+          { q:'방시혁이 창업한 회사는?',opts:['SM엔터','JYP엔터','빅히트(하이브)','YG엔터'],ans:2 },
+          { q:'방시혁이 기획한 글로벌 그룹은?',opts:['TWICE','EXO','BTS','블랙핑크'],ans:2 },
+          { q:'방시혁의 주요 진로장벽은?',opts:['신분 차별','음악 산업 진입 장벽과 실패 경험','외국어 장벽','경제적 빈곤'],ans:1 },
+          { q:'방시혁의 핵심 가치관은?',opts:['부','명예','창의·글로벌','권력'],ans:2 },
+          { q:'하이브의 전신 회사명은?',opts:['SM엔터','빅히트엔터테인먼트','어도어','플레디스'],ans:1 },
+        ]
+      },
+      { name:'김범수', emoji:'📱', years:'1966–', nation:'한국', job:'IT 기업인(카카오 창업자)', achievement:'카카오톡·카카오그룹 창업, 한국 모바일 메신저 혁신', barrier:'첫 창업 한게임 매각 후 재도전', value:'연결·혁신', quote:'실패를 두려워하지 말고 도전하라.', lesson:'실패 후 더 큰 꿈으로 재도전한 기업가 정신',
+        quizzes:[
+          { q:'김범수가 창업한 메신저 서비스는?',opts:['라인','카카오톡','텔레그램','왓츠앱'],ans:1 },
+          { q:'김범수의 주요 진로장벽은?',opts:['신분 차별','첫 창업 한게임 매각 후 재도전','경제적 빈곤','언어 장벽'],ans:1 },
+          { q:'김범수의 핵심 가치관은?',opts:['부','명예','연결·혁신','권력'],ans:2 },
+          { q:'김범수가 카카오 창업 전 만든 회사는?',opts:['넥슨','한게임','엔씨소프트','넷마블'],ans:1 },
+          { q:'카카오톡의 특징은?',opts:['유료 메신저','국내 1위 모바일 메신저','게임 전용 앱','해외 전용 앱'],ans:1 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'스티브 잡스', emoji:'🍎', years:'1955–2011', nation:'미국', job:'기업가·발명가', achievement:'애플 창업, 아이폰·맥 개발, 디지털 혁명 주도', barrier:'대학 중퇴, 자신이 세운 회사에서 해고', value:'혁신·완벽', quote:'Stay hungry, stay foolish.', lesson:'실패에서 배우고 세상을 바꾼 창의적 기업가 정신',
+        quizzes:[
+          { q:'스티브 잡스가 창업한 회사는?',opts:['마이크로소프트','구글','애플','페이스북'],ans:2 },
+          { q:'잡스의 주요 진로장벽은?',opts:['경제적 빈곤','대학 중퇴·자기 회사에서 해고','인종 차별','언어 장벽'],ans:1 },
+          { q:'잡스의 핵심 가치관은?',opts:['부','명예','혁신·완벽','권력'],ans:2 },
+          { q:'잡스의 유명한 명언은?',opts:['"이봐, 해봤어?"','"Stay hungry, stay foolish."','"나는 생각한다"','"불가능은 없다"'],ans:1 },
+          { q:'잡스가 개발한 대표 제품은?',opts:['갤럭시폰','아이폰','서피스','픽셀폰'],ans:1 },
+        ]
+      },
+      { name:'워런 버핏', emoji:'📈', years:'1930–', nation:'미국', job:'투자가·자선가', achievement:'버크셔 해서웨이 회장, 세계 최대 투자자, 자산 99% 기부 서약', barrier:'대공황 시대의 경제적 불안', value:'인내·장기투자', quote:'오늘 누군가가 그늘에 앉아 있는 것은 오래전에 나무를 심었기 때문이다.', lesson:'단기 탐욕 대신 장기적 가치를 보는 투자 철학',
+        quizzes:[
+          { q:'워런 버핏이 이끄는 회사는?',opts:['골드만삭스','버크셔 해서웨이','JP모건','블랙록'],ans:1 },
+          { q:'버핏의 주요 진로장벽은?',opts:['인종 차별','대공황 시대의 경제적 불안','언어 장벽','교육 부족'],ans:1 },
+          { q:'버핏의 핵심 가치관은?',opts:['단기 투자','인내·장기투자','명예','권력'],ans:1 },
+          { q:'버핏이 서약한 자산 기부 비율은?',opts:['50%','75%','90%','99%'],ans:3 },
+          { q:'버핏의 별명은?',opts:['황금의 손','오마하의 현인','투자의 신','월가의 마법사'],ans:1 },
+        ]
+      },
+      { name:'일론 머스크', emoji:'🚀', years:'1971–', nation:'남아프리카공화국/미국', job:'기업가·발명가', achievement:'테슬라·스페이스X·X 창업, 전기차·우주 민영화 혁신 주도', barrier:'첫 두 로켓 발사 실패와 파산 위기', value:'비전·혁신', quote:'실패는 선택지다. 만약 실패하지 않는다면 충분히 혁신하지 않은 것이다.', lesson:'연속 실패에도 인류의 미래를 향해 도전하는 몽상가',
+        quizzes:[
+          { q:'일론 머스크가 창업한 전기차 회사는?',opts:['BMW','테슬라','리비안','니오'],ans:1 },
+          { q:'머스크의 우주 기업은?',opts:['NASA','블루오리진','스페이스X','버진갤럭틱'],ans:2 },
+          { q:'머스크의 주요 진로장벽은?',opts:['신분 차별','첫 두 로켓 발사 실패와 파산 위기','언어 장벽','인종 차별'],ans:1 },
+          { q:'머스크의 핵심 가치관은?',opts:['부','명예','비전·혁신','권력'],ans:2 },
+          { q:'머스크의 출신 국가는?',opts:['미국','캐나다','남아프리카공화국','호주'],ans:2 },
+        ]
+      },
+      { name:'오프라 윈프리', emoji:'🎙️', years:'1954–', nation:'미국', job:'방송인·사업가', achievement:'오프라 윈프리 쇼 25년 진행, 억만장자 방송인, 교육·자선 사업', barrier:'빈곤·인종·성별 차별과 어린 시절 학대', value:'공감·자기실현', quote:'당신이 가진 가장 큰 모험은 당신이 꿈꾸는 삶을 사는 것이다.', lesson:'최악의 환경에서 최고의 자리에 오른 공감의 여왕',
+        quizzes:[
+          { q:'오프라 윈프리의 대표 프로그램은?',opts:['투나잇 쇼','오프라 윈프리 쇼','더 뷰','굿모닝 아메리카'],ans:1 },
+          { q:'오프라의 주요 진로장벽은?',opts:['언어 장벽','빈곤·인종·성별 차별과 어린 시절 학대','신분 차별','교육 부족'],ans:1 },
+          { q:'오프라의 핵심 가치관은?',opts:['부','명예','공감·자기실현','권력'],ans:2 },
+          { q:'오프라가 속한 국가는?',opts:['영국','프랑스','미국','캐나다'],ans:2 },
+          { q:'오프라가 프로그램을 진행한 기간은?',opts:['10년','15년','25년','30년'],ans:2 },
+        ]
+      },
+      { name:'코코 샤넬', emoji:'👗', years:'1883–1971', nation:'프랑스', job:'패션 디자이너·사업가', achievement:'샤넬 브랜드 창업, 여성 패션 혁명, 샤넬 No.5 향수 출시', barrier:'고아원 출신, 여성 사업가로서의 차별', value:'자유·우아함', quote:'유행은 사라지지만 스타일은 영원하다.', lesson:'사회적 편견을 깨고 여성을 코르셋에서 해방시킨 패션 혁명가',
+        quizzes:[
+          { q:'코코 샤넬이 창업한 브랜드는?',opts:['구찌','루이비통','샤넬','에르메스'],ans:2 },
+          { q:'샤넬의 주요 진로장벽은?',opts:['경제적 빈곤','고아원 출신·여성 사업가 차별','인종 차별','언어 장벽'],ans:1 },
+          { q:'샤넬의 핵심 가치관은?',opts:['부','명예','자유·우아함','권력'],ans:2 },
+          { q:'샤넬의 유명한 향수는?',opts:['샤넬 No.1','샤넬 No.5','샤넬 No.10','샤넬 블루'],ans:1 },
+          { q:'샤넬이 이룬 여성 패션 혁명의 핵심은?',opts:['더 화려한 드레스 제작','코르셋에서 여성 해방·실용적 패션','남성복 차용','아동복 디자인'],ans:1 },
+        ]
+      },
+    ]
+  },
+  literature: {
+    domestic: [
+      { name:'윤동주', emoji:'🌙', years:'1917–1945', nation:'한국(일제강점기)', job:'시인', achievement:'하늘과 바람과 별과 시 저술, 저항시·서정시 대표 시인', barrier:'일제 탄압, 독립운동으로 옥사', value:'양심·저항', quote:'죽는 날까지 하늘을 우러러 한 점 부끄럼이 없기를.', lesson:'고통 속에서도 양심과 시를 지킨 순수한 영혼',
+        quizzes:[
+          { q:'윤동주의 대표 시집은?',opts:['진달래꽃','하늘과 바람과 별과 시','님의 침묵','청록집'],ans:1 },
+          { q:'윤동주의 주요 진로장벽은?',opts:['경제적 빈곤','일제 탄압·독립운동으로 옥사','신분 차별','언어 장벽'],ans:1 },
+          { q:'윤동주의 핵심 가치관은?',opts:['부','명예','양심·저항','권력'],ans:2 },
+          { q:'윤동주의 대표 시 "서시"의 첫 구절은?',opts:['"나보기가 역겨워"','"죽는 날까지 하늘을 우러러"','"산은 구름을 몰고"','"나는 왕이로소이다"'],ans:1 },
+          { q:'윤동주가 옥사한 곳은?',opts:['서울','평양','일본 후쿠오카','중국 연변'],ans:2 },
+        ]
+      },
+      { name:'박경리', emoji:'📖', years:'1926–2008', nation:'한국', job:'소설가', achievement:'대하소설 토지(26년 집필) 완성, 한국 현대문학 대표작가', barrier:'전쟁으로 남편과 아들 잃음', value:'생명·인간애', quote:'삶은 아름다운 것이다. 단지 힘들 뿐이다.', lesson:'극한의 슬픔을 거대한 문학으로 승화시킨 작가 정신',
+        quizzes:[
+          { q:'박경리의 대표 대하소설은?',opts:['장길산','태백산맥','토지','혼불'],ans:2 },
+          { q:'토지를 집필한 기간은?',opts:['10년','18년','26년','32년'],ans:2 },
+          { q:'박경리의 핵심 가치관은?',opts:['부','명예','생명·인간애','권력'],ans:2 },
+          { q:'박경리의 주요 진로장벽은?',opts:['경제적 빈곤','전쟁으로 남편·아들 잃음','신분 차별','성별 차별'],ans:1 },
+          { q:'토지의 배경 시대는?',opts:['조선 초기','일제강점기를 중심으로 한 근현대','고려','삼국시대'],ans:1 },
+        ]
+      },
+      { name:'김소월', emoji:'🌹', years:'1902–1934', nation:'한국(일제강점기)', job:'시인', achievement:'진달래꽃·엄마야 누나야 등 한국 서정시의 전형 확립', barrier:'일제 강점기의 억압과 경제적 빈곤', value:'한(恨)·서정', quote:'나 보기가 역겨워 가실 때에는 말없이 고이 보내드리오리다.', lesson:'민족의 슬픔을 아름다운 언어로 담아낸 서정시의 대가',
+        quizzes:[
+          { q:'김소월의 대표 시는?',opts:['청포도','진달래꽃','님의 침묵','광야'],ans:1 },
+          { q:'김소월의 주요 진로장벽은?',opts:['신분 차별','일제 강점기 억압과 경제적 빈곤','외국어 장벽','전쟁'],ans:1 },
+          { q:'김소월의 핵심 가치관은?',opts:['부','명예','한(恨)·서정','권력'],ans:2 },
+          { q:'김소월이 활동한 시대는?',opts:['조선 말','일제강점기','해방 이후','현대'],ans:1 },
+          { q:'김소월의 시에서 자주 나타나는 정서는?',opts:['분노','기쁨','그리움·이별의 한','공포'],ans:2 },
+        ]
+      },
+      { name:'황순원', emoji:'📝', years:'1915–2000', nation:'한국', job:'소설가', achievement:'소나기·학 등 한국 단편문학의 정수, 서정적 산문 문학 개척', barrier:'한국전쟁과 분단의 시대적 아픔', value:'순수·서정', quote:'문학은 삶의 진실을 아름답게 담는 그릇이다.', lesson:'전쟁과 분단의 시대에 순수한 아름다움을 지켜낸 작가',
+        quizzes:[
+          { q:'황순원의 대표 단편소설은?',opts:['감자','소나기','운수 좋은 날','메밀꽃 필 무렵'],ans:1 },
+          { q:'황순원의 주요 진로장벽은?',opts:['경제적 빈곤','한국전쟁과 분단의 시대적 아픔','신분 차별','언어 장벽'],ans:1 },
+          { q:'황순원의 핵심 가치관은?',opts:['부','명예','순수·서정','권력'],ans:2 },
+          { q:'황순원의 소나기에서 주인공들의 관계는?',opts:['친구','소년과 소녀(첫사랑)','형제','사제'],ans:1 },
+          { q:'황순원이 활동한 주요 시대는?',opts:['조선 말기','일제강점기·한국전쟁 전후','현대','고려'],ans:1 },
+        ]
+      },
+      { name:'이상', emoji:'🔮', years:'1910–1937', nation:'한국(일제강점기)', job:'소설가·시인', achievement:'날개·오감도 등 한국 모더니즘 문학 개척, 실험적 문체 선구', barrier:'폐결핵과 일제 탄압, 27세 요절', value:'실험·자아탐구', quote:'박제가 되어버린 천재를 아시오?', lesson:'짧은 생애에 문학의 새 지평을 연 천재 작가',
+        quizzes:[
+          { q:'이상의 대표 소설은?',opts:['소나기','날개','운수 좋은 날','배따라기'],ans:1 },
+          { q:'이상의 주요 진로장벽은?',opts:['신분 차별','폐결핵과 일제 탄압·요절','경제적 빈곤','언어 장벽'],ans:1 },
+          { q:'이상의 핵심 가치관은?',opts:['부','명예','실험·자아탐구','권력'],ans:2 },
+          { q:'이상이 개척한 문학 사조는?',opts:['사실주의','자연주의','모더니즘','낭만주의'],ans:2 },
+          { q:'이상이 사망한 나이는?',opts:['22세','27세','31세','35세'],ans:1 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'윌리엄 셰익스피어', emoji:'🎭', years:'1564–1616', nation:'영국', job:'극작가·시인', achievement:'햄릿·로미오와 줄리엣 등 37편 희곡, 영문학의 아버지', barrier:'정규 대학 교육 없음, 작품 저작권 문제', value:'인간 본성·공감', quote:'세상은 무대이고 사람들은 모두 배우이다.', lesson:'인간 본성을 꿰뚫는 언어로 시대를 초월한 이야기꾼',
+        quizzes:[
+          { q:'셰익스피어의 대표 비극이 아닌 것은?',opts:['햄릿','오셀로','한여름 밤의 꿈','맥베스'],ans:2 },
+          { q:'셰익스피어의 출신 국가는?',opts:['프랑스','독일','영국','이탈리아'],ans:2 },
+          { q:'셰익스피어의 핵심 가치관은?',opts:['부','권력','인간 본성·공감','명예'],ans:2 },
+          { q:'셰익스피어가 쓴 희곡 총 편수는?',opts:['25편','37편','48편','60편'],ans:1 },
+          { q:'셰익스피어의 주요 진로장벽은?',opts:['인종 차별','정규 대학 교육 없음·저작권 문제','전쟁','신분 차별'],ans:1 },
+        ]
+      },
+      { name:'가브리엘 가르시아 마르케스', emoji:'🦋', years:'1927–2014', nation:'콜롬비아', job:'소설가', achievement:'백년의 고독 저술, 마술적 사실주의 창시, 노벨문학상', barrier:'정치적 탄압과 망명 생활', value:'상상력·진실', quote:'삶은 한 사람이 살아간 것이 아니라 기억하는 것이다.', lesson:'현실과 환상의 경계를 허문 이야기의 마법사',
+        quizzes:[
+          { q:'가르시아 마르케스의 대표작은?',opts:['노인과 바다','백년의 고독','변신','죄와 벌'],ans:1 },
+          { q:'그가 창시한 문학 기법은?',opts:['사실주의','자연주의','마술적 사실주의','실존주의'],ans:2 },
+          { q:'그의 출신 국가는?',opts:['브라질','아르헨티나','콜롬비아','멕시코'],ans:2 },
+          { q:'그의 핵심 가치관은?',opts:['부','상상력·진실','명예','권력'],ans:1 },
+          { q:'그가 받은 문학 상은?',opts:['맨부커상','노벨문학상','퓰리처상','공쿠르상'],ans:1 },
+        ]
+      },
+      { name:'레프 톨스토이', emoji:'📚', years:'1828–1910', nation:'러시아', job:'소설가·사상가', achievement:'전쟁과 평화·안나 카레니나 저술, 비폭력·단순 생활 사상가', barrier:'귀족 신분에 대한 내적 갈등과 종교적 방황', value:'진실·비폭력', quote:'인류를 사랑하라. 그것이 행복의 유일한 길이다.', lesson:'문학과 삶으로 인류의 진실을 추구한 러시아 문학의 거인',
+        quizzes:[
+          { q:'톨스토이의 대표 장편소설 두 가지는?',opts:['죄와 벌·백치','전쟁과 평화·안나 카레니나','변신·심판','노인과 바다·파리의 우울'],ans:1 },
+          { q:'톨스토이의 출신 국가는?',opts:['독일','프랑스','러시아','영국'],ans:2 },
+          { q:'톨스토이의 주요 진로장벽은?',opts:['경제적 빈곤','귀족 신분에 대한 내적 갈등·종교적 방황','전쟁','언어 장벽'],ans:1 },
+          { q:'톨스토이의 핵심 가치관은?',opts:['부','명예','진실·비폭력','권력'],ans:2 },
+          { q:'톨스토이가 영향을 준 비폭력 사상가는?',opts:['마르크스','간디','레닌','히틀러'],ans:1 },
+        ]
+      },
+      { name:'버지니아 울프', emoji:'🌊', years:'1882–1941', nation:'영국', job:'소설가·수필가', achievement:'의식의 흐름 기법 개척, 자기만의 방·댈러웨이 부인 저술', barrier:'여성 차별과 정신 질환', value:'여성 자아·창조', quote:'여성이 소설을 쓰려면 돈과 자기만의 방이 있어야 한다.', lesson:'여성 작가의 권리를 외치며 문학의 새 기법을 연 선구자',
+        quizzes:[
+          { q:'버지니아 울프의 대표 에세이는?',opts:['나의 안토니아','자기만의 방','주홍글씨','위대한 개츠비'],ans:1 },
+          { q:'울프의 출신 국가는?',opts:['미국','프랑스','영국','아일랜드'],ans:2 },
+          { q:'울프의 주요 진로장벽은?',opts:['경제적 빈곤','여성 차별과 정신 질환','신분 차별','언어 장벽'],ans:1 },
+          { q:'울프의 핵심 가치관은?',opts:['부','명예','여성 자아·창조','권력'],ans:2 },
+          { q:'울프가 개척한 소설 기법은?',opts:['마술적 사실주의','의식의 흐름','자연주의','사실주의'],ans:1 },
+        ]
+      },
+      { name:'어니스트 헤밍웨이', emoji:'🌊', years:'1899–1961', nation:'미국', job:'소설가·저널리스트', achievement:'노인과 바다·무기여 잘 있거라 저술, 노벨문학상, 빙산 이론 창시', barrier:'전쟁 후유증과 알코올 중독', value:'용기·간결', quote:'세상은 모든 사람을 부러뜨린다. 그리고 많은 사람들이 부러진 자리에서 더 강해진다.', lesson:'간결한 문체로 인간의 강인함과 비극을 담아낸 작가',
+        quizzes:[
+          { q:'헤밍웨이의 대표작은?',opts:['죄와 벌','노인과 바다','백년의 고독','1984'],ans:1 },
+          { q:'헤밍웨이의 출신 국가는?',opts:['영국','프랑스','미국','캐나다'],ans:2 },
+          { q:'헤밍웨이의 주요 진로장벽은?',opts:['신분 차별','전쟁 후유증과 알코올 중독','경제적 빈곤','언어 장벽'],ans:1 },
+          { q:'헤밍웨이의 핵심 가치관은?',opts:['부','명예','용기·간결','권력'],ans:2 },
+          { q:'헤밍웨이가 창시한 문학 이론은?',opts:['마술적 사실주의','의식의 흐름','빙산 이론','실존주의'],ans:2 },
+        ]
+      },
+    ]
+  },
+  medicine: {
+    domestic: [
+      { name:'허준', emoji:'📚', years:'1539–1615', nation:'조선(한국)', job:'의관·의학자', achievement:'동의보감 저술, 조선 의학 체계화, 전통 한의학 집대성', barrier:'서자 출신으로 신분 차별', value:'생명·백성', quote:'의술은 백성을 살리는 인술이다.', lesson:'신분의 한계를 넘어 생명 구호를 위해 헌신한 의학자',
+        quizzes:[
+          { q:'허준이 저술한 의서는?',opts:['향약집성방','동의보감','의방유취','침구경험방'],ans:1 },
+          { q:'허준의 주요 진로장벽은?',opts:['전쟁','서자 출신으로 신분 차별','경제적 빈곤','외국어 장벽'],ans:1 },
+          { q:'허준의 핵심 가치관은?',opts:['명예','부','생명·백성','권력'],ans:2 },
+          { q:'동의보감이 속한 유네스코 등재 종류는?',opts:['세계문화유산','세계기록유산','세계자연유산','무형문화유산'],ans:1 },
+          { q:'허준이 활동한 시대는?',opts:['고려','조선 초','조선 중기','조선 말'],ans:2 },
+        ]
+      },
+      { name:'이종욱', emoji:'🏥', years:'1945–2006', nation:'한국', job:'의사·WHO 사무총장', achievement:'WHO 최초 한국인 사무총장, 소아마비 박멸 운동 주도', barrier:'개발도상국 의료 접근성 장벽', value:'공중보건·평등', quote:'건강은 모든 사람의 권리다.', lesson:'세계 보건 불평등 해소에 헌신한 국제적 의료 지도자',
+        quizzes:[
+          { q:'이종욱이 맡은 WHO에서의 직위는?',opts:['부사무총장','사무총장','대변인','지역사무소장'],ans:1 },
+          { q:'이종욱이 주도한 주요 캠페인은?',opts:['에이즈 퇴치','소아마비 박멸','결핵 예방','말라리아 박멸'],ans:1 },
+          { q:'이종욱의 핵심 가치관은?',opts:['부','명예','공중보건·평등','권력'],ans:2 },
+          { q:'이종욱의 주요 진로장벽은?',opts:['언어 장벽','개발도상국 의료 접근성 장벽','신분 차별','경제적 빈곤'],ans:1 },
+          { q:'이종욱이 활동한 국제기구는?',opts:['UN','UNESCO','WHO','UNICEF'],ans:2 },
+        ]
+      },
+      { name:'장기려', emoji:'💙', years:'1911–1995', nation:'한국', job:'외과 의사', achievement:'국내 최초 간암 절제 수술 성공, 청십자 의원 설립, 무료 진료', barrier:'한국전쟁으로 가족과 이산', value:'사랑·봉사', quote:'가난한 환자를 위해 존재하는 것이 의사의 사명이다.', lesson:'평생 가난한 환자를 위해 헌신한 한국의 슈바이처',
+        quizzes:[
+          { q:'장기려가 한국 최초로 성공한 수술은?',opts:['심장 수술','간암 절제 수술','폐 수술','뇌 수술'],ans:1 },
+          { q:'장기려가 설립한 의료 기관은?',opts:['서울대병원','세브란스병원','청십자 의원','부산백병원'],ans:2 },
+          { q:'장기려의 주요 진로장벽은?',opts:['신분 차별','한국전쟁으로 가족과 이산','외국어 장벽','경제적 빈곤'],ans:1 },
+          { q:'장기려의 핵심 가치관은?',opts:['부','명예','사랑·봉사','권력'],ans:2 },
+          { q:'장기려의 별칭은?',opts:['한국의 나이팅게일','한국의 슈바이처','의성','혁신 의사'],ans:1 },
+        ]
+      },
+      { name:'이태석 신부(의학)', emoji:'⛪', years:'1962–2010', nation:'한국', job:'의사·신부', achievement:'수단 톤즈에서 의료봉사, 나환자 치료, 학교·병원 설립', barrier:'내전 속 아프리카 오지 봉사', value:'헌신·사랑', quote:'당신의 아픔이 나의 아픔입니다.', lesson:'전쟁터에서 의술과 사랑으로 생명을 지킨 현대의 성인',
+        quizzes:[
+          { q:'이태석 신부가 봉사한 나라는?',opts:['케냐','에티오피아','수단','나이지리아'],ans:2 },
+          { q:'이태석의 봉사 지역에서 그가 고친 환자는?',opts:['에이즈 환자','나환자(한센병)','말라리아 환자','결핵 환자'],ans:1 },
+          { q:'이태석의 주요 진로장벽은?',opts:['신분 차별','내전 속 아프리카 오지 봉사','언어 장벽','경제적 빈곤'],ans:1 },
+          { q:'이태석의 핵심 가치관은?',opts:['부','명예','헌신·사랑','권력'],ans:2 },
+          { q:'이태석의 이야기를 담은 다큐멘터리는?',opts:['나는 의사다','울지마 톤즈','아프리카의 천사','희망의 땅'],ans:1 },
+        ]
+      },
+      { name:'지석영', emoji:'💉', years:'1855–1935', nation:'한국(조선)', job:'의사·개화운동가', achievement:'우두법(종두법) 보급, 한국 근대 의학의 선구자, 한글 보급 기여', barrier:'전통 의학과의 충돌, 개화 반대 세력', value:'생명·개화', quote:'새로운 의술로 백성을 살린다.', lesson:'새 의학을 도입해 천연두에서 백성을 구한 의료 개혁가',
+        quizzes:[
+          { q:'지석영이 보급한 의료 기술은?',opts:['침술','우두법(종두법)','한약','뜸'],ans:1 },
+          { q:'지석영의 주요 진로장벽은?',opts:['경제적 빈곤','전통 의학과의 충돌·개화 반대 세력','신분 차별','외국어 장벽'],ans:1 },
+          { q:'지석영의 핵심 가치관은?',opts:['부','명예','생명·개화','권력'],ans:2 },
+          { q:'지석영이 보급한 우두법으로 예방한 질병은?',opts:['콜레라','천연두','말라리아','결핵'],ans:1 },
+          { q:'지석영이 활동한 시대는?',opts:['조선 초','조선 중기','조선 말·개화기','현대'],ans:2 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'플로렌스 나이팅게일', emoji:'🕯️', years:'1820–1910', nation:'영국', job:'간호사·통계학자', achievement:'근대 간호학 창시, 전쟁 사망률 대폭 감소, 위생 개혁 주도', barrier:'여성의 전문직 진출 금지', value:'봉사·과학', quote:'나이팅게일은 기회를 기다리지 않는다. 기회를 만든다.', lesson:'데이터로 세상을 바꾼 과학적 봉사자의 혁신',
+        quizzes:[
+          { q:'나이팅게일의 업적이 아닌 것은?',opts:['근대 간호학 창시','통계 도표 활용','항생제 발명','위생 개혁'],ans:2 },
+          { q:'나이팅게일의 주요 진로장벽은?',opts:['경제적 빈곤','여성의 전문직 진출 금지','인종 차별','신분 차별'],ans:1 },
+          { q:'나이팅게일의 핵심 가치관은?',opts:['부','명예','봉사·과학','권력'],ans:2 },
+          { q:'나이팅게일이 활동한 전쟁은?',opts:['세계 1차 대전','크림 전쟁','나폴레옹 전쟁','세계 2차 대전'],ans:1 },
+          { q:'나이팅게일의 출신 국가는?',opts:['프랑스','독일','영국','이탈리아'],ans:2 },
+        ]
+      },
+      { name:'알베르트 슈바이처', emoji:'🌿', years:'1875–1965', nation:'프랑스(알자스)', job:'의사·신학자·음악가', achievement:'아프리카 의료 봉사, 노벨평화상, 생명 외경 철학 창시', barrier:'아프리카 오지의 극한 환경', value:'생명 외경·봉사', quote:'행복은 건강한 것과 나쁜 기억력을 갖는 데 있다.', lesson:'전문성을 버리고 인류를 위해 헌신한 봉사의 거인',
+        quizzes:[
+          { q:'슈바이처가 봉사한 대륙은?',opts:['아시아','아메리카','아프리카','유럽'],ans:2 },
+          { q:'슈바이처의 철학 개념은?',opts:['사회 계약','생명 외경','공리주의','허무주의'],ans:1 },
+          { q:'슈바이처가 받은 상은?',opts:['노벨의학상','노벨평화상','노벨문학상','노벨화학상'],ans:1 },
+          { q:'슈바이처의 핵심 가치관은?',opts:['부','명예','생명 외경·봉사','권력'],ans:2 },
+          { q:'슈바이처의 주요 진로장벽은?',opts:['신분 차별','아프리카 오지의 극한 환경','언어 장벽','인종 차별'],ans:1 },
+        ]
+      },
+      { name:'루이 파스퇴르', emoji:'🔬', years:'1822–1895', nation:'프랑스', job:'생화학자·미생물학자', achievement:'세균설 확립, 저온 살균법 발명, 광견병 백신 개발', barrier:'기존 의학계의 강한 반발', value:'실험·생명', quote:'운은 준비된 마음에만 찾아온다.', lesson:'반복 실험으로 의학의 패러다임을 바꾼 근대 미생물학의 아버지',
+        quizzes:[
+          { q:'파스퇴르가 발명한 음식 보존법은?',opts:['건조법','저온 살균법','냉동법','훈연법'],ans:1 },
+          { q:'파스퇴르가 개발한 백신은?',opts:['천연두 백신','소아마비 백신','광견병 백신','인플루엔자 백신'],ans:2 },
+          { q:'파스퇴르의 주요 진로장벽은?',opts:['경제적 빈곤','기존 의학계의 강한 반발','신분 차별','언어 장벽'],ans:1 },
+          { q:'파스퇴르의 핵심 가치관은?',opts:['부','명예','실험·생명','권력'],ans:2 },
+          { q:'파스퇴르의 출신 국가는?',opts:['영국','독일','프랑스','이탈리아'],ans:2 },
+        ]
+      },
+      { name:'버지니아 애프가', emoji:'👶', years:'1909–1974', nation:'미국', job:'의사·마취과 전문의', achievement:'아프가 점수(신생아 평가 체계) 개발, 신생아 사망률 대폭 감소', barrier:'여성 외과 의사로서의 차별', value:'혁신·생명', quote:'모든 아기는 태어나는 순간부터 중요하다.', lesson:'간단한 평가 도구로 수백만 신생아를 살린 의학 혁신가',
+        quizzes:[
+          { q:'버지니아 애프가가 개발한 것은?',opts:['혈압 측정법','아프가 점수(신생아 평가)','체온 측정법','맥박 측정법'],ans:1 },
+          { q:'애프가의 주요 진로장벽은?',opts:['경제적 빈곤','여성 외과 의사로서의 차별','신분 차별','언어 장벽'],ans:1 },
+          { q:'애프가의 핵심 가치관은?',opts:['부','명예','혁신·생명','권력'],ans:2 },
+          { q:'아프가 점수가 평가하는 대상은?',opts:['노인','성인','신생아','청소년'],ans:2 },
+          { q:'애프가의 출신 국가는?',opts:['영국','프랑스','미국','캐나다'],ans:2 },
+        ]
+      },
+      { name:'조나스 소크', emoji:'💉', years:'1914–1995', nation:'미국', job:'의학자·바이러스학자', achievement:'소아마비 백신 개발, 특허 미출원으로 무료 배포', barrier:'유대인 차별과 연구 자금 부족', value:'인류애·공유', quote:'누가 특허를 가지고 있냐고요? 인류가 가지고 있습니다.', lesson:'이익보다 인류를 선택한 의학자의 숭고한 결단',
+        quizzes:[
+          { q:'조나스 소크가 개발한 백신은?',opts:['천연두 백신','광견병 백신','소아마비 백신','홍역 백신'],ans:2 },
+          { q:'소크의 주요 진로장벽은?',opts:['경제적 빈곤','유대인 차별과 연구 자금 부족','신분 차별','언어 장벽'],ans:1 },
+          { q:'소크의 핵심 가치관은?',opts:['부','명예','인류애·공유','권력'],ans:2 },
+          { q:'소크가 백신 특허를 어떻게 처리했나요?',opts:['특허 판매','특허 미출원(무료 배포)','특허 기부','특허 유지'],ans:1 },
+          { q:'소크의 출신 국가는?',opts:['영국','프랑스','미국','독일'],ans:2 },
+        ]
+      },
+    ]
+  },
+  nature: {
+    domestic: [
+      { name:'우장춘', emoji:'🌸', years:'1898–1959', nation:'한국', job:'식물육종학자', achievement:'씨없는 수박 개발, 배추 품종 개발로 김치 산업 기여', barrier:'일본 귀화인의 아들이라는 차별', value:'과학·조국 사랑', quote:'흙을 사랑하면 흙도 나를 사랑한다.', lesson:'차별을 이기고 조국의 식량 문제 해결에 헌신한 과학자',
+        quizzes:[
+          { q:'우장춘이 개발한 대표 작물은?',opts:['씨없는 수박','씨없는 포도','이중 쌀','슈퍼 배추'],ans:0 },
+          { q:'우장춘의 주요 진로장벽은?',opts:['경제적 빈곤','일본 귀화인 아들이라는 차별','언어 장벽','신분 차별'],ans:1 },
+          { q:'우장춘의 핵심 가치관은?',opts:['부','과학·조국 사랑','명예','권력'],ans:1 },
+          { q:'우장춘의 업적이 기여한 분야는?',opts:['IT','식량·농업','의학','건축'],ans:1 },
+          { q:'우장춘이 개량한 배추가 기여한 음식은?',opts:['된장찌개','김치','불고기','비빔밥'],ans:1 },
+        ]
+      },
+      { name:'최무선(환경)', emoji:'🔥', years:'1325–1395', nation:'고려(한국)', job:'발명가', achievement:'화약 독자 개발로 외적 방어, 환경·자원의 자립적 활용 선구', barrier:'핵심 기술의 외국 독점', value:'자립·창의', quote:'스스로 만들지 못하면 영원히 빌려야 한다.', lesson:'자원 자립을 통해 나라를 지킨 개척자 정신',
+        quizzes:[
+          { q:'최무선이 독자 개발에 성공한 것은?',opts:['화살','화약','나침반','지도'],ans:1 },
+          { q:'최무선의 개발 동기는?',opts:['부를 얻기 위해','외적을 물리치기 위해','명예를 위해','왕의 명령으로'],ans:1 },
+          { q:'최무선의 핵심 가치관은?',opts:['부','명예','자립·창의','권력'],ans:2 },
+          { q:'최무선이 활동한 시대는?',opts:['삼국시대','통일신라','고려 말','조선 초'],ans:2 },
+          { q:'최무선의 주요 진로장벽은?',opts:['신분 차별','화약 기술의 외국 독점','경제적 빈곤','전쟁 부재'],ans:1 },
+        ]
+      },
+      { name:'홍윤기', emoji:'🌾', years:'1910–1977', nation:'한국', job:'농학자', achievement:'통일벼 개발 참여, 녹색혁명 기여, 식량 자급 기반 마련', barrier:'일제 강점기와 전쟁으로 인한 연구 공백', value:'자급·생명', quote:'쌀 한 톨에 농부의 땀이 담겨 있다.', lesson:'식량 위기를 극복한 한국 농업 과학의 개척자',
+        quizzes:[
+          { q:'홍윤기가 개발에 기여한 벼의 이름은?',opts:['다수확벼','통일벼','황금벼','신품종벼'],ans:1 },
+          { q:'홍윤기의 업적이 이바지한 분야는?',opts:['IT','식량 자급·농업','의학','환경 보호'],ans:1 },
+          { q:'홍윤기의 주요 진로장벽은?',opts:['신분 차별','일제 강점기와 전쟁으로 연구 공백','경제적 빈곤','외국어 장벽'],ans:1 },
+          { q:'홍윤기의 핵심 가치관은?',opts:['부','명예','자급·생명','권력'],ans:2 },
+          { q:'통일벼 개발이 해결하려 한 문제는?',opts:['식량 부족','수질 오염','대기 오염','토양 오염'],ans:0 },
+        ]
+      },
+      { name:'박순직', emoji:'🌊', years:'1921–2011', nation:'한국', job:'해양학자', achievement:'한국 해양학 개척, 수산 자원 연구, 후학 양성에 헌신', barrier:'전쟁과 연구 자금 절대 부족', value:'탐구·개척', quote:'바다는 무한한 가능성이다.', lesson:'황무지에서 한국 해양과학의 씨앗을 뿌린 선구자',
+        quizzes:[
+          { q:'박순직이 개척한 학문 분야는?',opts:['천문학','해양학','지질학','기상학'],ans:1 },
+          { q:'박순직의 주요 진로장벽은?',opts:['신분 차별','전쟁과 연구 자금 절대 부족','외국어 장벽','언어 장벽'],ans:1 },
+          { q:'박순직의 핵심 가치관은?',opts:['부','명예','탐구·개척','권력'],ans:2 },
+          { q:'박순직이 연구한 주요 자원은?',opts:['광물','수산 자원','에너지','삼림'],ans:1 },
+          { q:'박순직이 활동한 주요 시대는?',opts:['일제강점기','해방 이후~현대','조선','고려'],ans:1 },
+        ]
+      },
+      { name:'한택식', emoji:'🌿', years:'1942–', nation:'한국', job:'식물학자·환경운동가', achievement:'국내 야생화 연구 선구, 멸종위기 식물 복원, 환경 교육 보급', barrier:'개발 우선 시대의 환경 홀대', value:'생명·보전', quote:'야생화 하나가 우주다.', lesson:'경제 성장의 그늘에서 생명의 소중함을 지킨 식물 수호자',
+        quizzes:[
+          { q:'한택식이 주로 연구한 것은?',opts:['외래 식물','야생화·멸종위기 식물','해양 생물','곤충'],ans:1 },
+          { q:'한택식의 주요 진로장벽은?',opts:['신분 차별','개발 우선 시대의 환경 홀대','경제적 빈곤','언어 장벽'],ans:1 },
+          { q:'한택식의 핵심 가치관은?',opts:['부','명예','생명·보전','권력'],ans:2 },
+          { q:'한택식의 활동 분야는?',opts:['IT','식물학·환경운동','의학','건축'],ans:1 },
+          { q:'한택식이 설립한 곳은?',opts:['한국식물원','한택식물원','국립수목원','서울식물원'],ans:1 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'찰스 다윈', emoji:'🦕', years:'1809–1882', nation:'영국', job:'생물학자·자연탐험가', achievement:'진화론 발표(종의 기원), 비글호 탐험, 자연선택설 확립', barrier:'종교적 반발과 사회적 압박', value:'관찰·진리', quote:'생존하는 것은 강한 종이 아니라 변화에 적응하는 종이다.', lesson:'사회적 압박에도 진리를 추구한 과학적 용기',
+        quizzes:[
+          { q:'다윈이 저술한 진화론 책은?',opts:['종의 기원','일반 상대성 이론','코스모스','대화'],ans:0 },
+          { q:'다윈이 탐험에 사용한 배의 이름은?',opts:['인데버호','비글호','메이플라워호','산타마리아호'],ans:1 },
+          { q:'다윈의 핵심 가치관은?',opts:['부','명예','관찰·진리','권력'],ans:2 },
+          { q:'다윈의 주요 진로장벽은?',opts:['경제적 빈곤','종교적 반발과 사회적 압박','신분 차별','언어 장벽'],ans:1 },
+          { q:'다윈 진화론의 핵심 개념은?',opts:['창조설','자연 선택·진화','지적 설계','천동설'],ans:1 },
+        ]
+      },
+      { name:'자크 쿠스토', emoji:'🐠', years:'1910–1997', nation:'프랑스', job:'해양 탐험가·다큐멘터리 감독', achievement:'스쿠버 다이빙 장비 개발, 해양 환경 보호 운동 선구', barrier:'2차 세계대전 중 탐험 중단', value:'자연 보호·탐험', quote:'바다를 알면 생명을 안다.', lesson:'탐험을 통해 자연의 소중함을 전 세계에 알린 해양 수호자',
+        quizzes:[
+          { q:'쿠스토가 개발한 장비는?',opts:['산소통','스쿠버 다이빙 장비(아쿠아렁)','잠수함','수중 카메라'],ans:1 },
+          { q:'쿠스토의 출신 국가는?',opts:['영국','미국','프랑스','이탈리아'],ans:2 },
+          { q:'쿠스토의 핵심 가치관은?',opts:['부','명예','자연 보호·탐험','권력'],ans:2 },
+          { q:'쿠스토의 주요 진로장벽은?',opts:['신분 차별','2차 세계대전 중 탐험 중단','경제적 빈곤','언어 장벽'],ans:1 },
+          { q:'쿠스토가 활동한 주요 분야는?',opts:['육지 탐험','우주 탐험','해양 탐험','산악 탐험'],ans:2 },
+        ]
+      },
+      { name:'레이첼 카슨', emoji:'🦅', years:'1907–1964', nation:'미국', job:'해양생물학자·환경운동가', achievement:'침묵의 봄 저술, 현대 환경운동 촉발, DDT 금지에 기여', barrier:'농약 회사의 강력한 반발과 암 투병', value:'자연·경고', quote:'자연을 알지 못하면 자연을 지킬 수 없다.', lesson:'한 권의 책으로 환경 운동의 역사를 바꾼 선구자',
+        quizzes:[
+          { q:'레이첼 카슨의 대표 저서는?',opts:['월든','침묵의 봄','사막의 봄','파괴의 봄'],ans:1 },
+          { q:'카슨이 위험성을 고발한 화학 물질은?',opts:['석면','DDT','수은','납'],ans:1 },
+          { q:'카슨의 주요 진로장벽은?',opts:['신분 차별','농약 회사의 강력한 반발과 암 투병','언어 장벽','경제적 빈곤'],ans:1 },
+          { q:'카슨의 핵심 가치관은?',opts:['부','명예','자연·경고','권력'],ans:2 },
+          { q:'카슨의 출신 국가는?',opts:['영국','프랑스','미국','캐나다'],ans:2 },
+        ]
+      },
+      { name:'제인 구달', emoji:'🐒', years:'1934–', nation:'영국', job:'영장류학자·환경운동가', achievement:'침팬지 장기 연구, 동물 지능·감정 재발견, 환경 보호 운동 주도', barrier:'여성 학자에 대한 학계 편견', value:'공존·보전', quote:'매일 우리는 세상에 영향을 미친다. 우리가 원하는 게 무엇인지 선택하면 된다.', lesson:'편견을 넘어 동물과 인간의 공존을 가르친 자연의 대모',
+        quizzes:[
+          { q:'제인 구달이 연구한 동물은?',opts:['고릴라','침팬지','오랑우탄','보노보'],ans:1 },
+          { q:'구달의 주요 진로장벽은?',opts:['경제적 빈곤','여성 학자에 대한 학계 편견','신분 차별','언어 장벽'],ans:1 },
+          { q:'구달의 핵심 가치관은?',opts:['부','명예','공존·보전','권력'],ans:2 },
+          { q:'구달의 출신 국가는?',opts:['미국','프랑스','영국','캐나다'],ans:2 },
+          { q:'구달이 연구한 주요 장소는?',opts:['아마존','탄자니아 곰비','보르네오','호주'],ans:1 },
+        ]
+      },
+      { name:'알렉산더 폰 훔볼트', emoji:'🗺️', years:'1769–1859', nation:'독일(프로이센)', job:'자연과학자·탐험가', achievement:'남아메리카 탐험, 자연지리학·생태학의 기초 확립, 코스모스 저술', barrier:'19세기 탐험의 극한 환경', value:'호기심·통합', quote:'자연은 거대한 하나의 전체다.', lesson:'세계를 탐험하며 자연과학의 지도를 그린 탐험가',
+        quizzes:[
+          { q:'훔볼트가 탐험한 대륙은?',opts:['아프리카','남아메리카','아시아','호주'],ans:1 },
+          { q:'훔볼트의 대표 저서는?',opts:['침묵의 봄','종의 기원','코스모스','대화'],ans:2 },
+          { q:'훔볼트의 주요 진로장벽은?',opts:['경제적 빈곤','19세기 탐험의 극한 환경','신분 차별','언어 장벽'],ans:1 },
+          { q:'훔볼트의 핵심 가치관은?',opts:['부','명예','호기심·통합','권력'],ans:2 },
+          { q:'훔볼트의 출신 국가는?',opts:['영국','프랑스','독일','이탈리아'],ans:2 },
+        ]
+      },
+    ]
+  },
+  it: {
+    domestic: [
+      { name:'이해진', emoji:'💻', years:'1967–', nation:'한국', job:'IT 기업인(네이버 창업자)', achievement:'네이버 창업, 한국형 검색 포털 구축, 라인 글로벌 서비스', barrier:'글로벌 IT 기업의 시장 지배', value:'혁신·도전', quote:'세상에 없는 것을 만들어야 한다.', lesson:'글로벌 IT 공룡에 맞서 한국형 플랫폼을 구축한 혁신가',
+        quizzes:[
+          { q:'이해진이 창업한 회사는?',opts:['카카오','네이버','라인','다음'],ans:1 },
+          { q:'이해진의 주요 진로장벽은?',opts:['경제적 빈곤','글로벌 IT 기업의 시장 지배','신분 차별','언어 장벽'],ans:1 },
+          { q:'이해진의 핵심 가치관은?',opts:['부','명예','혁신·도전','권력'],ans:2 },
+          { q:'이해진이 글로벌로 성장시킨 서비스는?',opts:['카카오톡','라인','밴드','틱톡'],ans:1 },
+          { q:'네이버가 한국 시장에서 주된 역할은?',opts:['소셜미디어','검색 포털','게임','이커머스'],ans:1 },
+        ]
+      },
+      { name:'김범수(IT)', emoji:'📱', years:'1966–', nation:'한국', job:'IT 기업인(카카오 창업자)', achievement:'카카오톡·카카오그룹 창업, 한국 모바일 메신저 혁신', barrier:'첫 창업 한게임 매각 후 재도전', value:'연결·혁신', quote:'실패를 두려워하지 말고 도전하라.', lesson:'실패 후 더 큰 꿈으로 재도전한 기업가 정신',
+        quizzes:[
+          { q:'김범수가 창업한 메신저 서비스는?',opts:['라인','카카오톡','텔레그램','왓츠앱'],ans:1 },
+          { q:'김범수의 주요 진로장벽은?',opts:['신분 차별','첫 창업 한게임 매각 후 재도전','경제적 빈곤','언어 장벽'],ans:1 },
+          { q:'김범수의 핵심 가치관은?',opts:['부','명예','연결·혁신','권력'],ans:2 },
+          { q:'김범수가 카카오 이전에 만든 회사는?',opts:['넥슨','한게임','엔씨소프트','넷마블'],ans:1 },
+          { q:'카카오톡의 특징은?',opts:['유료 메신저','국내 1위 모바일 메신저','게임 전용 앱','해외 전용 앱'],ans:1 },
+        ]
+      },
+      { name:'이준호', emoji:'🎮', years:'1966–', nation:'한국', job:'IT 기업인(NHN·NHN 엔터 창업)', achievement:'네이버 공동 창업, 한게임 개발, 한국 인터넷 산업 성장 주도', barrier:'인터넷 초창기 불확실한 시장', value:'도전·창의', quote:'게임은 문화다.', lesson:'게임과 인터넷으로 한국 디지털 문화를 만든 개척자',
+        quizzes:[
+          { q:'이준호가 공동 창업에 참여한 회사는?',opts:['카카오','네이버','쿠팡','배달의민족'],ans:1 },
+          { q:'이준호가 만든 대표 게임 서비스는?',opts:['스팀','한게임','배틀넷','넥슨'],ans:1 },
+          { q:'이준호의 주요 진로장벽은?',opts:['신분 차별','인터넷 초창기 불확실한 시장','외국어 장벽','경제적 빈곤'],ans:1 },
+          { q:'이준호의 핵심 가치관은?',opts:['부','명예','도전·창의','권력'],ans:2 },
+          { q:'이준호가 활동한 산업은?',opts:['제조업','인터넷·게임 IT','금융','유통'],ans:1 },
+        ]
+      },
+      { name:'안철수', emoji:'🛡️', years:'1962–', nation:'한국', job:'의사·IT 기업인(안철수연구소 창업)', achievement:'V3 바이러스 백신 개발, 안철수연구소(현 안랩) 창업, 보안 산업 개척', barrier:'컴퓨터 바이러스 위협이 생소하던 시대', value:'정직·보호', quote:'사람이 먼저다.', lesson:'공익을 위해 무료로 백신을 배포한 IT 윤리의 선구자',
+        quizzes:[
+          { q:'안철수가 개발한 대표 소프트웨어는?',opts:['카카오톡','V3 바이러스 백신','한글 워드','갤럭시 앱'],ans:1 },
+          { q:'안철수가 창업한 회사는?',opts:['카카오','네이버','안철수연구소(안랩)','엔씨소프트'],ans:2 },
+          { q:'안철수의 주요 진로장벽은?',opts:['신분 차별','컴퓨터 바이러스 위협이 생소하던 시대','경제적 빈곤','외국어 장벽'],ans:1 },
+          { q:'안철수의 핵심 가치관은?',opts:['부','명예','정직·보호','권력'],ans:2 },
+          { q:'안철수가 V3를 처음 배포한 방식은?',opts:['유료 판매','무료 배포','구독 서비스','정부 지원'],ans:1 },
+        ]
+      },
+      { name:'김정주', emoji:'🕹️', years:'1968–2022', nation:'한국', job:'게임 기업인(넥슨 창업자)', achievement:'넥슨 창업, 바람의 나라·메이플스토리 개발, 한국 게임 산업 세계화', barrier:'게임을 문화가 아닌 오락으로 보던 사회 편견', value:'창의·문화', quote:'게임은 단순한 놀이가 아니라 예술이다.', lesson:'한국 게임을 세계 무대로 끌어올린 개척자',
+        quizzes:[
+          { q:'김정주가 창업한 게임 회사는?',opts:['엔씨소프트','넷마블','넥슨','크래프톤'],ans:2 },
+          { q:'넥슨의 대표 게임은?',opts:['리그 오브 레전드','메이플스토리','배틀그라운드','오버워치'],ans:1 },
+          { q:'김정주의 주요 진로장벽은?',opts:['신분 차별','게임을 오락으로만 보던 사회 편견','경제적 빈곤','외국어 장벽'],ans:1 },
+          { q:'김정주의 핵심 가치관은?',opts:['부','명예','창의·문화','권력'],ans:2 },
+          { q:'김정주가 개발한 최초 MMORPG는?',opts:['리니지','바람의 나라','뮤','라그나로크'],ans:1 },
+        ]
+      },
+    ],
+    foreign: [
+      { name:'앨런 튜링', emoji:'🖥️', years:'1912–1954', nation:'영국', job:'수학자·컴퓨터 과학자', achievement:'튜링 머신 개념 창안, 2차대전 독일 암호 해독, AI 개념 선구', barrier:'동성애자라는 이유로 형사 처벌', value:'논리·진리', quote:'우리는 앞으로 나아갈 수밖에 없다.', lesson:'부당한 차별에도 인류에 지대한 공헌을 남긴 비극적 천재',
+        quizzes:[
+          { q:'튜링이 창안한 개념은?',opts:['인터넷','튜링 머신','블록체인','그래픽 처리장치'],ans:1 },
+          { q:'튜링의 주요 진로장벽은?',opts:['경제적 빈곤','동성애자라는 이유로 형사 처벌','인종 차별','신분 차별'],ans:1 },
+          { q:'튜링의 핵심 가치관은?',opts:['부','명예','논리·진리','권력'],ans:2 },
+          { q:'튜링이 해독한 2차대전 독일 암호 기계는?',opts:['모스','에니그마','로레츠','그리프'],ans:1 },
+          { q:'현재 컴퓨터 과학 최고 상은?',opts:['필즈상','튜링상','노벨상','IEEE상'],ans:1 },
+        ]
+      },
+      { name:'그레이스 호퍼', emoji:'💾', years:'1906–1992', nation:'미국', job:'컴퓨터 과학자·해군 제독', achievement:'최초 컴파일러 개발, COBOL 언어 창시, "버그" 용어 유래', barrier:'여성이라는 이유로 군·학계 차별', value:'혁신·실용', quote:'해도 된다는 허락보다 용서를 구하기가 더 쉽다.', lesson:'소수자로서 컴퓨터 언어의 역사를 바꾼 개척자',
+        quizzes:[
+          { q:'그레이스 호퍼가 창시한 프로그래밍 언어는?',opts:['FORTRAN','COBOL','C언어','자바'],ans:1 },
+          { q:'호퍼의 주요 진로장벽은?',opts:['경제적 빈곤','여성이라는 이유로 군·학계 차별','인종 차별','나이 제한'],ans:1 },
+          { q:'호퍼의 핵심 가치관은?',opts:['부','명예','혁신·실용','권력'],ans:2 },
+          { q:'"버그(bug)"라는 IT 용어를 최초로 사용한 사람은?',opts:['빌 게이츠','그레이스 호퍼','앨런 튜링','존 폰 노이만'],ans:1 },
+          { q:'호퍼가 개발한 컴파일러의 역할은?',opts:['인터넷 연결','고수준 언어를 기계어로 번역','데이터 암호화','운영체제 커널'],ans:1 },
+        ]
+      },
+      { name:'팀 버너스리', emoji:'🌐', years:'1955–', nation:'영국', job:'컴퓨터 과학자', achievement:'월드 와이드 웹(WWW) 발명, 인터넷 시대 개막, 특허 미출원으로 무료 공개', barrier:'당시 하이퍼텍스트 개념의 낮은 이해도', value:'개방·공유', quote:'웹은 모든 사람을 위한 것이다.', lesson:'세상을 연결한 웹을 모든 사람에게 무료로 선물한 인류의 은인',
+        quizzes:[
+          { q:'팀 버너스리가 발명한 것은?',opts:['인터넷 프로토콜','월드 와이드 웹(WWW)','이메일','블루투스'],ans:1 },
+          { q:'버너스리의 출신 국가는?',opts:['미국','프랑스','영국','독일'],ans:2 },
+          { q:'버너스리의 주요 진로장벽은?',opts:['경제적 빈곤','하이퍼텍스트 개념의 낮은 이해도','신분 차별','언어 장벽'],ans:1 },
+          { q:'버너스리의 핵심 가치관은?',opts:['부','명예','개방·공유','권력'],ans:2 },
+          { q:'버너스리가 WWW 특허를 어떻게 처리했나요?',opts:['특허 판매','무료 공개(특허 미출원)','특허 기부','특허 유지'],ans:1 },
+        ]
+      },
+      { name:'리누스 토르발스', emoji:'🐧', years:'1969–', nation:'핀란드', job:'소프트웨어 엔지니어', achievement:'리눅스 커널 개발, 오픈소스 운동 선구, 깃(Git) 개발', barrier:'기업 독점 소프트웨어 시장', value:'오픈소스·공유', quote:'나는 그냥 취미로 OS를 만들고 있었다.', lesson:'무료로 세계를 바꾼 오픈소스의 아버지',
+        quizzes:[
+          { q:'리누스 토르발스가 개발한 운영체제 커널은?',opts:['윈도우','리눅스','맥OS','안드로이드'],ans:1 },
+          { q:'토르발스가 개발한 버전 관리 시스템은?',opts:['SVN','깃(Git)','머큐리얼','CVS'],ans:1 },
+          { q:'토르발스의 주요 진로장벽은?',opts:['경제적 빈곤','기업 독점 소프트웨어 시장','신분 차별','언어 장벽'],ans:1 },
+          { q:'토르발스의 핵심 가치관은?',opts:['부','명예','오픈소스·공유','권력'],ans:2 },
+          { q:'토르발스의 출신 국가는?',opts:['스웨덴','노르웨이','핀란드','덴마크'],ans:2 },
+        ]
+      },
+      { name:'에이다 러브레이스', emoji:'✨', years:'1815–1852', nation:'영국', job:'수학자·최초 프로그래머', achievement:'세계 최초 컴퓨터 알고리즘 작성, 배비지 해석 기관 프로그래밍', barrier:'여성에게 고등교육이 금지된 시대', value:'논리·상상', quote:'상상력은 분석적 능력과 손을 잡을 때 비로소 힘을 발휘한다.', lesson:'컴퓨터도 없던 시대에 프로그래밍을 발명한 선구적 천재',
+        quizzes:[
+          { q:'에이다 러브레이스가 최초로 한 것은?',opts:['인터넷 발명','컴퓨터 알고리즘 작성','전화기 발명','라디오 발명'],ans:1 },
+          { q:'에이다의 주요 진로장벽은?',opts:['경제적 빈곤','여성에게 고등교육이 금지된 시대','인종 차별','신분 차별'],ans:1 },
+          { q:'에이다의 핵심 가치관은?',opts:['부','명예','논리·상상','권력'],ans:2 },
+          { q:'에이다의 출신 국가는?',opts:['미국','프랑스','영국','이탈리아'],ans:2 },
+          { q:'에이다의 아버지는 유명한 시인 누구인가요?',opts:['셰익스피어','바이런','키츠','워즈워스'],ans:1 },
+        ]
+      },
+    ]
+  },
 };
-var actMentorField = '';
-function actMentorPick(btn, field) {
-  actMentorField = field;
-  document.querySelectorAll('#act-mentor-btns button').forEach(b => { b.style.background='var(--bg)'; b.style.borderColor='var(--border)'; b.style.fontWeight='400'; });
-  btn.style.background = '#FFF7ED'; btn.style.borderColor = '#F97316'; btn.style.fontWeight = '700';
+
+var heroState = {
+  field: null, origin: null, hero: null,
+  qIdx: 0, score: 0, correct: 0,
+  totalScore: parseInt(localStorage.getItem('hero_total_score')||'0'),
+  totalCards: parseInt(localStorage.getItem('hero_total_cards')||'0'),
+  level: localStorage.getItem('hero_level')||'견습생'
+};
+
+var HERO_LEVELS = [
+  {min:0,   label:'견습생',   emoji:'🌱'},
+  {min:50,  label:'탐험가',   emoji:'🧭'},
+  {min:150, label:'지식인',   emoji:'📚'},
+  {min:300, label:'영웅',     emoji:'🦸'},
+  {min:500, label:'전설',     emoji:'⭐'},
+];
+
+function heroGetLevel(score) {
+  var lv = HERO_LEVELS[0];
+  HERO_LEVELS.forEach(function(l){ if(score>=l.min) lv=l; });
+  return lv;
 }
-function actMentorMatch() {
-  if (!actMentorField) { alert('관심 분야를 먼저 선택해주세요!'); return; }
-  var m = actMentorData[actMentorField];
-  document.getElementById('act-mentor-result').style.display = 'block';
-  document.getElementById('act-mentor-name').textContent = '(멘토) ' + m.name;
-  document.getElementById('act-mentor-info').textContent = m.info;
+
+function heroUpdateScoreBar() {
+  var lv = heroGetLevel(heroState.totalScore);
+  document.getElementById('hero-total-score').textContent = heroState.totalScore;
+  document.getElementById('hero-level-label').textContent = lv.emoji+' '+lv.label;
+  document.getElementById('hero-card-count').textContent = heroState.totalCards;
 }
+
+function heroInitFieldBtns() {
+  var container = document.getElementById('hero-field-btns');
+  container.innerHTML = '';
+  HERO_FIELDS.forEach(function(f) {
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:14px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;transition:all 0.2s;text-align:left;';
+    btn.innerHTML = '<span style="font-size:20px;margin-right:8px;">'+f.icon+'</span>'+f.label;
+    btn.onmouseover = function(){ this.style.borderColor='#6366F1'; this.style.background='#6366F108'; };
+    btn.onmouseout  = function(){ this.style.borderColor='var(--border)'; this.style.background='var(--bg)'; };
+    btn.onclick = function(){ heroPickField(f); };
+    container.appendChild(btn);
+  });
+  heroUpdateScoreBar();
+}
+
+function heroPickField(f) {
+  heroState.field = f;
+  document.getElementById('hero-field-screen').style.display = 'none';
+  document.getElementById('hero-origin-screen').style.display = 'block';
+  document.getElementById('hero-field-icon').textContent = f.icon;
+  document.getElementById('hero-field-title').textContent = f.label+' 분야';
+}
+
+function heroPickOrigin(origin) {
+  heroState.origin = origin;
+  var heroes = HERO_DB[heroState.field.id][origin];
+  var randomHero = heroes[Math.floor(Math.random()*heroes.length)];
+  heroState.hero = randomHero;
+  heroState.qIdx = 0; heroState.score = 0; heroState.correct = 0;
+  document.getElementById('hero-origin-screen').style.display = 'none';
+  heroShowQuiz();
+}
+
+function heroShowQuiz() {
+  document.getElementById('hero-quiz-screen').style.display = 'block';
+  var h = heroState.hero;
+  var q = h.quizzes[heroState.qIdx];
+  var total = h.quizzes.length;
+  document.getElementById('hero-quiz-counter').textContent = (heroState.qIdx+1)+' / '+total;
+  document.getElementById('hero-quiz-prog').style.width = ((heroState.qIdx/total)*100)+'%';
+
+  var badge = document.getElementById('hero-quiz-badge');
+  badge.textContent = (heroState.origin==='domestic'?'🇰🇷 국내':'🌍 국외')+' · '+heroState.field.label;
+  badge.style.background = heroState.origin==='domestic'?'#EFF6FF':'#F0FDF4';
+  badge.style.color = heroState.origin==='domestic'?'#1D4ED8':'#15803D';
+
+  document.getElementById('hero-quiz-q').textContent = q.q;
+  var opts = document.getElementById('hero-quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach(function(opt, i) {
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;text-align:left;width:100%;transition:all 0.2s;';
+    btn.innerHTML = '<span style="font-weight:700;color:var(--muted);margin-right:8px;">'+'①②③④'[i]+'</span>'+opt;
+    btn.onmouseover = function(){ if(!this.disabled){ this.style.borderColor='#6366F1'; } };
+    btn.onmouseout  = function(){ if(!this.disabled && !this.classList.contains('selected')){ this.style.borderColor='var(--border)'; } };
+    btn.onclick = function(){ heroAnswer(i, btn); };
+    opts.appendChild(btn);
+  });
+  document.getElementById('hero-quiz-feedback').style.display = 'none';
+  document.getElementById('hero-quiz-next-btn').style.display = 'none';
+}
+
+function heroAnswer(chosen, btn) {
+  var q = heroState.hero.quizzes[heroState.qIdx];
+  var btns = document.getElementById('hero-quiz-opts').querySelectorAll('button');
+  btns.forEach(function(b){ b.disabled = true; });
+
+  var correct = chosen === q.ans;
+  if(correct){ heroState.score += 20; heroState.correct++; }
+
+  btns.forEach(function(b,i){
+    if(i===q.ans){ b.style.background='#F0FDF4'; b.style.borderColor='#22C55E'; b.style.color='#15803D'; }
+    else if(i===chosen && !correct){ b.style.background='#FEF2F2'; b.style.borderColor='#EF4444'; b.style.color='#B91C1C'; }
+  });
+
+  var fb = document.getElementById('hero-quiz-feedback');
+  fb.style.display = 'block';
+  fb.style.background = correct ? '#F0FDF4' : '#FEF2F2';
+  fb.style.borderLeft = '4px solid '+(correct?'#22C55E':'#EF4444');
+  fb.style.padding = '12px 14px';
+  fb.style.borderRadius = '12px';
+  fb.innerHTML = (correct?'<strong style="color:#15803D">✅ 정답!</strong>':'<strong style="color:#B91C1C">❌ 오답!</strong> 정답: <strong>'+q.opts[q.ans]+'</strong>');
+
+  document.getElementById('hero-quiz-next-btn').style.display = 'block';
+  document.getElementById('hero-quiz-next-btn').textContent = (heroState.qIdx<heroState.hero.quizzes.length-1) ? '다음 문제 →' : '결과 보기 🏆';
+}
+
+function heroNextQuiz() {
+  heroState.qIdx++;
+  if(heroState.qIdx < heroState.hero.quizzes.length) {
+    document.getElementById('hero-quiz-prog').style.width = ((heroState.qIdx/heroState.hero.quizzes.length)*100)+'%';
+    heroShowQuiz();
+  } else {
+    heroShowResult();
+  }
+}
+
+function heroShowResult() {
+  document.getElementById('hero-quiz-screen').style.display = 'none';
+  var rs = document.getElementById('hero-result-screen');
+  rs.style.display = 'block';
+  var h = heroState.hero;
+  var pct = Math.round((heroState.correct/h.quizzes.length)*100);
+  var grade = pct>=80?{e:'🏆',t:'완벽한 히어로!',d:'위인의 정신을 완벽히 이해했어요!'}:
+              pct>=60?{e:'🌟',t:'훌륭한 탐험가!',d:'조금 더 배우면 완벽해질 거예요!'}:
+                      {e:'💪',t:'계속 도전하세요!',d:'다시 도전하면 더 좋은 결과가!'}
+  document.getElementById('hero-result-emoji').textContent = grade.e;
+  document.getElementById('hero-result-title').textContent = grade.t;
+  document.getElementById('hero-result-desc').textContent = grade.d;
+  document.getElementById('hero-res-score').textContent = '+'+heroState.score+'점';
+  document.getElementById('hero-res-correct').textContent = heroState.correct+'/'+h.quizzes.length;
+
+  // 위인 카드
+  document.getElementById('hc-emoji').textContent = h.emoji;
+  document.getElementById('hc-name').textContent = h.name;
+  document.getElementById('hc-meta').textContent = h.years+' · '+h.job;
+  document.getElementById('hc-nation').textContent = h.nation;
+  document.getElementById('hc-job').textContent = h.job;
+  document.getElementById('hc-achievement').textContent = h.achievement;
+  document.getElementById('hc-barrier').textContent = h.barrier;
+  document.getElementById('hc-value').textContent = h.value;
+  document.getElementById('hc-lesson').textContent = h.lesson;
+  document.getElementById('hc-quote').textContent = '"'+h.quote+'"';
+
+  // 누적 점수·카드 저장
+  heroState.totalScore += heroState.score;
+  heroState.totalCards += 1;
+  var lv = heroGetLevel(heroState.totalScore);
+  heroState.level = lv.label;
+  localStorage.setItem('hero_total_score', heroState.totalScore);
+  localStorage.setItem('hero_total_cards',  heroState.totalCards);
+  localStorage.setItem('hero_level',         heroState.level);
+  heroUpdateScoreBar();
+}
+
+function heroRestart() {
+  heroState.qIdx=0; heroState.score=0; heroState.correct=0;
+  document.getElementById('hero-result-screen').style.display='none';
+  heroPickOrigin(heroState.origin);
+}
+
+function heroBack(to) {
+  document.getElementById('hero-quiz-screen').style.display='none';
+  document.getElementById('hero-origin-screen').style.display='none';
+  document.getElementById('hero-result-screen').style.display='none';
+  if(to==='field'){
+    document.getElementById('hero-field-screen').style.display='block';
+    heroInitFieldBtns();
+  } else if(to==='origin'){
+    document.getElementById('hero-field-screen').style.display='none';
+    document.getElementById('hero-origin-screen').style.display='block';
+  }
+}
+
 </script>
 
 <!-- DREAM — 나의 커리어 디자인 -->
@@ -3728,70 +4956,93 @@ function renderDreamResult(text) {
   </div>
 </section>
 
-<!-- ARCHIVE -->
+<!-- HERO GAME SECTION -->
 <section id="archive">
   <div class="section-inner">
     <div class="section-title">
-      <div class="badge" style="background:#F43F5E18;color:#F43F5E;border:1px solid #F43F5E33;">Archive &amp; Mentoring</div>
-      <h2>회복 사례와 멘토 연결</h2>
-      <p>비슷한 경험을 지나온 사람들의 이야기는<br/>청소년에게 강한 심리적 지지와 현실적인 진로 상상력을 제공합니다.</p>
+      <div class="badge" style="background:#FEF3C718;color:#D97706;border:1px solid #F59E0B33;">🏆 Hero Game</div>
+      <h2>진로 히어로 게임</h2>
+      <p>10개 분야, 국내·국외 위인 퀴즈로 진로 영감을 얻고<br/>나만의 히어로 카드를 수집해보세요!</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:24px;">
-      <div class="card card-hover" style="padding:24px 28px;display:flex;flex-direction:column;gap:12px;">
-        <div style="width:56px;height:56px;min-width:56px;border-radius:16px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:28px;">📝</div>
-        <div style="flex:1;">
-          <p style="font-weight:800;font-size:17px;margin-bottom:6px;">불안을 기록으로 바꾸다</p>
-          <p style="color:var(--muted);font-size:14px;line-height:1.7;">감정 일지를 쓰며 자기이해를 시작한 청소년의 회복 이야기</p>
-        </div>
-        <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">사례 보기 →</button>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:32px;">
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🔬</div>
+        <p style="font-weight:700;font-size:14px;">과학/기술</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
       </div>
-      <div class="card card-hover" style="padding:24px 28px;display:flex;flex-direction:column;gap:12px;">
-        <div style="width:56px;height:56px;min-width:56px;border-radius:16px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;font-size:28px;">💼</div>
-        <div style="flex:1;">
-          <p style="font-weight:800;font-size:17px;margin-bottom:6px;">알바 경험에서 강점 찾기</p>
-          <p style="color:var(--muted);font-size:14px;line-height:1.7;">책임감과 소통능력을 진로 자산으로 전환한 사례</p>
-        </div>
-        <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">사례 보기 →</button>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🎨</div>
+        <p style="font-weight:700;font-size:14px;">예술/문화</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
       </div>
-      <div class="card card-hover" style="padding:24px 28px;display:flex;flex-direction:column;gap:12px;">
-        <div style="width:56px;height:56px;min-width:56px;border-radius:16px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:28px;">🚀</div>
-        <div style="flex:1;">
-          <p style="font-weight:800;font-size:17px;margin-bottom:6px;">포기 대신 작은 도전</p>
-          <p style="color:var(--muted);font-size:14px;line-height:1.7;">짧은 프로젝트 경험으로 진로 자신감을 회복한 사례</p>
-        </div>
-        <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">사례 보기 →</button>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">✊</div>
+        <p style="font-weight:700;font-size:14px;">사회/인권</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
+      </div>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">📚</div>
+        <p style="font-weight:700;font-size:14px;">교육/철학</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
+      </div>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🏅</div>
+        <p style="font-weight:700;font-size:14px;">스포츠/체육</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
+      </div>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">💼</div>
+        <p style="font-weight:700;font-size:14px;">경제/경영</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
+      </div>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">✍️</div>
+        <p style="font-weight:700;font-size:14px;">문학/역사</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
+      </div>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">💊</div>
+        <p style="font-weight:700;font-size:14px;">의학/복지</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
+      </div>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">🌿</div>
+        <p style="font-weight:700;font-size:14px;">환경/탐험</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
+      </div>
+      <div class="card card-hover" style="padding:20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:8px;">💻</div>
+        <p style="font-weight:700;font-size:14px;">IT/발명</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
       </div>
     </div>
 
-    <!-- Mentor Card -->
-    <div class="card mentor-grid" style="padding:36px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;">
+    <div class="card" style="padding:36px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;" class="mentor-grid">
       <div style="text-align:center;">
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">
-          <span style="font-size:20px;">🛡️</span>
-          <span style="font-size:17px;color:var(--muted);font-weight:600;">안전한 연결 구조</span>
-        </div>
-        <p style="font-size:26px;font-weight:800;margin-bottom:14px;line-height:1.3;">멘토와의 진로 대화</p>
+        <div style="font-size:48px;margin-bottom:14px;">🏆</div>
+        <p style="font-size:26px;font-weight:800;margin-bottom:14px;line-height:1.3;">위인 카드를 수집하며<br/>나의 진로를 발견하세요</p>
         <p style="color:var(--muted);font-size:14px;line-height:1.9;">
-          대학생, 직업인, 상담 연계 인력이 질문에 답하고 실제 경험을 나눕니다.<br/>익명 질문, 관심 분야별 매칭, 상담기관 연계를 함께 설계할 수 있습니다.
+          퀴즈를 풀고 위인의 생애·업적·명언·진로장벽을 배우며<br/>나만의 히어로를 찾고 진로 인사이트를 쌓아보세요.
         </p>
+        <button class="btn btn-primary btn-lg" style="margin-top:20px;" onclick="openActivity('hero')">🎮 게임 시작하기</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="card card-hover" style="padding:18px;text-align:center;background:var(--muted-bg);">
-          <p style="font-weight:700;font-size:14px;margin-bottom:6px;">🎓 대학생 멘토</p>
-          <p style="color:var(--muted);font-size:13px;line-height:1.6;">학과 선택과 학교생활 Q&A</p>
+        <div class="card" style="padding:18px;text-align:center;background:var(--muted-bg);">
+          <p style="font-weight:700;font-size:14px;margin-bottom:6px;">🃏 위인 카드</p>
+          <p style="color:var(--muted);font-size:13px;line-height:1.6;">8개 정보 담긴 상세 카드 획득</p>
         </div>
-        <div class="card card-hover" style="padding:18px;text-align:center;background:var(--muted-bg);">
-          <p style="font-weight:700;font-size:14px;margin-bottom:6px;">👔 직업인 멘토</p>
-          <p style="color:var(--muted);font-size:13px;line-height:1.6;">직무 경험과 준비 방법 공유</p>
+        <div class="card" style="padding:18px;text-align:center;background:var(--muted-bg);">
+          <p style="font-weight:700;font-size:14px;margin-bottom:6px;">⚡ 레벨 성장</p>
+          <p style="color:var(--muted);font-size:13px;line-height:1.6;">견습생→탐험가→영웅→전설</p>
         </div>
-        <div class="card card-hover" style="padding:18px;text-align:center;background:var(--muted-bg);">
-          <p style="font-weight:700;font-size:14px;margin-bottom:6px;">🙈 익명 질문함</p>
-          <p style="color:var(--muted);font-size:13px;line-height:1.6;">심리적 부담을 줄인 참여</p>
+        <div class="card" style="padding:18px;text-align:center;background:var(--muted-bg);">
+          <p style="font-weight:700;font-size:14px;margin-bottom:6px;">🇰🇷🌍 국내·국외</p>
+          <p style="color:var(--muted);font-size:13px;line-height:1.6;">한국과 세계 위인 모두 만나기</p>
         </div>
-        <div class="card card-hover" style="padding:18px;text-align:center;background:var(--muted-bg);">
-          <p style="font-weight:700;font-size:14px;margin-bottom:6px;">💊 상담 연계</p>
-          <p style="color:var(--muted);font-size:13px;line-height:1.6;">필요 시 전문 지원 연결</p>
+        <div class="card" style="padding:18px;text-align:center;background:var(--muted-bg);">
+          <p style="font-weight:700;font-size:14px;margin-bottom:6px;">📊 4지선다 퀴즈</p>
+          <p style="color:var(--muted);font-size:13px;line-height:1.6;">문제당 20점, 총 100점 도전</p>
         </div>
       </div>
     </div>
@@ -4651,6 +5902,22 @@ function renderDreamResult(text) {
     }
     document.getElementById('result-message').textContent = msg;
 
+    /* ── 체크인 로그 저장 ── */
+    try {
+      var ciEmail = localStorage.getItem('rbu_email') || 'guest';
+      var ciKey = 'rbu_checkin_log_' + ciEmail;
+      var ciLogs = JSON.parse(localStorage.getItem(ciKey) || '[]');
+      var todayStr = new Date().toISOString().slice(0,10);
+      ciLogs.push({
+        date: todayStr,
+        time: new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}),
+        d1: d1, d2: d2, d3: d3,
+        eScore: eScore, rScore: rScore, cScore: cScore,
+        msg: msg
+      });
+      localStorage.setItem(ciKey, JSON.stringify(ciLogs));
+    } catch(e) {}
+
     /* ── CD's Comment 생성 ── */
     generateCDComment(d1, d2, d3, eScore, rScore, cScore);
   }
@@ -5015,7 +6282,8 @@ function renderDreamResult(text) {
       try { encoded = btoa(unescape(encodeURIComponent(pw))); }
       catch(e) { encoded = btoa(pw); }
 
-      users[email] = { name: name, pw: encoded };
+      var joinDate = new Date().toISOString().slice(0,10);
+      users[email] = { name: name, pw: encoded, joinDate: joinDate };
       localStorage.setItem('rbu_users', JSON.stringify(users));
       localStorage.setItem('rbu_email', email);
       localStorage.setItem('rbu_name',  name);
