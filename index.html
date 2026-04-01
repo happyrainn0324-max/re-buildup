@@ -4965,58 +4965,20 @@ function renderDreamResult(text) {
       <p>10개 분야, 국내·국외 위인 퀴즈로 진로 영감을 얻고<br/>나만의 히어로 카드를 수집해보세요!</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:32px;">
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">🔬</div>
-        <p style="font-weight:700;font-size:14px;">과학/기술</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">🎨</div>
-        <p style="font-weight:700;font-size:14px;">예술/문화</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">✊</div>
-        <p style="font-weight:700;font-size:14px;">사회/인권</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">📚</div>
-        <p style="font-weight:700;font-size:14px;">교육/철학</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">🏅</div>
-        <p style="font-weight:700;font-size:14px;">스포츠/체육</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">💼</div>
-        <p style="font-weight:700;font-size:14px;">경제/경영</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">✍️</div>
-        <p style="font-weight:700;font-size:14px;">문학/역사</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">💊</div>
-        <p style="font-weight:700;font-size:14px;">의학/복지</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">🌿</div>
-        <p style="font-weight:700;font-size:14px;">환경/탐험</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
-      <div class="card card-hover" style="padding:20px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:8px;">💻</div>
-        <p style="font-weight:700;font-size:14px;">IT/발명</p>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;">국내+국외 2명</p>
-      </div>
+    <!-- 분야 선택 그리드 -->
+    <div id="archive-field-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:16px;"></div>
+
+    <!-- 국내/국외 토글 -->
+    <div id="archive-origin-toggle" style="display:none;justify-content:center;gap:10px;margin-bottom:18px;">
+      <button id="archive-btn-domestic" onclick="archiveSetOrigin('domestic')" class="tab-pill active">🇰🇷 국내 위인</button>
+      <button id="archive-btn-foreign"  onclick="archiveSetOrigin('foreign')"  class="tab-pill">🌍 국외 위인</button>
     </div>
+
+    <!-- 위인 카드 그리드 -->
+    <div id="archive-hero-grid" style="display:none;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:16px;animation:fadeUp 0.4s ease both;"></div>
+
+    <!-- 위인 상세 패널 -->
+    <div id="archive-detail-panel" style="display:none;margin-bottom:24px;animation:fadeUp 0.35s ease both;"></div>
 
     <div class="card" style="padding:36px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;" class="mentor-grid">
       <div style="text-align:center;">
@@ -5025,7 +4987,7 @@ function renderDreamResult(text) {
         <p style="color:var(--muted);font-size:14px;line-height:1.9;">
           퀴즈를 풀고 위인의 생애·업적·명언·진로장벽을 배우며<br/>나만의 히어로를 찾고 진로 인사이트를 쌓아보세요.
         </p>
-        <button class="btn btn-primary btn-lg" style="margin-top:20px;" onclick="openActivity('hero')">🎮 게임 시작하기</button>
+        <button id="archive-main-start-btn" class="btn btn-primary btn-lg" style="margin-top:20px;opacity:0.45;cursor:not-allowed;" disabled onclick="archiveMainStartClick()">🎮 게임 시작하기</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="card" style="padding:18px;text-align:center;background:var(--muted-bg);">
@@ -6442,5 +6404,191 @@ function renderDreamResult(text) {
   }
 
 </script>
+<script>
+// ── Archive 섹션: 분야 클릭 → 국내/국외 위인 10명 ───────────
+var archiveState = { field: null, origin: 'domestic', selectedHero: null };
+
+function archiveInitFieldGrid() {
+  var container = document.getElementById('archive-field-grid');
+  if (!container || container.children.length > 0) return;
+  HERO_FIELDS.forEach(function(f) {
+    var dom = (HERO_DB[f.id] && HERO_DB[f.id].domestic) ? HERO_DB[f.id].domestic.length : 0;
+    var for_ = (HERO_DB[f.id] && HERO_DB[f.id].foreign)  ? HERO_DB[f.id].foreign.length  : 0;
+    var total = dom + for_;
+    var btn = document.createElement('button');
+    btn.setAttribute('data-archive-tab', f.id);
+    btn.style.cssText = 'padding:20px 8px;border-radius:20px;border:1.5px solid var(--border);background:var(--card-bg);cursor:pointer;font-family:inherit;transition:all 0.22s;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);width:100%;';
+    btn.innerHTML =
+      '<div style="font-size:28px;margin-bottom:8px;">' + f.icon + '</div>' +
+      '<p style="font-weight:700;font-size:14px;margin-bottom:4px;">' + f.label + '</p>' +
+      '<p style="font-size:12px;color:var(--muted);">국내+국외 ' + total + '명</p>';
+    btn.onmouseover = function(){ if(archiveState.field !== f.id){ this.style.borderColor='#6366F1'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(99,102,241,0.15)'; } };
+    btn.onmouseout  = function(){ if(archiveState.field !== f.id){ this.style.borderColor='var(--border)'; this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'; } };
+    btn.onclick = (function(field){ return function(){ archivePickField(field); }; })(f);
+    container.appendChild(btn);
+  });
+}
+
+function archivePickField(f) {
+  archiveState.field = f.id;
+  archiveState.selectedHero = null;
+  document.querySelectorAll('[data-archive-tab]').forEach(function(b) {
+    var isActive = b.getAttribute('data-archive-tab') === f.id;
+    b.style.borderColor = isActive ? '#6366F1' : 'var(--border)';
+    b.style.background  = isActive ? 'linear-gradient(135deg,#EEF2FF,#F5F3FF)' : 'var(--card-bg)';
+    b.style.boxShadow   = isActive ? '0 4px 16px rgba(99,102,241,0.18)' : '0 2px 8px rgba(0,0,0,0.05)';
+    b.style.transform   = isActive ? 'translateY(-2px)' : '';
+  });
+  archiveState.origin = 'domestic';
+  document.getElementById('archive-btn-domestic').className = 'tab-pill active';
+  document.getElementById('archive-btn-foreign').className  = 'tab-pill';
+  document.getElementById('archive-origin-toggle').style.display = 'flex';
+  archiveRenderHeroes();
+  // 상세 패널 초기화
+  var dp = document.getElementById('archive-detail-panel');
+  if (dp) { dp.style.display = 'none'; dp.innerHTML = ''; }
+}
+
+function archiveSetOrigin(origin) {
+  archiveState.origin = origin;
+  archiveState.selectedHero = null;
+  document.getElementById('archive-btn-domestic').className = 'tab-pill' + (origin === 'domestic' ? ' active' : '');
+  document.getElementById('archive-btn-foreign').className  = 'tab-pill' + (origin === 'foreign'  ? ' active' : '');
+  archiveRenderHeroes();
+  var dp = document.getElementById('archive-detail-panel');
+  if (dp) { dp.style.display = 'none'; dp.innerHTML = ''; }
+}
+
+function archiveRenderHeroes() {
+  archiveState.selectedHero = null;
+  var heroes = (HERO_DB[archiveState.field] && HERO_DB[archiveState.field][archiveState.origin]) || [];
+  var grid = document.getElementById('archive-hero-grid');
+  grid.innerHTML = '';
+  grid.style.display = 'grid';
+  var dp = document.getElementById('archive-detail-panel');
+  if (dp) { dp.style.display = 'none'; dp.innerHTML = ''; }
+  // 하단 버튼 초기화
+  archiveUpdateStartBtn();
+
+  heroes.forEach(function(hero, idx) {
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-hero-idx', idx);
+    card.style.cssText = 'padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;border:1.5px solid var(--border);transition:all 0.22s;cursor:pointer;';
+    card.innerHTML =
+      '<div style="font-size:32px;margin-bottom:10px;">' + hero.emoji + '</div>' +
+      '<p style="font-weight:700;font-size:14px;margin-bottom:4px;">' + hero.name + '</p>' +
+      '<p style="font-size:12px;color:var(--muted);margin-bottom:4px;">' + hero.job + '</p>' +
+      '<p style="font-size:11px;color:#6366F1;font-weight:600;">' + hero.years + '</p>';
+
+    card.onmouseover = function() {
+      if (archiveState.selectedHero !== hero) {
+        this.style.borderColor = '#6366F1';
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 6px 20px rgba(99,102,241,0.15)';
+      }
+    };
+    card.onmouseout = function() {
+      if (archiveState.selectedHero !== hero) {
+        this.style.borderColor = 'var(--border)';
+        this.style.transform = '';
+        this.style.boxShadow = '';
+      }
+    };
+    card.onclick = (function(h, c) {
+      return function() {
+        // 모든 카드 선택 해제
+        grid.querySelectorAll('[data-hero-idx]').forEach(function(el) {
+          el.style.borderColor = 'var(--border)';
+          el.style.background  = 'var(--card-bg)';
+          el.style.transform   = '';
+          el.style.boxShadow   = '';
+        });
+        // 선택된 카드 강조
+        c.style.borderColor = '#6366F1';
+        c.style.background  = 'linear-gradient(135deg,#EEF2FF,#F5F3FF)';
+        c.style.boxShadow   = '0 4px 16px rgba(99,102,241,0.22)';
+        c.style.transform   = 'translateY(-2px)';
+        archiveState.selectedHero = h;
+        archiveUpdateStartBtn();
+      };
+    })(hero, card);
+
+    grid.appendChild(card);
+  });
+  grid.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function archiveUpdateStartBtn() {
+  var btn = document.getElementById('archive-main-start-btn');
+  if (!btn) return;
+  if (archiveState.selectedHero) {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.textContent = '🎮 ' + archiveState.selectedHero.name + ' 퀴즈 시작하기';
+  } else {
+    btn.disabled = true;
+    btn.style.opacity = '0.45';
+    btn.style.cursor = 'not-allowed';
+    btn.textContent = '🎮 게임 시작하기';
+  }
+}
+
+function archiveMainStartClick() {
+  if (!archiveState.selectedHero) return;
+  archiveStartQuizWith(archiveState.selectedHero, archiveState.field, archiveState.origin);
+}
+
+function archiveStartQuizWith(hero, fieldId, origin) {
+  // heroState에 위인 직접 세팅
+  var fieldObj = null;
+  HERO_FIELDS.forEach(function(f){ if(f.id === fieldId) fieldObj = f; });
+
+  heroState.field   = fieldObj || HERO_FIELDS[0];
+  heroState.origin  = origin;
+  heroState.hero    = hero;
+  heroState.qIdx    = 0;
+  heroState.score   = 0;
+  heroState.correct = 0;
+  heroState.totalScore = parseInt(localStorage.getItem('hero_total_score') || '0');
+  heroState.totalCards = parseInt(localStorage.getItem('hero_total_cards') || '0');
+  heroState.level      = localStorage.getItem('hero_level') || '견습생';
+
+  // 모달 열기 — 모든 화면 숨기고 퀴즈 화면만 바로 표시
+  Object.values(actTitles).forEach(function(id) {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('act-hero').style.display = 'block';
+  document.getElementById('activity-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  document.getElementById('hero-field-screen').style.display  = 'none';
+  document.getElementById('hero-origin-screen').style.display = 'none';
+  document.getElementById('hero-quiz-screen').style.display   = 'none';
+  document.getElementById('hero-result-screen').style.display = 'none';
+
+  heroUpdateScoreBar();
+  heroShowQuiz();
+}
+
+// 섹션 진입 시 자동 초기화
+(function() {
+  var initialized = false;
+  function tryInit() {
+    if (initialized) return;
+    var el = document.getElementById('archive-field-grid');
+    if (el && typeof HERO_FIELDS !== 'undefined') { archiveInitFieldGrid(); initialized = true; }
+  }
+  document.addEventListener('DOMContentLoaded', tryInit);
+  window.addEventListener('scroll', function() {
+    if (initialized) return;
+    var sec = document.getElementById('archive');
+    if (sec && sec.getBoundingClientRect().top < window.innerHeight + 100) tryInit();
+  }, { passive: true });
+  setTimeout(tryInit, 500);
+})();
+</script>
+
 </body>
 </html>
