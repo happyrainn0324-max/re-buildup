@@ -3468,34 +3468,96 @@
 
 <script>
   // ══════════════════════════════════════════
-  // ☁️ 클라우드 저장소 헬퍼 (window.storage 기반)
-  // - 회원 정보: shared storage ('qschool_user:{key}')
-  // - 질문 기록: shared storage ('myq_list') — 로그인 없이 누구나 열람
-  // - 로그인 세션: localStorage만 (이 기기에서 자동 로그인)
+  // ☁️ 실제 크로스브라우저 저장소 (JSONBin.io 기반)
+  //
+  // JSONBin.io 무료 계정에서 두 개의 bin을 만들어야 합니다:
+  //   1) 회원 DB bin  → USERS_BIN_ID 에 입력
+  //   2) 질문 기록 bin → MYQ_BIN_ID  에 입력
+  //
+  // 설정 방법:
+  //   1. https://jsonbin.io 에서 무료 가입
+  //   2. "New Bin" 클릭 → 내용에 {} 입력 → Create
+  //   3. 생성된 Bin ID (예: 6650a2b....) 를 아래에 붙여넣기
+  //   4. API Keys 탭에서 Secret Key 복사 → JSONBIN_KEY 에 입력
+  //   5. Bin의 Privacy를 "Public"으로 설정 (질문 기록 bin만; 회원 bin은 Private 권장)
   // ══════════════════════════════════════════
-  const CLOUD_MYQ_KEY = 'myq_list'; // 공개 질문 저장소 키
 
+  const JSONBIN_KEY   = '$2a$10$ts/sXMPOsQfADA7Fbb4dwOJyIhuDCLjsNgPhpYrMTjJEsTicH.sia';
+  const USERS_BIN_ID  = '69d2f784aaba882197c9fb56';
+  const MYQ_BIN_ID    = '69d2f799aaba882197c9fcde';
+
+  const JSONBIN_BASE  = 'https://api.jsonbin.io/v3/b';
+  const JSONBIN_HDR   = { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Versioning': 'false' };
+
+  // ── 설정 여부 확인 ──
+  function isCloudConfigured() {
+    return JSONBIN_KEY   !== '$2a$10$REPLACE_WITH_YOUR_JSONBIN_SECRET_KEY' &&
+           USERS_BIN_ID  !== 'REPLACE_WITH_USERS_BIN_ID' &&
+           MYQ_BIN_ID    !== 'REPLACE_WITH_MYQ_BIN_ID';
+  }
+
+  // ── 로컬 캐시 키 ──
+  const LC_USERS = 'qschool_users_cache';
+  const LC_MYQ   = 'myq_list';
+
+  // ══ 회원 DB 읽기/쓰기 ══
+  async function cloudGetUsers() {
+    if (isCloudConfigured()) {
+      try {
+        const r = await fetch(`${JSONBIN_BASE}/${USERS_BIN_ID}/latest`, { headers: JSONBIN_HDR });
+        if (r.ok) {
+          const d = await r.json();
+          const users = d.record || {};
+          localStorage.setItem(LC_USERS, JSON.stringify(users)); // 캐시 갱신
+          return users;
+        }
+      } catch(e) {}
+    }
+    // 폴백: 로컬 캐시
+    try { return JSON.parse(localStorage.getItem(LC_USERS) || '{}'); } catch(e) { return {}; }
+  }
+
+  async function cloudSetUsers(users) {
+    localStorage.setItem(LC_USERS, JSON.stringify(users)); // 즉시 로컬 반영
+    if (isCloudConfigured()) {
+      try {
+        await fetch(`${JSONBIN_BASE}/${USERS_BIN_ID}`, {
+          method: 'PUT',
+          headers: JSONBIN_HDR,
+          body: JSON.stringify(users)
+        });
+      } catch(e) {}
+    }
+  }
+
+  // ══ 질문 목록 읽기/쓰기 ══
   async function cloudGetMyQList() {
-    try {
-      if (typeof window.storage !== 'undefined') {
-        const r = await window.storage.get(CLOUD_MYQ_KEY, true);
-        if (r) return JSON.parse(r.value);
-      }
-    } catch(e) {}
-    // 폴백: localStorage
-    try { return JSON.parse(localStorage.getItem('myq_list') || '[]'); } catch(e) { return []; }
+    if (isCloudConfigured()) {
+      try {
+        const r = await fetch(`${JSONBIN_BASE}/${MYQ_BIN_ID}/latest`, { headers: JSONBIN_HDR });
+        if (r.ok) {
+          const d = await r.json();
+          const list = d.record || [];
+          localStorage.setItem(LC_MYQ, JSON.stringify(list)); // 캐시 갱신
+          return list;
+        }
+      } catch(e) {}
+    }
+    // 폴백: 로컬 캐시
+    try { return JSON.parse(localStorage.getItem(LC_MYQ) || '[]'); } catch(e) { return []; }
   }
 
   async function cloudSetMyQList(list) {
-    const json = JSON.stringify(list);
-    // 공유 클라우드 저장 (모든 기기, 로그인 없이 열람 가능)
-    try {
-      if (typeof window.storage !== 'undefined') {
-        await window.storage.set(CLOUD_MYQ_KEY, json, true);
-      }
-    } catch(e) {}
-    // 로컬 캐시도 갱신
-    try { localStorage.setItem('myq_list', json); } catch(e) {}
+    localStorage.setItem(LC_MYQ, JSON.stringify(list)); // 즉시 로컬 반영
+    if (isCloudConfigured()) {
+      try {
+        await fetch(`${JSONBIN_BASE}/${MYQ_BIN_ID}`, {
+          method: 'PUT',
+          headers: JSONBIN_HDR,
+          body: JSON.stringify(list)
+        });
+      } catch(e) {}
+    }
   }
 
   async function cloudDeleteMyQ(id) {
@@ -3503,6 +3565,14 @@
     const updated = list.filter(e => e.id !== id);
     await cloudSetMyQList(updated);
     return updated;
+  }
+
+  // ── 미설정 알림 (최초 1회) ──
+  function warnIfNotConfigured() {
+    if (!isCloudConfigured() && !sessionStorage.getItem('jsonbin_warned')) {
+      sessionStorage.setItem('jsonbin_warned', '1');
+      console.warn('[질문하는 학교] JSONBin 미설정 — 데이터가 이 브라우저에만 저장됩니다. index.html 상단의 JSONBIN_KEY / USERS_BIN_ID / MYQ_BIN_ID 를 설정하면 모든 기기에서 공유됩니다.');
+    }
   }
 
   // ── CUSTOM AUTH ──
@@ -3571,62 +3641,43 @@
       displayName = dept + ' ' + sname + ' 선생님';
     }
 
-    const sharedKey = 'qschool_user:' + key;
-    const localKey  = 'qschool_local:' + key;
     setMsg('처리 중...', '');
+    warnIfNotConfigured();
 
     const userData = { key, displayName, type: userType, createdAt: new Date().toISOString() };
 
-    // shared storage 사용 가능 여부 확인
-    const hasShared = typeof window.storage !== 'undefined';
-
     try {
       if (authMode === 'signup') {
-        if (hasShared) {
-          // ── 공유 DB에 저장 (다른 기기에서도 로그인 가능) ──
-          let existing = null;
-          try { existing = await window.storage.get(sharedKey, true); } catch(e) {}
-          if (existing) { setMsg('이미 가입된 정보입니다. 로그인을 이용해주세요.', 'error'); return; }
-          await window.storage.set(sharedKey, JSON.stringify(userData), true);
+        // ── 회원가입: 클라우드 DB에 저장 ──
+        const users = await cloudGetUsers();
+        if (users[key]) {
+          setMsg('이미 가입된 정보입니다. 로그인을 이용해주세요.', 'error');
+          return;
         }
-        // 로컬에도 백업 저장
-        localStorage.setItem(localKey, JSON.stringify(userData));
-        setMsg('✅ 회원가입 완료! 어떤 기기에서도 같은 정보로 로그인할 수 있어요.', 'success');
+        users[key] = userData;
+        await cloudSetUsers(users);
+        setMsg('✅ 회원가입 완료! 어떤 브라우저·기기에서도 로그인할 수 있어요.', 'success');
         switchAuthTab('login');
 
       } else {
-        // ── 로그인: 공유 DB 우선 → 로컬 폴백 ──
-        let user = null;
-
-        if (hasShared) {
-          try {
-            const result = await window.storage.get(sharedKey, true);
-            if (result) user = JSON.parse(result.value);
-          } catch(e) {}
-        }
-
-        // 공유 DB에 없으면 로컬에서 확인 (같은 기기에서 가입한 경우)
-        if (!user) {
-          const local = localStorage.getItem(localKey);
-          if (local) user = JSON.parse(local);
-        }
+        // ── 로그인: 클라우드 DB에서 조회 ──
+        const users = await cloudGetUsers();
+        const user = users[key] || null;
 
         if (!user) {
           setMsg('가입 정보를 찾을 수 없습니다. 먼저 회원가입을 해주세요.', 'error');
           return;
         }
 
-        // 세션 저장 (이 기기에서 자동 로그인)
+        // 세션 저장 (이 브라우저에서 자동 로그인용)
         localStorage.setItem('qschool_session', JSON.stringify(user));
-        // 로컬 백업도 갱신
-        localStorage.setItem(localKey, JSON.stringify(user));
         showCustomLoggedIn(user);
         setMsg('✅ 로그인 성공!', 'success');
         setTimeout(() => { closeAuthModal(); }, 700);
       }
     } catch(err) {
       console.error(err);
-      setMsg('오류가 발생했습니다. 다시 시도해주세요.', 'error');
+      setMsg('오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
     }
   }
 
@@ -3648,38 +3699,30 @@
     window.open('manager.html', '_blank');
   }
 
-  // 페이지 로드 시 세션 자동 복원 (로컬 캐시 우선, 클라우드에서 최신 정보 동기화)
+  // 페이지 로드 시 세션 자동 복원 (localStorage 세션 → 클라우드 유저 재확인)
   async function restoreSession() {
     try {
-      // 1. 로컬 세션 즉시 복원 (빠른 UI)
       const localResult = localStorage.getItem('qschool_session');
-      if (localResult) {
-        const user = JSON.parse(localResult);
-        showCustomLoggedIn(user);
-
-        // 2. 클라우드에서 최신 정보 동기화 (백그라운드)
-        if (typeof window.storage !== 'undefined' && user.key) {
-          try {
-            const cloudResult = await window.storage.get('qschool_user:' + user.key, true);
-            if (cloudResult) {
-              const cloudUser = JSON.parse(cloudResult.value);
-              // 클라우드 정보로 세션 갱신
-              localStorage.setItem('qschool_session', JSON.stringify(cloudUser));
-              showCustomLoggedIn(cloudUser);
-            }
-          } catch(e) {}
+      if (!localResult) return;
+      const cachedUser = JSON.parse(localResult);
+      // 1. 즉시 UI 복원 (빠른 반응)
+      showCustomLoggedIn(cachedUser);
+      // 2. 백그라운드에서 클라우드 유저 DB 재확인 후 정보 갱신
+      if (isCloudConfigured()) {
+        const users = await cloudGetUsers();
+        const freshUser = users[cachedUser.key];
+        if (freshUser) {
+          localStorage.setItem('qschool_session', JSON.stringify(freshUser));
+          showCustomLoggedIn(freshUser);
         }
       }
     } catch(e) {}
   }
 
-  // 로그아웃 시 shared session도 정리
+  // 로그아웃
   async function handleLogoutShared() {
     localStorage.removeItem('qschool_session');
     localStorage.removeItem('qschool_user');
-    if (typeof window.storage !== 'undefined') {
-      try { await window.storage.delete('session', false); } catch(e) {}
-    }
     document.querySelector('.custom-login-btn').style.display = 'inline-block';
     document.getElementById('navUser').style.display = 'none';
     document.getElementById('navAvatar').style.display = '';
@@ -3730,7 +3773,7 @@
     // 구글 로그인 복원
     const saved = localStorage.getItem('qschool_user');
     if (saved) { const user = JSON.parse(saved); showLoggedIn(user); }
-    // 커스텀 로그인 자동 복원 (persistent storage)
+    // 커스텀 로그인 자동 복원
     restoreSession();
     // Google Identity Services 초기화
     if (typeof google !== 'undefined' && GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID') {
@@ -3740,7 +3783,28 @@
         auto_select: false,
       });
     }
+    // JSONBin 미설정 시 관리자 안내 배너
+    if (!isCloudConfigured()) showJsonBinBanner();
   });
+
+  function showJsonBinBanner() {
+    const banner = document.createElement('div');
+    banner.id = 'jsonbin-banner';
+    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1e40af;color:white;padding:14px 24px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:Pretendard,sans-serif;box-shadow:0 -4px 20px rgba(0,0,0,.3);';
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:20px;">☁️</span>
+        <div>
+          <strong>클라우드 저장소 미설정</strong> — 지금은 이 브라우저에만 데이터가 저장됩니다.<br>
+          <span style="opacity:.85;">크롬·엣지 등 모든 브라우저에서 공유하려면 <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;">JSONBIN_KEY</code> / <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;">USERS_BIN_ID</code> / <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;">MYQ_BIN_ID</code> 를 index.html 상단에 입력하세요.</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <a href="https://jsonbin.io" target="_blank" style="background:white;color:#1e40af;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;text-decoration:none;">JSONBin 가입하기 →</a>
+        <button onclick="document.getElementById('jsonbin-banner').remove()" style="background:rgba(255,255,255,.15);border:none;color:white;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">✕ 닫기</button>
+      </div>`;
+    document.body.appendChild(banner);
+  }
   function showClientIdAlert() {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(5,5,20,.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px;';
