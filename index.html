@@ -3507,8 +3507,9 @@
         const r = await fetch(`${JSONBIN_BASE}/${USERS_BIN_ID}/latest`, { headers: JSONBIN_HDR });
         if (r.ok) {
           const d = await r.json();
-          // X-Bin-Meta:false → 응답이 데이터 자체 {"users":{...}}
-          const users = (d && d.users !== undefined) ? d.users : (d || {});
+          // JSONBin 응답: {"record":{...},"metadata":{...}} 또는 X-Bin-Meta:false 시 데이터 자체
+          const data = (d && d.record !== undefined) ? d.record : d;
+          const users = (data && data.users !== undefined) ? data.users : (data || {});
           localStorage.setItem(LC_USERS, JSON.stringify(users));
           return users;
         }
@@ -3521,11 +3522,12 @@
     localStorage.setItem(LC_USERS, JSON.stringify(users));
     if (isCloudConfigured()) {
       try {
-        await fetch(`${JSONBIN_BASE}/${USERS_BIN_ID}`, {
+        const r = await fetch(`${JSONBIN_BASE}/${USERS_BIN_ID}`, {
           method: 'PUT',
           headers: JSONBIN_HDR,
           body: JSON.stringify({ users })
         });
+        if (!r.ok) console.error('[cloudSetUsers] 저장 실패:', r.status);
       } catch(e) { console.error('[cloudSetUsers]', e); }
     }
   }
@@ -3537,12 +3539,13 @@
         const r = await fetch(`${JSONBIN_BASE}/${MYQ_BIN_ID}/latest`, { headers: JSONBIN_HDR });
         if (r.ok) {
           const d = await r.json();
-          // X-Bin-Meta:false → 응답이 데이터 자체 {"list":[...]}
+          // JSONBin 응답: {"record":{...},"metadata":{...}} 또는 X-Bin-Meta:false 시 데이터 자체
           let list = [];
-          if (Array.isArray(d)) {
-            list = d;
-          } else if (d && Array.isArray(d.list)) {
-            list = d.list;
+          const data = (d && d.record !== undefined) ? d.record : d;
+          if (Array.isArray(data)) {
+            list = data;
+          } else if (data && Array.isArray(data.list)) {
+            list = data.list;
           }
           localStorage.setItem(LC_MYQ, JSON.stringify(list));
           return list;
@@ -3556,11 +3559,12 @@
     localStorage.setItem(LC_MYQ, JSON.stringify(list));
     if (isCloudConfigured()) {
       try {
-        await fetch(`${JSONBIN_BASE}/${MYQ_BIN_ID}`, {
+        const r = await fetch(`${JSONBIN_BASE}/${MYQ_BIN_ID}`, {
           method: 'PUT',
           headers: JSONBIN_HDR,
           body: JSON.stringify({ list })
         });
+        if (!r.ok) console.error('[cloudSetMyQList] 저장 실패:', r.status);
       } catch(e) { console.error('[cloudSetMyQList]', e); }
     }
   }
