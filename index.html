@@ -4069,8 +4069,6 @@
     renderMyQList();
     try { renderPortfolio(); } catch(e) {}
     try { loadQGallery(); } catch(e) {}
-
-    // 저장 성공 피드백
     const orig = btn.textContent;
     btn.textContent = '✅ 저장되었습니다!';
     setTimeout(() => { btn.textContent = orig; }, 1800);
@@ -5734,7 +5732,7 @@ JSON 형식으로만 반환:
     board.style.display   = 'none';
 
     try {
-      // 클라우드(공유) 저장소에서 읽기 — 로그인 없이 누구나 열람
+      // 필터 버튼 클릭 시에는 클라우드 재요청, 초기 로드 시에는 캐시 사용
       const all = await cloudGetMyQList();
 
       // 필터 적용 (학생만 표시)
@@ -5784,8 +5782,7 @@ JSON 형식으로만 반환:
     }).join('');
   }
 
-  // 페이지 로드 시 갤러리 초기 로드
-  window.addEventListener('load', () => { loadQGallery(); });
+  // 페이지 로드 시 갤러리 초기 로드 (메인 init에서 통합 관리)
 
   async function renderMyQList() {
     const saved = await cloudGetMyQList();
@@ -5841,11 +5838,13 @@ JSON 형식으로만 반환:
     loadQGallery();
   }
 
-  // 페이지 로드 시 질문 목록 + 포트폴리오 복원 (클라우드에서 불러오기)
+  // 페이지 로드 시 질문 목록 + 포트폴리오 + 갤러리 순서대로 복원 (클라우드에서 한 번만 읽기)
   window.addEventListener('load', async () => {
-    // 클라우드 → 로컬 캐시 동기화 후 렌더링
+    // 클라우드에서 데이터 한 번만 읽어서 로컬 캐시에 저장 후 모두 렌더링
+    await cloudGetMyQList(); // 클라우드 → 로컬 캐시 동기화
     await renderMyQList();
     await renderPortfolio();
+    await loadQGallery();
   });
 
   // ── 교과 수업 모달 ──
