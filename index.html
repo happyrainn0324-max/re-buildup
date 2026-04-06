@@ -3487,7 +3487,7 @@
   const MYQ_BIN_ID    = '69d2f799aaba882197c9fcde';
 
   const JSONBIN_BASE  = 'https://api.jsonbin.io/v3/b';
-  const JSONBIN_HDR   = { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Versioning': 'false' };
+  const JSONBIN_HDR   = { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Versioning': 'false', 'X-Bin-Meta': 'false' };
 
   // ── 설정 여부 확인 ──
   function isCloudConfigured() {
@@ -3507,26 +3507,26 @@
         const r = await fetch(`${JSONBIN_BASE}/${USERS_BIN_ID}/latest`, { headers: JSONBIN_HDR });
         if (r.ok) {
           const d = await r.json();
-          const users = d.record || {};
-          localStorage.setItem(LC_USERS, JSON.stringify(users)); // 캐시 갱신
+          // X-Bin-Meta:false → 응답이 데이터 자체 {"users":{...}}
+          const users = (d && d.users !== undefined) ? d.users : (d || {});
+          localStorage.setItem(LC_USERS, JSON.stringify(users));
           return users;
         }
-      } catch(e) {}
+      } catch(e) { console.error('[cloudGetUsers]', e); }
     }
-    // 폴백: 로컬 캐시
     try { return JSON.parse(localStorage.getItem(LC_USERS) || '{}'); } catch(e) { return {}; }
   }
 
   async function cloudSetUsers(users) {
-    localStorage.setItem(LC_USERS, JSON.stringify(users)); // 즉시 로컬 반영
+    localStorage.setItem(LC_USERS, JSON.stringify(users));
     if (isCloudConfigured()) {
       try {
         await fetch(`${JSONBIN_BASE}/${USERS_BIN_ID}`, {
           method: 'PUT',
           headers: JSONBIN_HDR,
-          body: JSON.stringify(users)
+          body: JSON.stringify({ users })
         });
-      } catch(e) {}
+      } catch(e) { console.error('[cloudSetUsers]', e); }
     }
   }
 
@@ -3537,26 +3537,31 @@
         const r = await fetch(`${JSONBIN_BASE}/${MYQ_BIN_ID}/latest`, { headers: JSONBIN_HDR });
         if (r.ok) {
           const d = await r.json();
-          const list = d.record || [];
-          localStorage.setItem(LC_MYQ, JSON.stringify(list)); // 캐시 갱신
+          // X-Bin-Meta:false → 응답이 데이터 자체 {"list":[...]}
+          let list = [];
+          if (Array.isArray(d)) {
+            list = d;
+          } else if (d && Array.isArray(d.list)) {
+            list = d.list;
+          }
+          localStorage.setItem(LC_MYQ, JSON.stringify(list));
           return list;
         }
-      } catch(e) {}
+      } catch(e) { console.error('[cloudGetMyQList]', e); }
     }
-    // 폴백: 로컬 캐시
     try { return JSON.parse(localStorage.getItem(LC_MYQ) || '[]'); } catch(e) { return []; }
   }
 
   async function cloudSetMyQList(list) {
-    localStorage.setItem(LC_MYQ, JSON.stringify(list)); // 즉시 로컬 반영
+    localStorage.setItem(LC_MYQ, JSON.stringify(list));
     if (isCloudConfigured()) {
       try {
         await fetch(`${JSONBIN_BASE}/${MYQ_BIN_ID}`, {
           method: 'PUT',
           headers: JSONBIN_HDR,
-          body: JSON.stringify(list)
+          body: JSON.stringify({ list })
         });
-      } catch(e) {}
+      } catch(e) { console.error('[cloudSetMyQList]', e); }
     }
   }
 
