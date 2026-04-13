@@ -4711,8 +4711,112 @@ function toggleHighschool(id) {
   document.getElementById('dream-highschool').value = vals.join(', ');
 }
 
+/* ── 나만의 진로 로드맵 AI 생성 ── */
+var CAREER_API_KEY = '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';
+
+async function generateCareerRoadmap() {
+  var like       = (document.getElementById('dream-like')       || {}).value  || '';
+  var good       = (document.getElementById('dream-good')       || {}).value  || '';
+  var value      = (document.getElementById('dream-value')      || {}).value  || '';
+  var highschool = (document.getElementById('dream-highschool') || {}).value  || '';
+  var univ       = (document.getElementById('dream-univ')       || {}).value  || '';
+  var major      = (document.getElementById('dream-major')      || {}).value  || '';
+  var job        = (document.getElementById('dream-job')        || {}).value  || '';
+
+  like = like.trim(); good = good.trim(); value = value.trim();
+
+  if (!like && !good && !value) {
+    showToast('❗ 좋아하는 것, 잘하는 것, 가치관 중 하나 이상을 입력해주세요!');
+    return;
+  }
+
+  /* 로딩 시작 */
+  document.getElementById('dream-form-area').style.display = 'none';
+  document.getElementById('dream-loading').style.display   = 'block';
+  document.getElementById('dream-result').style.display    = 'none';
+
+  var bar = document.getElementById('dream-loading-bar');
+  var prog = 0;
+  var timer = setInterval(function() {
+    prog = Math.min(prog + Math.random() * 7, 85);
+    if (bar) bar.style.width = prog + '%';
+  }, 350);
+
+  /* 프롬프트 조합 */
+  var userMsg =
+    '저는 RE-BUILD-UP 플랫폼을 사용하는 청소년입니다.\n\n' +
+    '❤️ 좋아하는 것: ' + (like  || '미입력') + '\n' +
+    '💪 잘하는 것: '   + (good  || '미입력') + '\n' +
+    '🌟 중요한 가치관: ' + (value || '미입력') + '\n' +
+    (highschool ? '🏫 희망 고교: ' + highschool + '\n' : '') +
+    (univ       ? '🏛️ 희망 대학: ' + univ       + '\n' : '') +
+    (major      ? '📚 희망 학과: ' + major      + '\n' : '') +
+    (job        ? '🚀 희망 직업/꿈: ' + job      + '\n' : '') +
+    '\n위 정보를 바탕으로 나만의 진로 로드맵을 설계해주세요.';
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': CAREER_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-calls': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1200,
+        system:
+          '당신은 RE-BUILD-UP 플랫폼의 커리어 디자이너 AI입니다.\n' +
+          '청소년의 회복과 성장을 돕는 따뜻하고 전문적인 진로 상담사 역할을 합니다.\n\n' +
+          '반드시 아래 형식으로만 응답하세요.\n\n' +
+          '강점키워드: 키워드1, 키워드2, 키워드3, 키워드4, 키워드5\n\n' +
+          '[나만의 강점 분석]\n' +
+          '학생의 강점을 따뜻하게 2~3문장으로 요약.\n\n' +
+          '[추천 진로 Top3]\n' +
+          '1. 직업명: 추천 이유 1~2문장\n' +
+          '2. 직업명: 추천 이유 1~2문장\n' +
+          '3. 직업명: 추천 이유 1~2문장\n\n' +
+          '[커리어 로드맵]\n' +
+          '중학교 → 고등학교 → 대학/취업 단계별 준비 방법 3~5문장.\n\n' +
+          '[응원 메시지]\n' +
+          '따뜻한 응원 한마디 2문장 이내.',
+        messages: [{ role: 'user', content: userMsg }]
+      })
+    });
+
+    var data = await res.json();
+
+    if (!res.ok) {
+      throw new Error((data.error && data.error.message) || 'API 오류 ' + res.status);
+    }
+
+    var text = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    if (!text) throw new Error('응답 내용이 비어 있습니다.');
+
+    clearInterval(timer);
+    if (bar) bar.style.width = '100%';
+
+    window._dreamData = { like: like, good: good, value: value,
+      highschool: highschool, univ: univ, major: major, job: job, roadmap: text };
+
+    setTimeout(function() {
+      document.getElementById('dream-loading').style.display = 'none';
+      document.getElementById('dream-result').style.display  = 'block';
+      renderDreamResult(text);
+    }, 400);
+
+  } catch (err) {
+    clearInterval(timer);
+    document.getElementById('dream-loading').style.display   = 'none';
+    document.getElementById('dream-form-area').style.display = 'block';
+    console.error('Career AI error:', err);
+    showToast('⚠️ AI 연결에 실패했어요. API 키를 확인하거나 잠시 후 다시 시도해주세요.\n(' + err.message + ')');
+  }
+}
+
 function resetCareerRoadmap() {
-  document.getElementById('dream-result').style.display = 'none';
+  document.getElementById('dream-result').style.display    = 'none';
   document.getElementById('dream-form-area').style.display = 'block';
 }
 
