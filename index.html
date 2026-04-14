@@ -4914,10 +4914,20 @@ async function generateCareerRoadmap() {
     '학생의 강점과 꿈을 언급하며 진심 어린 응원 메시지를 3~4문장으로 작성하세요.';
 
   try {
-    var res = await fetch('/.netlify/functions/claude', {
+    var _apiKey = window._rbuApiKey || localStorage.getItem('rbu_api_key') || '';
+    if (!_apiKey) {
+      _apiKey = prompt('🔑 Anthropic API 키를 입력하세요\n(console.anthropic.com에서 발급)\n\nsk-ant-api03-...');
+      if (_apiKey) { _apiKey = _apiKey.trim(); window._rbuApiKey = _apiKey; localStorage.setItem('rbu_api_key', _apiKey); }
+    }
+    if (!_apiKey) throw new Error('API 키가 입력되지 않았습니다.');
+
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-api-key': _apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
@@ -4930,6 +4940,7 @@ async function generateCareerRoadmap() {
     var data = await res.json();
 
     if (!res.ok) {
+      if (res.status === 401) { window._rbuApiKey = ''; localStorage.removeItem('rbu_api_key'); }
       throw new Error((data.error && data.error.message) || 'API 오류 ' + res.status);
     }
 
@@ -6517,10 +6528,20 @@ function savePlannerToPdf() {
       '\n[주의] 학생이 쓴 구체적인 단어와 표현을 그대로 사용하세요. 일반적인 위로 금지. 5문장 한 문단만 출력하세요.';
 
     try {
-      var res = await fetch('/.netlify/functions/claude', {
+      var _apiKey2 = window._rbuApiKey || localStorage.getItem('rbu_api_key') || '';
+      if (!_apiKey2) {
+        _apiKey2 = prompt('🔑 Anthropic API 키를 입력하세요\n(console.anthropic.com에서 발급)\n\nsk-ant-api03-...');
+        if (_apiKey2) { _apiKey2 = _apiKey2.trim(); window._rbuApiKey = _apiKey2; localStorage.setItem('rbu_api_key', _apiKey2); }
+      }
+      if (!_apiKey2) throw new Error('API 키가 입력되지 않았습니다.');
+
+      var res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': _apiKey2,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
