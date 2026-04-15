@@ -4914,14 +4914,9 @@ async function generateCareerRoadmap() {
     '학생의 강점과 꿈을 언급하며 진심 어린 응원 메시지를 3~4문장으로 작성하세요.';
 
   try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+    var res = await fetch('/.netlify/functions/claude', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': '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',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
@@ -6527,14 +6522,9 @@ function savePlannerToPdf() {
       '\n[주의] 학생이 쓴 구체적인 단어와 표현을 그대로 사용하세요. 일반적인 위로 금지. 5문장 한 문단만 출력하세요.';
 
     try {
-      var res = await fetch('https://api.anthropic.com/v1/messages', {
+      var res = await fetch('/.netlify/functions/claude', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': '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',
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 600,
