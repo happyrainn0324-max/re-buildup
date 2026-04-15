@@ -4914,9 +4914,14 @@ async function generateCareerRoadmap() {
     '학생의 강점과 꿈을 언급하며 진심 어린 응원 메시지를 3~4문장으로 작성하세요.';
 
   try {
-    var res = await fetch('/api/claude', {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': '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',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
@@ -6349,36 +6354,42 @@ function savePlannerToPdf() {
   var cdLastInput = '';
 
   function analyzeDiary() {
-    var d1 = document.getElementById('diary-1').value.trim();
-    var d2 = document.getElementById('diary-2').value.trim();
-    var d3 = document.getElementById('diary-3').value.trim();
+    var d1El = document.getElementById('diary-1');
+    var d2El = document.getElementById('diary-2');
+    var d3El = document.getElementById('diary-3');
+    if (!d1El || !d2El || !d3El) return;
+    var d1 = d1El.value.trim();
+    var d2 = d2El.value.trim();
+    var d3 = d3El.value.trim();
     var filledCount = [d1,d2,d3].filter(d => d.length > 2).length;
 
     // 3문장 모두 입력해야 버튼 활성화
     var btn = document.getElementById('diary-submit-btn');
-    if (filledCount >= 3) {
-      btn.disabled = false;
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-    } else {
-      btn.disabled = true;
-      btn.style.opacity = '0.4';
-      btn.style.cursor = 'not-allowed';
+    if (btn) {
+      if (filledCount >= 3) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+      } else {
+        btn.disabled = true;
+        btn.style.opacity = '0.4';
+        btn.style.cursor = 'not-allowed';
+      }
     }
 
     if(filledCount === 0) {
-      document.getElementById('diary-empty').style.display = 'block';
-      document.getElementById('diary-preview').style.display = 'none';
-      document.getElementById('diary-result').style.display = 'none';
+      var emEl = document.getElementById('diary-empty'); if(emEl) emEl.style.display = 'block';
+      var pvEl = document.getElementById('diary-preview'); if(pvEl) pvEl.style.display = 'none';
+      var rsEl = document.getElementById('diary-result'); if(rsEl) rsEl.style.display = 'none';
       return;
     }
 
     // 입력 중 미리보기
     var allText = d1 + ' ' + d2 + ' ' + d3;
     var totalLen = d1.length + d2.length + d3.length;
-    document.getElementById('diary-empty').style.display = 'none';
-    document.getElementById('diary-preview').style.display = 'block';
-    document.getElementById('diary-result').style.display = 'none';
+    var em2 = document.getElementById('diary-empty'); if(em2) em2.style.display = 'none';
+    var pv2 = document.getElementById('diary-preview'); if(pv2) pv2.style.display = 'block';
+    var rs2 = document.getElementById('diary-result'); if(rs2) rs2.style.display = 'none';
 
     var rScore = calcResilience(allText, totalLen, filledCount);
     var cScore = calcCareer(allText, totalLen, filledCount);
@@ -6398,7 +6409,7 @@ function savePlannerToPdf() {
     score += filled * 10;
     score += Math.min(countKeywords(text, resilienceKeywords) * 8, 30);
     score += Math.min(Math.floor(len / 20), 15);
-    var d2 = document.getElementById('diary-2').value;
+    var d2El2 = document.getElementById('diary-2'); var d2 = d2El2 ? d2El2.value : '';
     if(d2.includes('해냈') || d2.includes('뿌듯') || d2.includes('잘했') || d2.includes('괜찮') || d2.includes('버텼')) score += 10;
     return Math.min(Math.max(score, 20), 95);
   }
@@ -6408,7 +6419,7 @@ function savePlannerToPdf() {
     score += filled * 8;
     score += Math.min(countKeywords(text, careerKeywords) * 10, 35);
     score += Math.min(Math.floor(len / 25), 12);
-    var d3 = document.getElementById('diary-3').value;
+    var d3El3 = document.getElementById('diary-3'); var d3 = d3El3 ? d3El3.value : '';
     if(d3.includes('할게') || d3.includes('할거') || d3.includes('도전') || d3.includes('목표') || d3.includes('노력') || d3.includes('해볼')) score += 12;
     return Math.min(Math.max(score, 15), 92);
   }
@@ -6516,9 +6527,14 @@ function savePlannerToPdf() {
       '\n[주의] 학생이 쓴 구체적인 단어와 표현을 그대로 사용하세요. 일반적인 위로 금지. 5문장 한 문단만 출력하세요.';
 
     try {
-      var res = await fetch('/api/claude', {
+      var res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': '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',
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 600,
