@@ -3,7 +3,7 @@
 
 [[redirects]]
   from = "/api/claude"
-  to = "/.netlify/functions/ai"
+  to = "/.netlify/functions/claude"
   status = 200
 
 [[headers]]
