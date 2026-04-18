@@ -1,19 +1,18 @@
 exports.handler = async function(event, context) {
-
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json'
-  };
-
-  // CORS preflight
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: ''
+    };
   }
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers, body: JSON.stringify({ error: '허용되지 않는 방법' }) };
+    return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
   try {
@@ -31,25 +30,20 @@ exports.handler = async function(event, context) {
 
     const data = await response.json();
 
-    if (!response.ok) {
-      return {
-        statusCode: response.status,
-        headers,
-        body: JSON.stringify({ error: data.error || 'API 오류' })
-      };
-    }
-
     return {
-      statusCode: 200,
-      headers,
+      statusCode: response.status,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(data)
     };
 
   } catch (err) {
     return {
       statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: err.message })
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: { message: err.message } })
     };
   }
 };
