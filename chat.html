@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>RE-BUILD-UP 채팅</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: #F0F4F8;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 앱 헤더 ── */
+.app-header {
+  background: #fff;
+  padding: calc(var(--safe-top) + 12px) 20px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #E5EAF0;
+  flex-shrink: 0;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  z-index: 100;
+}
+.app-header .logo {
+  font-size: 17px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #6366F1, #EC4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.app-header .back-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: #F0F4F8;
+  font-size: 18px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+}
+.app-header .back-btn.visible { display: flex; }
+.app-header .chat-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  display: none;
+}
+.app-header .chat-title.visible { display: block; }
+.app-header .placeholder { width: 36px; }
+
+/* ── 홈 화면 ── */
+#home-screen {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px calc(var(--safe-bottom) + 20px);
+}
+
+.home-greeting {
+  text-align: center;
+  padding: 20px 0 24px;
+}
+.home-greeting .emoji { font-size: 40px; margin-bottom: 10px; }
+.home-greeting h2 { font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 6px; }
+.home-greeting p { font-size: 13px; color: #64748B; line-height: 1.6; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94A3B8;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
+
+/* ── 챗봇 카드 ── */
+.bot-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.bot-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.bot-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 20px 0 0 20px;
+}
+.bot-card:active { transform: scale(0.97); }
+
+.bot-card.maum::before  { background: #F472B6; }
+.bot-card.dream::before { background: #6366F1; }
+.bot-card.tutor::before { background: #10B981; }
+.bot-card.waggle::before { background: #F59E0B; }
+
+.bot-avatar {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.bot-card.maum  .bot-avatar { background: #FFF0F6; }
+.bot-card.dream .bot-avatar { background: #EEF2FF; }
+.bot-card.tutor .bot-avatar { background: #ECFDF5; }
+.bot-card.waggle .bot-avatar { background: #FFFBEB; }
+
+.bot-info { flex: 1; min-width: 0; }
+.bot-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 3px;
+}
+.bot-desc {
+  font-size: 12px;
+  color: #64748B;
+  line-height: 1.5;
+}
+.bot-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+.bot-card.maum  .bot-tag { background: #FFF0F6; color: #BE185D; }
+.bot-card.dream .bot-tag { background: #EEF2FF; color: #4338CA; }
+.bot-card.tutor .bot-tag { background: #ECFDF5; color: #065F46; }
+.bot-card.waggle .bot-tag { background: #FFFBEB; color: #92400E; }
+
+.arrow-icon { color: #CBD5E1; font-size: 16px; flex-shrink: 0; }
+
+/* ── 채팅 화면 ── */
+#chat-screen {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+#chat-screen.active { display: flex; }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 날짜 구분 */
+.date-chip {
+  text-align: center;
+  font-size: 11px;
+  color: #94A3B8;
+  font-weight: 600;
+  background: #E2E8F0;
+  padding: 4px 12px;
+  border-radius: 99px;
+  align-self: center;
+  margin: 4px 0;
+}
+
+/* 말풍선 */
+.msg-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.msg-row.user { flex-direction: row-reverse; }
+
+.msg-avatar {
+  width: 30px; height: 30px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.msg-bubble-wrap { display: flex; flex-direction: column; max-width: 75%; }
+.msg-row.user .msg-bubble-wrap { align-items: flex-end; }
+
+.msg-sender {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94A3B8;
+  margin-bottom: 4px;
+  padding-left: 2px;
+}
+
+.msg-bubble {
+  padding: 11px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.msg-row.bot  .msg-bubble { background: #fff; border: 1px solid #E5EAF0; border-top-left-radius: 4px; color: #1E293B; }
+.msg-row.user .msg-bubble { border-bottom-right-radius: 4px; color: #fff; }
+
+.msg-time {
+  font-size: 10px;
+  color: #CBD5E1;
+  margin-top: 4px;
+  padding: 0 2px;
+}
+
+/* 타이핑 인디케이터 */
+.typing-bubble {
+  background: #fff;
+  border: 1px solid #E5EAF0;
+  border-radius: 18px;
+  border-top-left-radius: 4px;
+  padding: 12px 16px;
+  display: flex; gap: 5px; align-items: center;
+}
+.typing-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #CBD5E1;
+  animation: typingPulse 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingPulse { 0%,80%,100%{opacity:0.3;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+/* 입력창 */
+.chat-input-wrap {
+  background: #fff;
+  border-top: 1px solid #E5EAF0;
+  padding: 10px 12px calc(var(--safe-bottom) + 10px);
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  background: #F1F5F9;
+  border: 1.5px solid transparent;
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #1E293B;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  max-height: 120px;
+  overflow-y: auto;
+  transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(--bot-color); background: #fff; }
+.chat-input::placeholder { color: #94A3B8; }
+
+.send-btn {
+  width: 42px; height: 42px;
+  border-radius: 14px;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: opacity 0.2s, transform 0.15s;
+  background: var(--bot-color);
+  color: #fff;
+}
+.send-btn:active { transform: scale(0.92); opacity: 0.85; }
+.send-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* 빠른 질문 칩 */
+.quick-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 16px 0;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.quick-chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid;
+  white-space: nowrap;
+  transition: all 0.15s;
+  background: #fff;
+}
+.chip:active { opacity: 0.7; }
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg-row { animation: fadeSlideUp 0.25s ease; }
+</style>
+</head>
+<body>
+
+<!-- 앱 헤더 -->
+<div class="app-header">
+  <button class="back-btn" id="back-btn" onclick="goHome()">←</button>
+  <div class="logo" id="header-logo">RE-BUILD-UP</div>
+  <div class="chat-title" id="header-title"></div>
+  <div class="placeholder"></div>
+</div>
+
+<!-- 홈 화면 -->
+<div id="home-screen">
+  <div class="home-greeting">
+    <div class="emoji">🌱</div>
+    <h2>오늘 누구와 이야기할까요?</h2>
+    <p>언제든 편하게 — 여기서 이야기해요</p>
+  </div>
+
+  <div class="section-label">채팅 친구 선택</div>
+  <div class="bot-cards">
+
+    <div class="bot-card maum" onclick="openChat('maum')">
+      <div class="bot-avatar">💗</div>
+      <div class="bot-info">
+        <div class="bot-name">마음톡톡</div>
+        <div class="bot-desc">힘든 마음 꺼내놓아요<br/>위로·응원·용기를 드려요</div>
+      </div>
+      <div class="bot-tag">상담</div>
+      <div class="arrow-icon">›</div>
+    </div>
+
+    <div class="bot-card dream" onclick="openChat('dream')">
+      <div class="bot-avatar">🌟</div>
+      <div class="bot-info">
+        <div class="bot-name">드림멘토</div>
+        <div class="bot-desc">진로·학습·입시 방향 제안<br/>직업·학과·미래 고민 상담</div>
+      </div>
+      <div class="bot-tag">진로</div>
+      <div class="arrow-icon">›</div>
+    </div>
+
+    <div class="bot-card tutor" onclick="openChat('tutor')">
+      <div class="bot-avatar">🧑‍🏫</div>
+      <div class="bot-info">
+        <div class="bot-name">마이튜터</div>
+        <div class="bot-desc">모르는 교과 내용 질문해요<br/>기초부터 차근차근 설명해요</div>
+      </div>
+      <div class="bot-tag">학습</div>
+      <div class="arrow-icon">›</div>
+    </div>
+
+    <div class="bot-card waggle" onclick="openChat('waggle')">
+      <div class="bot-avatar">😊</div>
+      <div class="bot-info">
+        <div class="bot-name">와글와글</div>
+        <div class="bot-desc">친구처럼 아무 말이나 OK<br/>오늘 있었던 일 다 털어봐요</div>
+      </div>
+      <div class="bot-tag">일상</div>
+      <div class="arrow-icon">›</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 채팅 화면 -->
+<div id="chat-screen">
+  <div class="quick-chips" id="quick-chips"></div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-input-wrap">
+    <textarea class="chat-input" id="chat-input"
+      placeholder="메시지를 입력하세요..."
+      rows="1"
+      oninput="autoResize(this)"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMsg()">↑</button>
+  </div>
+</div>
+
+<script>
+/* ══ 챗봇 설정 ══ */
+const BOTS = {
+  maum: {
+    name: '마음톡톡',
+    emoji: '💗',
+    color: '#F472B6',
+    avatarBg: '#FFF0F6',
+    bubbleColor: '#FFF0F6',
+    userBubble: 'linear-gradient(135deg,#F472B6,#FB7185)',
+    system: `당신은 "마음톡톡"입니다. 위클래스 상담선생님처럼 학생의 마음을 따뜻하게 들어주는 상담 챗봇이에요.
+규칙:
+- 학생의 감정을 먼저 공감하고 인정해주세요. 절대 평가하거나 판단하지 마세요.
+- "힘들었겠다", "그랬구나", "네 마음이 느껴져" 같은 공감 언어를 자연스럽게 사용하세요.
+- 위로와 응원, 용기를 주는 방식으로 대화하세요.
+- 해결책을 강요하지 말고, 학생이 스스로 이야기할 수 있도록 열린 질문을 하세요.
+- 반말이 아닌 다정한 존댓말, 짧고 따뜻한 문장으로 대화하세요.
+- 답변은 3문장 이내로 간결하게, 줄바꿈 없이 이어서 쓰세요.
+- 위기 상황(자해, 자살 언급)이 감지되면 즉시 전문 상담 기관(1393, 청소년전화 1388)을 안내하세요.`,
+    greet: '안녕하세요 💗 마음이 많이 무거운 날도 있죠. 오늘 어떤 마음으로 여기 왔는지 편하게 이야기해줘요.',
+    chips: ['요즘 너무 힘들어요', '학교가 가기 싫어요', '친구 관계가 어려워요', '가족이랑 싸웠어요', '아무것도 하기 싫어요']
+  },
+  dream: {
+    name: '드림멘토',
+    emoji: '🌟',
+    color: '#6366F1',
+    avatarBg: '#EEF2FF',
+    userBubble: 'linear-gradient(135deg,#6366F1,#818CF8)',
+    system: `당신은 "드림멘토"입니다. 진로 전문 선생님처럼 학생의 학습과 진로 방향을 안내해주는 챗봇이에요.
+규칙:
+- 학생의 관심사와 강점을 먼저 파악하고, 그에 맞는 진로 방향을 구체적으로 제안하세요.
+- 입시(수능, 내신, 학생부), 직업, 학과, 대학, 취업에 관한 실용적인 정보를 제공하세요.
+- 성적이 낮거나 위기 상황에 있는 학생에게도 가능한 현실적인 경로를 희망적으로 안내하세요.
+- 모든 직업과 진로에 가치 있음을 강조하세요.
+- 다정한 존댓말, 구체적이고 실용적인 답변으로 대화하세요.
+- 답변은 3-4문장으로, 줄바꿈 없이 이어서 쓰세요.`,
+    greet: '안녕하세요! 드림멘토예요 🌟 진로 고민, 입시 걱정, 직업 궁금증 — 뭐든 편하게 물어보세요. 함께 방향을 찾아볼게요!',
+    chips: ['어떤 직업이 좋을까요', '내 성적으로 갈 수 있는 대학', '진로를 모르겠어요', '학생부에 뭘 써야 해요', '고졸로도 할 수 있는 일']
+  },
+  tutor: {
+    name: '마이튜터',
+    emoji: '🧑‍🏫',
+    color: '#10B981',
+    avatarBg: '#ECFDF5',
+    userBubble: 'linear-gradient(135deg,#10B981,#34D399)',
+    system: `당신은 "마이튜터"입니다. 중·고등학생의 교과 학습을 도와주는 튜터 챗봇이에요.
+규칙:
+- 학생이 질문한 개념을 기초부터 차근차근, 쉬운 비유와 예시를 들어 설명하세요.
+- 어려운 용어는 쉽게 풀어서 설명하고, 핵심 포인트를 명확히 짚어주세요.
+- 학생이 이해했는지 확인하는 질문을 자연스럽게 넣으세요.
+- 틀린 것을 지적할 때도 "좋은 시도예요!" 처럼 긍정적으로 시작하세요.
+- 모든 과목(국어, 수학, 영어, 과학, 사회, 역사, 도덕 등) 질문에 답변 가능해야 해요.
+- 다정한 존댓말, 명확하고 구체적인 설명으로 대화하세요.
+- 답변은 줄바꿈 없이 이어서 쓰되, 이해하기 쉽게 설명하세요.`,
+    greet: '안녕하세요! 마이튜터예요 🧑‍🏫 어떤 과목이든, 어떤 개념이든 기초부터 설명해드릴게요. 모르는 거 있으면 뭐든 물어보세요!',
+    chips: ['1차 방정식이 뭐예요', '광합성을 쉽게 설명해줘', '영어 시제가 헷갈려요', '삼국시대 정리해줘', '확률 계산 방법']
+  },
+  waggle: {
+    name: '와글와글',
+    emoji: '😊',
+    color: '#F59E0B',
+    avatarBg: '#FFFBEB',
+    userBubble: 'linear-gradient(135deg,#F59E0B,#FBBF24)',
+    system: `당신은 "와글와글"입니다. 학생의 친구처럼 편안하게 일상 대화를 나눠주는 챗봇이에요.
+규칙:
+- 학생이 하는 어떤 이야기든 재미있게, 친구처럼 반응해주세요.
+- 게임, 유튜브, 아이돌, 학교생활, 음식, 일상 이야기 등 모든 주제에 자연스럽게 대화하세요.
+- 이모지를 적절히 사용해서 밝고 유쾌한 분위기를 만들어요.
+- 판단하거나 가르치려 하지 말고, 친구처럼 공감하고 같이 즐거워하세요.
+- 존댓말보다는 친근한 어투(~요 체)를 사용하되, 너무 반말은 쓰지 마세요.
+- 답변은 짧고 생동감 있게, 2-3문장으로 대화하듯 써요.`,
+    greet: '안녕! 나 와글와글이야 😊 오늘 뭐했어? 재밌는 일 있었어? 아무 얘기나 해봐요~',
+    chips: ['오늘 학교에서 있었던 일', '요즘 뭐가 재밌어요?', '추천 유튜브 있어요?', '오늘 뭐 먹을까요', '😂 웃긴 얘기 해줘']
+  }
+};
+
+/* ── 상태 ── */
+let currentBot = null;
+let history = { maum: [], dream: [], tutor: [], waggle: [] };
+
+/* ── 홈 → 채팅 ── */
+function openChat(botKey) {
+  currentBot = botKey;
+  const bot = BOTS[botKey];
+
+  // 헤더 전환
+  document.getElementById('header-logo').style.display = 'none';
+  document.getElementById('header-title').textContent = bot.emoji + ' ' + bot.name;
+  document.getElementById('header-title').classList.add('visible');
+  document.getElementById('back-btn').classList.add('visible');
+
+  // CSS 변수 설정
+  document.documentElement.style.setProperty('--bot-color', bot.color);
+
+  // 화면 전환
+  document.getElementById('home-screen').style.display = 'none';
+  const chatScreen = document.getElementById('chat-screen');
+  chatScreen.classList.add('active');
+
+  // 빠른 질문 칩
+  const chipsEl = document.getElementById('quick-chips');
+  chipsEl.innerHTML = bot.chips.map(c =>
+    `<div class="chip" style="color:${bot.color};border-color:${bot.color}22;background:${bot.color}11;" onclick="sendChip('${c.replace(/'/g,"\\'")}')">${c}</div>`
+  ).join('');
+
+  // 기존 대화 없으면 첫 인사
+  const msgsEl = document.getElementById('chat-messages');
+  if (history[botKey].length === 0) {
+    msgsEl.innerHTML = '';
+    appendBotMsg(bot.greet, botKey, false);
+  } else {
+    // 이전 대화 복원
+    msgsEl.innerHTML = '';
+    history[botKey].forEach(function(h) {
+      if (h.role === 'assistant') appendBotMsg(h.content, botKey, false);
+      else appendUserMsg(h.content, false);
+    });
+  }
+
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  setTimeout(function() { document.getElementById('chat-input').focus(); }, 300);
+}
+
+function goHome() {
+  document.getElementById('header-logo').style.display = '';
+  document.getElementById('header-title').classList.remove('visible');
+  document.getElementById('back-btn').classList.remove('visible');
+  document.getElementById('home-screen').style.display = '';
+  document.getElementById('chat-screen').classList.remove('active');
+  currentBot = null;
+}
+
+/* ── 메시지 렌더 ── */
+function now() {
+  return new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function appendUserMsg(text, animate) {
+  const bot = BOTS[currentBot];
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg-row user' + (animate !== false ? '' : '');
+  div.innerHTML =
+    '<div class="msg-bubble-wrap">' +
+      '<div class="msg-bubble" style="background:' + bot.userBubble + ';">' + esc(text) + '</div>' +
+      '<div class="msg-time">' + now() + '</div>' +
+    '</div>';
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function appendBotMsg(text, botKey, animate) {
+  const bot = BOTS[botKey || currentBot];
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg-row bot';
+  // 문장마다 줄바꿈
+  const formatted = esc(text).replace(/([.!?。])\s+/g, '$1<br>');
+  div.innerHTML =
+    '<div class="msg-avatar" style="background:' + bot.avatarBg + ';">' + bot.emoji + '</div>' +
+    '<div class="msg-bubble-wrap">' +
+      '<div class="msg-sender">' + bot.name + '</div>' +
+      '<div class="msg-bubble">' + formatted + '</div>' +
+      '<div class="msg-time">' + now() + '</div>' +
+    '</div>';
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function showTyping() {
+  const bot = BOTS[currentBot];
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg-row bot';
+  div.id = 'typing-indicator';
+  div.innerHTML =
+    '<div class="msg-avatar" style="background:' + bot.avatarBg + ';">' + bot.emoji + '</div>' +
+    '<div class="msg-bubble-wrap">' +
+      '<div class="msg-sender">' + bot.name + '</div>' +
+      '<div class="typing-bubble">' +
+        '<div class="typing-dot" style="background:' + bot.color + ';"></div>' +
+        '<div class="typing-dot" style="background:' + bot.color + ';"></div>' +
+        '<div class="typing-dot" style="background:' + bot.color + ';"></div>' +
+      '</div>' +
+    '</div>';
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── 전송 ── */
+function sendChip(text) {
+  document.getElementById('chat-input').value = text;
+  sendMsg();
+}
+
+async function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const btn = document.getElementById('send-btn');
+  const text = input.value.trim();
+  if (!text || !currentBot) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  btn.disabled = true;
+
+  const bot = BOTS[currentBot];
+  history[currentBot].push({ role: 'user', content: text });
+  appendUserMsg(text);
+  showTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 600,
+        system: bot.system,
+        messages: history[currentBot]
+      })
+    });
+    const data = await res.json();
+    const reply = (data.content && data.content[0] && data.content[0].text) || '잠깐 문제가 생겼어요. 다시 이야기해줄래요? 🙏';
+    history[currentBot].push({ role: 'assistant', content: reply });
+    removeTyping();
+    appendBotMsg(reply);
+  } catch(e) {
+    removeTyping();
+    appendBotMsg('네트워크 오류가 생겼어요. 잠시 후 다시 시도해주세요 🙏');
+  }
+
+  btn.disabled = false;
+  input.focus();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+</script>
+</body>
+</html>
