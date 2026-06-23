@@ -972,28 +972,31 @@ function saveMembers(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(MEMBERS));
 }
 
-/* index.html 가입자 데이터 읽기 */
-function syncFromIndex(){
+/* ── Supabase에서 회원 불러오기 ── */
+async function syncFromSupabase(){
   try {
-    // index.html은 rbu_users = { "email@x.com": { name, pw } } 구조로 저장
-    const users = JSON.parse(localStorage.getItem('rbu_users') || '{}');
-    let changed = false;
+    const res = await fetch('/.netlify/functions/getMembers');
+    if(!res.ok) { console.warn('getMembers fetch failed', res.status); return; }
+    const rows = await res.json();
+    if(!Array.isArray(rows)) return;
 
-    Object.entries(users).forEach(function([email, info]) {
-      const name = info.name || email.split('@')[0];
-      // 이미 MEMBERS에 있으면 건너뜀
-      if(MEMBERS.find(m => m.email === email)) return;
+    let changed = false;
+    rows.forEach(function(row){
+      const userkey = row.userkey || '';
+      if(MEMBERS.find(m => m.email === userkey)) return;
 
       const newM = {
         id: Date.now() + Math.random(),
-        name,
-        email,
+        name:      row.name      || userkey,
+        email:     userkey,
+        school:    row.school    || '–',
+        studentid: row.studentid || '–',
         phone: '–',
         section: 'B',
         resilience: 50,
         career: 40,
-        lastDate: fmtDate(today()),
-        joinDate: info.joinDate || fmtDate(today()),
+        lastDate:  (row.joined_at || fmtDate(today())).slice(0,10),
+        joinDate:  (row.joined_at || fmtDate(today())).slice(0,10),
         avColor: AV_COLORS[MEMBERS.length % AV_COLORS.length],
         responses: {},
         checkin: [],
@@ -1005,43 +1008,30 @@ function syncFromIndex(){
       changed = true;
     });
 
-    // 모든 회원의 활동 데이터 실시간 동기화
-    MEMBERS.forEach(function(m){
-      const email = m.email;
+    if(changed){ saveMembers(); }
+  } catch(e){ console.warn('syncFromSupabase error:', e); }
+}
 
-      // 회복 체크인 로그 (rbu_checkin_log_{email} — submitDiary 저장)
-      try {
-        const ciLogs = JSON.parse(localStorage.getItem('rbu_checkin_log_' + email) || '[]');
-        if(ciLogs.length > 0){
-          m.checkin = ciLogs;
-          const latestCi = ciLogs.reduce((mx, c) => c.date > mx ? c.date : mx, '');
-          if(latestCi > m.lastDate) m.lastDate = latestCi;
-        }
-      } catch(e){}
-
-      // 버킷리스트
-      try {
-        const bk = JSON.parse(localStorage.getItem('rbu_bucket_' + email) || '{}');
-        if(bk.b1 || bk.b2 || bk.b3){
-          m.bucket = [{ date: m.lastDate, b1: bk.b1||'', b2: bk.b2||'', b3: bk.b3||'' }];
-        }
-      } catch(e){}
-
-      // 필사
-      try {
-        const ps = JSON.parse(localStorage.getItem('rbu_passages_' + email) || '[]');
-        if(ps.length) m.passage = ps;
-      } catch(e){}
-
-      // 히어로 게임 점수 (개인별)
-      try {
-        const hs = parseInt(localStorage.getItem('hero_score_' + email) || '0');
-        const hc = parseInt(localStorage.getItem('hero_cards_' + email) || '0');
-        if(hs > 0) m.heroScore = hs;
-        if(hc > 0) m.heroCards = hc;
-      } catch(e){}
+/* index.html 가입자 데이터 읽기 (레거시 — localStorage 브라우저 공유 시에만 동작) */
+function syncFromIndex(){
+  try {
+    const users = JSON.parse(localStorage.getItem('rbu_users') || '{}');
+    let changed = false;
+    Object.entries(users).forEach(function([email, info]) {
+      const name = info.name || email.split('@')[0];
+      if(MEMBERS.find(m => m.email === email)) return;
+      const newM = {
+        id: Date.now() + Math.random(),
+        name, email, phone: '–', section: 'B',
+        resilience: 50, career: 40,
+        lastDate: fmtDate(today()),
+        joinDate: info.joinDate || fmtDate(today()),
+        avColor: AV_COLORS[MEMBERS.length % AV_COLORS.length],
+        responses: {}, checkin: [], bucket: [], passage: [], attendance: {}
+      };
+      MEMBERS.push(newM);
+      changed = true;
     });
-
     if(changed) saveMembers();
   } catch(e){ console.warn('syncFromIndex error:', e); }
 }
@@ -1119,14 +1109,22 @@ function generateSampleMembers(){
 }
 
 /* ── MEMBERS 초기화 ── */
-// 저장된 데이터가 있으면 복원, 없으면 샘플 1명으로 시작
 let MEMBERS = loadMembers();
 if(!MEMBERS || MEMBERS.length === 0){
   MEMBERS = generateSampleMembers();
   saveMembers();
 }
-// index.html 가입 회원 자동 동기화 (매 로드마다 실행)
 syncFromIndex();
+// Supabase에서 실제 가입 회원 자동 동기화
+syncFromSupabase().then(function(){
+  populateMemberSel();
+  populateMemoSels();
+  populateBookFilterSel();
+  populateCiFilterSel();
+  renderOverview();
+  renderMembers();
+  document.getElementById('sb-total').textContent = MEMBERS.length;
+});
 
 /* ══════════════════════════════════════════
    SIDEBAR NAV
@@ -2258,8 +2256,9 @@ function renderCheckinStats(){
 }
 
 /* ── 수동 동기화 ── */
-function manualSync(){
+async function manualSync(){
   const before = MEMBERS.length;
+  await syncFromSupabase();
   syncFromIndex();
   saveMembers();
   const after = MEMBERS.length;

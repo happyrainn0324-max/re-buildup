@@ -7293,7 +7293,7 @@ window.mapGenerate = async function() {
   }
 
   /* ── 로그인 처리 ────────────────────────── */
-  function submitLogin() {
+  async function submitLogin() {
     clearError();
     var school    = (document.getElementById('input-school')    || {}).value || '';
     var studentid = (document.getElementById('input-studentid') || {}).value || '';
@@ -7315,6 +7315,15 @@ window.mapGenerate = async function() {
     localStorage.setItem('rbu_userkey',   userKey);
     /* 기존 코드 호환용 */
     localStorage.setItem('rbu_email', userKey);
+
+    /* ── Supabase에 회원 저장 ── */
+    try {
+      await fetch('/.netlify/functions/saveUser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userkey: userKey, school: school, studentid: studentid, name: name })
+      });
+    } catch(e) {}
 
     showLoggedIn(name, school);
     closeLoginModal();
