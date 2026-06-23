@@ -1015,12 +1015,13 @@ async function syncFromSupabase(){
       changed = true;
     });
 
-    // 섹션 응답 데이터 동기화 (rbu_sec_*_userkey 키 기반)
+    // 섹션 응답 데이터 동기화 (rbu_sec_*_userkey 키 기반 — index.html과 동일한 키 구조)
     MEMBERS.forEach(function(m){
       const email = m.email;
+      const sk = function(name){ return 'rbu_sec_' + name + '_' + email; };
       try {
-        // 회복 체크인 일기 (B섹션)
-        const diary = JSON.parse(localStorage.getItem('rbu_sec_diary_' + email) || 'null');
+        // 1) 회복 체크인 일기 (diary: d1/d2/d3)
+        const diary = JSON.parse(localStorage.getItem(sk('diary')) || 'null');
         if(diary && (diary.d1||diary.d2||diary.d3)){
           if(!m.responses['B']) m.responses['B'] = [];
           const text = [diary.d1, diary.d2, diary.d3].filter(Boolean).join(' / ');
@@ -1029,8 +1030,8 @@ async function syncFromSupabase(){
           }
           changed = true;
         }
-        // 스토리 (U섹션)
-        const story = JSON.parse(localStorage.getItem('rbu_sec_story_' + email) || 'null');
+        // 2) 스토리 로그 (story: s1/s2/s3)
+        const story = JSON.parse(localStorage.getItem(sk('story')) || 'null');
         if(story && (story.s1||story.s2||story.s3)){
           if(!m.responses['U']) m.responses['U'] = [];
           const text = [story.s1, story.s2, story.s3].filter(Boolean).join(' / ');
@@ -1039,37 +1040,53 @@ async function syncFromSupabase(){
           }
           changed = true;
         }
-        // 강점 (I섹션)
-        const strength = JSON.parse(localStorage.getItem('rbu_sec_strength_' + email) || 'null');
-        if(strength && strength.length > 0){
-          if(!m.responses['I']) m.responses['I'] = [];
-          const text = Array.isArray(strength) ? strength.join(', ') : String(strength);
-          if(!m.responses['I'].find(r=>r.text===text)){
-            m.responses['I'].push({ date: m.lastDate, text });
+        // 3) 필사 노트 (actstory: input/doneText)
+        const actstory = JSON.parse(localStorage.getItem(sk('actstory')) || 'null');
+        if(actstory && (actstory.input||actstory.doneText)){
+          if(!m.responses['U']) m.responses['U'] = [];
+          const text = '📝 필사: ' + (actstory.doneText || actstory.input || '');
+          if(!m.responses['U'].find(r=>r.text===text)){
+            m.responses['U'].push({ date: m.lastDate, text });
           }
           changed = true;
         }
-        // 경험 미션 (L섹션)
-        const mission = JSON.parse(localStorage.getItem('rbu_sec_mission_' + email) || 'null');
-        if(mission && (mission.m1||mission.m2||mission.m3)){
+        // 4) 미션 노트 (mission: note/savedText)
+        const mission = JSON.parse(localStorage.getItem(sk('mission')) || 'null');
+        if(mission && (mission.note||mission.savedText)){
           if(!m.responses['L']) m.responses['L'] = [];
-          const text = [mission.m1, mission.m2, mission.m3].filter(Boolean).join(' / ');
+          const text = '🎯 미션: ' + (mission.savedText || mission.note || '');
           if(!m.responses['L'].find(r=>r.text===text)){
             m.responses['L'].push({ date: m.lastDate, text });
           }
           changed = true;
         }
-        // 진로 CV (D섹션)
-        const cv = JSON.parse(localStorage.getItem('rbu_sec_cv_' + email) || 'null');
-        if(cv && (cv.dream||cv.goal||cv.plan)){
+        // 5) 자기소개서 (cv: name/exp/recovery/goal/field)
+        const cv = JSON.parse(localStorage.getItem(sk('cv')) || 'null');
+        if(cv && (cv.name||cv.exp||cv.recovery||cv.goal||cv.field)){
           if(!m.responses['D']) m.responses['D'] = [];
-          const text = [cv.dream, cv.goal, cv.plan].filter(Boolean).join(' / ');
+          const text = [
+            cv.name   ? '이름: '   + cv.name   : '',
+            cv.exp    ? '경험: '   + cv.exp    : '',
+            cv.recovery? '회복: '  + cv.recovery: '',
+            cv.goal   ? '목표: '   + cv.goal   : '',
+            cv.field  ? '분야: '   + cv.field  : ''
+          ].filter(Boolean).join(' / ');
           if(!m.responses['D'].find(r=>r.text===text)){
             m.responses['D'].push({ date: m.lastDate, text });
           }
           changed = true;
         }
-        // 회복탄력성/진로준비도 점수 업데이트
+        // 6) 강점 선택 (strength: 배열)
+        const strength = JSON.parse(localStorage.getItem(sk('strength')) || 'null');
+        if(strength && Array.isArray(strength) && strength.length > 0){
+          if(!m.responses['I']) m.responses['I'] = [];
+          const text = '💪 강점: ' + strength.join(', ');
+          if(!m.responses['I'].find(r=>r.text===text)){
+            m.responses['I'].push({ date: m.lastDate, text });
+          }
+          changed = true;
+        }
+        // 체크인 로그로 회복탄력성/진로준비도 점수 업데이트
         const ciLogs = JSON.parse(localStorage.getItem('rbu_checkin_log_' + email) || '[]');
         if(ciLogs.length > 0){
           m.checkin = ciLogs;
@@ -1081,7 +1098,7 @@ async function syncFromSupabase(){
           if(latestCi > m.lastDate) m.lastDate = latestCi;
           changed = true;
         }
-        // 현재 섹션 업데이트
+        // 현재 섹션 업데이트 (가장 많이 채운 섹션 기준)
         const secs = ['D','L','I','U','B'];
         for(const s of secs){
           if((m.responses[s]||[]).length > 0){ m.section = s; break; }
