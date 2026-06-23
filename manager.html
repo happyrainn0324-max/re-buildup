@@ -524,7 +524,7 @@ tbody tr:hover{background:#FAFBFF;cursor:pointer}
       <table>
         <thead>
           <tr>
-<th>#</th><th>회원</th><th>이메일</th><th>현재 섹션</th>
+<th>#</th><th>회원</th><th>학교 · 학번</th><th>현재 섹션</th>
             <th>회복탄력성</th><th>진로준비도</th><th>마지막 활동</th><th></th>
           </tr>
         </thead>
@@ -976,15 +976,22 @@ function saveMembers(){
 async function syncFromSupabase(){
   try {
     const res = await fetch('/.netlify/functions/getMembers');
-    if(!res.ok) { console.warn('getMembers fetch failed', res.status); return; }
+    if(!res.ok) return;
     const rows = await res.json();
     if(!Array.isArray(rows)) return;
 
     let changed = false;
     rows.forEach(function(row){
       const userkey = row.userkey || '';
-      if(MEMBERS.find(m => m.email === userkey)) return;
-
+      const existing = MEMBERS.find(m => m.email === userkey);
+      if(existing){
+        // 기존 회원 school/studentid 업데이트
+        if(row.school) existing.school = row.school;
+        if(row.studentid) existing.studentid = row.studentid;
+        if(row.name) existing.name = row.name;
+        changed = true;
+        return;
+      }
       const newM = {
         id: Date.now() + Math.random(),
         name:      row.name      || userkey,
@@ -1008,30 +1015,154 @@ async function syncFromSupabase(){
       changed = true;
     });
 
-    if(changed){ saveMembers(); }
+    // 섹션 응답 데이터 동기화 (rbu_sec_*_userkey 키 기반)
+    MEMBERS.forEach(function(m){
+      const email = m.email;
+      try {
+        // 회복 체크인 일기 (B섹션)
+        const diary = JSON.parse(localStorage.getItem('rbu_sec_diary_' + email) || 'null');
+        if(diary && (diary.d1||diary.d2||diary.d3)){
+          if(!m.responses['B']) m.responses['B'] = [];
+          const text = [diary.d1, diary.d2, diary.d3].filter(Boolean).join(' / ');
+          if(!m.responses['B'].find(r=>r.text===text)){
+            m.responses['B'].push({ date: m.lastDate, text });
+          }
+          changed = true;
+        }
+        // 스토리 (U섹션)
+        const story = JSON.parse(localStorage.getItem('rbu_sec_story_' + email) || 'null');
+        if(story && (story.s1||story.s2||story.s3)){
+          if(!m.responses['U']) m.responses['U'] = [];
+          const text = [story.s1, story.s2, story.s3].filter(Boolean).join(' / ');
+          if(!m.responses['U'].find(r=>r.text===text)){
+            m.responses['U'].push({ date: m.lastDate, text });
+          }
+          changed = true;
+        }
+        // 강점 (I섹션)
+        const strength = JSON.parse(localStorage.getItem('rbu_sec_strength_' + email) || 'null');
+        if(strength && strength.length > 0){
+          if(!m.responses['I']) m.responses['I'] = [];
+          const text = Array.isArray(strength) ? strength.join(', ') : String(strength);
+          if(!m.responses['I'].find(r=>r.text===text)){
+            m.responses['I'].push({ date: m.lastDate, text });
+          }
+          changed = true;
+        }
+        // 경험 미션 (L섹션)
+        const mission = JSON.parse(localStorage.getItem('rbu_sec_mission_' + email) || 'null');
+        if(mission && (mission.m1||mission.m2||mission.m3)){
+          if(!m.responses['L']) m.responses['L'] = [];
+          const text = [mission.m1, mission.m2, mission.m3].filter(Boolean).join(' / ');
+          if(!m.responses['L'].find(r=>r.text===text)){
+            m.responses['L'].push({ date: m.lastDate, text });
+          }
+          changed = true;
+        }
+        // 진로 CV (D섹션)
+        const cv = JSON.parse(localStorage.getItem('rbu_sec_cv_' + email) || 'null');
+        if(cv && (cv.dream||cv.goal||cv.plan)){
+          if(!m.responses['D']) m.responses['D'] = [];
+          const text = [cv.dream, cv.goal, cv.plan].filter(Boolean).join(' / ');
+          if(!m.responses['D'].find(r=>r.text===text)){
+            m.responses['D'].push({ date: m.lastDate, text });
+          }
+          changed = true;
+        }
+        // 회복탄력성/진로준비도 점수 업데이트
+        const ciLogs = JSON.parse(localStorage.getItem('rbu_checkin_log_' + email) || '[]');
+        if(ciLogs.length > 0){
+          m.checkin = ciLogs;
+          const avgR = Math.round(ciLogs.reduce((s,l)=>s+(l.rScore||0),0)/ciLogs.length);
+          const avgC = Math.round(ciLogs.reduce((s,l)=>s+(l.cScore||0),0)/ciLogs.length);
+          if(avgR > 0) m.resilience = avgR;
+          if(avgC > 0) m.career = avgC;
+          const latestCi = ciLogs.reduce((mx,c)=>c.date>mx?c.date:mx,'');
+          if(latestCi > m.lastDate) m.lastDate = latestCi;
+          changed = true;
+        }
+        // 현재 섹션 업데이트
+        const secs = ['D','L','I','U','B'];
+        for(const s of secs){
+          if((m.responses[s]||[]).length > 0){ m.section = s; break; }
+        }
+      } catch(e){}
+    });
+
+    if(changed) saveMembers();
   } catch(e){ console.warn('syncFromSupabase error:', e); }
 }
 
-/* index.html 가입자 데이터 읽기 (레거시 — localStorage 브라우저 공유 시에만 동작) */
+/* index.html 가입자 데이터 읽기 */
 function syncFromIndex(){
   try {
+    // index.html은 rbu_users = { "email@x.com": { name, pw } } 구조로 저장
     const users = JSON.parse(localStorage.getItem('rbu_users') || '{}');
     let changed = false;
+
     Object.entries(users).forEach(function([email, info]) {
       const name = info.name || email.split('@')[0];
+      // 이미 MEMBERS에 있으면 건너뜀
       if(MEMBERS.find(m => m.email === email)) return;
+
       const newM = {
         id: Date.now() + Math.random(),
-        name, email, phone: '–', section: 'B',
-        resilience: 50, career: 40,
+        name,
+        email,
+        phone: '–',
+        section: 'B',
+        resilience: 50,
+        career: 40,
         lastDate: fmtDate(today()),
         joinDate: info.joinDate || fmtDate(today()),
         avColor: AV_COLORS[MEMBERS.length % AV_COLORS.length],
-        responses: {}, checkin: [], bucket: [], passage: [], attendance: {}
+        responses: {},
+        checkin: [],
+        bucket: [],
+        passage: [],
+        attendance: {}
       };
       MEMBERS.push(newM);
       changed = true;
     });
+
+    // 모든 회원의 활동 데이터 실시간 동기화
+    MEMBERS.forEach(function(m){
+      const email = m.email;
+
+      // 회복 체크인 로그 (rbu_checkin_log_{email} — submitDiary 저장)
+      try {
+        const ciLogs = JSON.parse(localStorage.getItem('rbu_checkin_log_' + email) || '[]');
+        if(ciLogs.length > 0){
+          m.checkin = ciLogs;
+          const latestCi = ciLogs.reduce((mx, c) => c.date > mx ? c.date : mx, '');
+          if(latestCi > m.lastDate) m.lastDate = latestCi;
+        }
+      } catch(e){}
+
+      // 버킷리스트
+      try {
+        const bk = JSON.parse(localStorage.getItem('rbu_bucket_' + email) || '{}');
+        if(bk.b1 || bk.b2 || bk.b3){
+          m.bucket = [{ date: m.lastDate, b1: bk.b1||'', b2: bk.b2||'', b3: bk.b3||'' }];
+        }
+      } catch(e){}
+
+      // 필사
+      try {
+        const ps = JSON.parse(localStorage.getItem('rbu_passages_' + email) || '[]');
+        if(ps.length) m.passage = ps;
+      } catch(e){}
+
+      // 히어로 게임 점수 (개인별)
+      try {
+        const hs = parseInt(localStorage.getItem('hero_score_' + email) || '0');
+        const hc = parseInt(localStorage.getItem('hero_cards_' + email) || '0');
+        if(hs > 0) m.heroScore = hs;
+        if(hc > 0) m.heroCards = hc;
+      } catch(e){}
+    });
+
     if(changed) saveMembers();
   } catch(e){ console.warn('syncFromIndex error:', e); }
 }
@@ -1115,7 +1246,6 @@ if(!MEMBERS || MEMBERS.length === 0){
   saveMembers();
 }
 syncFromIndex();
-// Supabase에서 실제 가입 회원 자동 동기화
 syncFromSupabase().then(function(){
   populateMemberSel();
   populateMemoSels();
@@ -1123,9 +1253,8 @@ syncFromSupabase().then(function(){
   populateCiFilterSel();
   renderOverview();
   renderMembers();
-  document.getElementById('sb-total').textContent = MEMBERS.length;
+  document.getElementById("sb-total").textContent = MEMBERS.length;
 });
-
 /* ══════════════════════════════════════════
    SIDEBAR NAV
 ══════════════════════════════════════════ */
@@ -1276,7 +1405,7 @@ function renderMembers(){
         <div><div style="font-weight:700;font-size:13px">${m.name}</div>
         <div style="font-size:10px;color:var(--muted)">${m.joinDate||'–'} 가입</div></div>
       </div></td>
-      <td style="font-size:11px;color:var(--muted)">${m.email}</td>
+      <td style="font-size:11px;color:var(--muted)">${m.school||'–'} · ${m.studentid||'–'}</td>
       <td><span class="badge sec-${m.section}">${SEC_EMOJI[m.section]} ${m.section}</span></td>
       <td>${miniProg(m.resilience,'#6366F1')}</td>
       <td>${miniProg(m.career,'#22C55E')}</td>
@@ -1337,7 +1466,7 @@ function renderBySection(){
     return `<div class="resp-card">
       <div class="resp-header" style="background:${bg}">
         <div class="av" style="background:${m.avColor}">${m.name[0]}</div>
-        <div style="flex:1"><div style="font-weight:800;font-size:13px">${m.name}</div><div style="font-size:10px;color:var(--muted)">${m.email} · ${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} · ${rs.length}건</div></div>
+        <div style="flex:1"><div style="font-weight:800;font-size:13px">${m.name}</div><div style="font-size:10px;color:var(--muted)">${m.school||'–'} · ${SEC_EMOJI[sec]} ${SEC_NAMES[sec]} · ${rs.length}건</div></div>
         <div style="display:flex;gap:6px;align-items:center">${scorePill(Math.round(rs.reduce((s,r)=>s+r.score,0)/rs.length),'평균')}<button class="btn btn-ghost btn-sm" onclick="openRespModal(${idx},'${sec}')">전체보기</button></div>
       </div>
       <div class="resp-body">${rs.map(r=>`<div class="resp-entry"><div class="resp-meta"><span style="font-weight:700;color:${dark}">${r.date}</span>${scorePill(r.score)}</div><div class="resp-text">${r.text}</div></div>`).join('')}</div>
@@ -1675,7 +1804,7 @@ function renderMemberDetail(idx){
         <div class="av" style="width:56px;height:56px;font-size:22px;background:${m.avColor}">${m.name[0]}</div>
         <div style="flex:1;min-width:200px">
           <div style="font-size:20px;font-weight:900">${m.name}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:3px">${m.email} · ${m.phone}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">${m.school||'–'} · 학번 ${m.studentid||'–'}</div>
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
             <span class="badge sec-${m.section}">${SEC_EMOJI[m.section]} 현재: ${m.section} 섹션</span>
             <span class="badge" style="background:var(--muted-bg);color:var(--muted)">가입 ${m.joinDate||'–'}</span>
@@ -2258,8 +2387,8 @@ function renderCheckinStats(){
 /* ── 수동 동기화 ── */
 async function manualSync(){
   const before = MEMBERS.length;
-  await syncFromSupabase();
   syncFromIndex();
+  await syncFromSupabase();
   saveMembers();
   const after = MEMBERS.length;
   const added = after - before;
