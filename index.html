@@ -5219,9 +5219,9 @@ function showStudyData(subject) {
     tutorAppend('user', text);
     tutorTyping();
     try {
-      var res = await fetch('https://api.anthropic.com/v1/messages', {
+      var res = await fetch('/api/claude', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1200, system: TUTOR_SYSTEM, messages: tutorHistory })
       });
       var data = await res.json();
@@ -5637,7 +5637,7 @@ function showStudyData(subject) {
     var p=P[cur];
     var sys=p.sys+(job?' 학생이 궁금한 직업은 "'+job+'"입니다. 이 직업을 중심으로 이야기해주세요.':'');
     try {
-      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:sys,messages:hist[cur]})});
+      var res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:sys,messages:hist[cur]})});
       var data=await res.json();
       var reply=(data.content&&data.content[0]&&data.content[0].text)||'잠시 문제가 생겼어요. 다시 시도해볼게요 🙏';
       hist[cur].push({role:'assistant',content:reply});
@@ -5762,7 +5762,7 @@ function showStudyData(subject) {
     mentorShowTyping();
 
     try {
-      var res = await fetch('https://api.anthropic.com/v1/messages', {
+      var res = await fetch('/api/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -5804,7 +5804,6 @@ function showStudyData(subject) {
       <button id="tpill-book"      class="tab-pill" onclick="switchTab('book')">📚 진로 독서</button>
       <button id="tpill-dream"     class="tab-pill" onclick="switchTab('dream')">🧭 드림 멘토링</button>
       <button id="tpill-studypf"   class="tab-pill" onclick="switchTab('studypf')">🧑‍🏫 학습 멘토링</button>
-      <button id="tpill-interview" class="tab-pill" onclick="switchTab('interview')">🎤 진로 인터뷰</button>
     </div>
 
     <!-- ══════════════ DIAGNOSIS TAB ══════════════ -->
@@ -6031,41 +6030,6 @@ function showStudyData(subject) {
     </div>
 
     <!-- ══════════════ INTERVIEW TAB ══════════════ -->
-    <div id="tab-interview" class="tab-content">
-      <div class="card" style="padding:32px;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-          <div style="width:48px;height:48px;border-radius:14px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:22px;">🗺️</div>
-          <div>
-            <p style="font-weight:800;font-size:18px;margin-bottom:2px;">진로 인터뷰 포트폴리오</p>
-            <p style="font-size:13px;color:var(--muted);">AI 진로 로드맵 인터뷰 대화를 AI가 포트폴리오로 정리해요</p>
-          </div>
-        </div>
-        <div style="padding:16px 20px;border-radius:14px;background:var(--muted-bg);border:1px solid var(--border);margin-bottom:16px;">
-          <p style="font-size:13px;color:var(--muted);line-height:1.8;">AI 진로 로드맵 인터뷰에서 나눈 대화 내역을 바탕으로 진로 탐색 포트폴리오를 자동 생성해드려요.</p>
-        </div>
-        <!-- 완료 뱃지 숨김 (JS 호환용) -->
-        <div style="display:none;">
-          <span id="itv-star-count"></span>
-          <span id="itv-done-teacher"></span><span id="itv-done-worker"></span>
-          <span id="itv-done-peer"></span><span id="itv-done-cert"></span>
-          <span id="itv-done-startup"></span><span id="itv-done-recovery"></span>
-          <span id="itv-no-done"></span>
-        </div>
-        <button onclick="genMentoringPf('interview')"
-          style="width:100%;padding:13px;border-radius:14px;border:1.5px solid #7B5CF5;background:transparent;color:#5B21B6;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;"
-          onmouseover="this.style.background='#F5F3FF'" onmouseout="this.style.background='transparent'">
-          🗺️ 진로 인터뷰 결과 보기 ▼
-        </button>
-        <div id="pf-mentoring-panel-interview" style="display:none;margin-top:16px;padding:20px 24px;border-radius:16px;background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border:1.5px solid #C4B5FD;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <p style="font-size:13px;font-weight:700;color:#5B21B6;">🗺️ 진로 인터뷰 포트폴리오</p>
-            <button onclick="copyPfText('interview')" style="font-size:11px;padding:4px 10px;border-radius:8px;border:1px solid #C4B5FD;background:white;color:#5B21B6;cursor:pointer;font-weight:600;">복사</button>
-          </div>
-          <div id="pf-mentoring-loading-interview" style="display:none;text-align:center;padding:20px 0;font-size:13px;color:var(--muted);">✨ AI가 포트폴리오를 정리하고 있어요...</div>
-          <div id="pf-mentoring-content-interview" style="font-size:13px;color:#374151;line-height:1.9;white-space:pre-wrap;"></div>
-        </div>
-      </div>
-    </div>
 
     <!-- 통합 PDF 저장 버튼 (하단) -->
     <div style="display:flex;justify-content:center;margin-top:32px;">
@@ -6283,7 +6247,7 @@ function showStudyData(subject) {
     var systemMsg = p.system + (job ? ' 학생이 궁금해하는 직업은 "' + job + '"입니다. 이 직업을 중심으로 이야기해주세요.' : '');
 
     try {
-      var res = await fetch('https://api.anthropic.com/v1/messages', {
+      var res = await fetch('/api/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -6504,67 +6468,42 @@ function showStudyData(subject) {
     if (key === 'book')     renderBookPortfolio();
   }
 
-  /* ── 드림멘토링 / 학습멘토링 포트폴리오 생성 ── */
+  /* ── 드림멘토링 / 학습멘토링 포트폴리오 — 대화 내역 그대로 표시 ── */
   var _pfTexts = { dream: '', study: '' };
 
-  async function genMentoringPf(type) {
+  function genMentoringPf(type) {
     var panelId   = 'pf-mentoring-panel-' + type;
     var loadingId = 'pf-mentoring-loading-' + type;
     var contentId = 'pf-mentoring-content-' + type;
     var panel   = document.getElementById(panelId);
     var loading = document.getElementById(loadingId);
     var content = document.getElementById(contentId);
+    if (!panel || !content) return;
 
-    var histKey = type === 'dream' ? 'mentoring_dream_hist' : type === 'study' ? 'mentoring_study_hist' : 'rbu_itv2_hist';
+    var histKey = type === 'dream' ? 'mentoring_dream_hist' : 'mentoring_study_hist';
     var savedHist = [];
-    try {
-      var raw = localStorage.getItem(histKey) || (type === 'interview' ? '{}' : '[]');
-      if (type === 'interview') {
-        // interview는 {persona: [{role,content}]} 구조
-        var allHist = JSON.parse(raw);
-        var NAMES = {teacher:'진로 선생님', worker:'현직자', peer:'또래 선배', cert:'자격증 멘토', startup:'창업 선배', recovery:'회복 멘토'};
-        Object.keys(allHist).forEach(function(k) {
-          var msgs = allHist[k];
-          if (msgs && msgs.length > 0) {
-            savedHist.push({role:'user', content:'=== ' + (NAMES[k]||k) + ' 인터뷰 ==='});
-            msgs.forEach(function(m){ savedHist.push(m); });
-          }
-        });
-      } else {
-        savedHist = JSON.parse(raw);
-      }
-    } catch(e) {}
+    try { savedHist = JSON.parse(localStorage.getItem(histKey) || '[]'); } catch(e) {}
 
     panel.style.display = 'block';
-    loading.style.display = 'block';
-    content.textContent = '';
-    _pfTexts[type] = '';
+    if (loading) loading.style.display = 'none';
 
-    var systemPrompt = type === 'dream'
-      ? '너는 진로 상담 전문가야. 학생이 드림 멘토(진로·꿈 탐색 AI)와 나눈 대화 내역을 바탕으로 체계적인 진로 포트폴리오를 작성해줘.\n\n【진로 탐색 포트폴리오】\n1. 탐색한 꿈과 관심 분야\n2. 발견한 나의 강점과 가치관\n3. 구체적으로 알게 된 진로 정보\n4. 앞으로의 실천 계획\n5. 한 줄 다짐\n\n대화 내역이 없으면 "드림 멘토와 대화를 먼저 나눠보세요!"라고 안내해.'
-      : type === 'study'
-      ? '너는 학습 코칭 전문가야. 학생이 학습 멘토링 AI와 나눈 대화 내역을 바탕으로 체계적인 학습 포트폴리오를 작성해줘.\n\n【학습 멘토링 포트폴리오】\n1. 학습한 과목과 주요 개념\n2. 이해하게 된 내용 요약\n3. 아직 보완이 필요한 부분\n4. 나만의 학습 전략\n5. 오늘의 학습 한 줄 정리\n\n대화 내역이 없으면 "학습 멘토링을 먼저 진행해보세요!"라고 안내해.'
-      : '너는 진로 설계 전문가야. 학생이 다양한 AI 진로 인터뷰 페르소나(진로 선생님·현직자·또래 선배·자격증 멘토·창업 선배·회복 멘토)와 나눈 대화 내역을 바탕으로 체계적인 진로 탐색 포트폴리오를 작성해줘.\n\n【AI 진로 로드맵 인터뷰 포트폴리오】\n1. 탐색한 직업과 진로 분야\n2. 인터뷰에서 발견한 나의 관심사와 강점\n3. 페르소나별 핵심 인사이트 요약\n4. 구체적인 진로 실천 계획\n5. 나만의 진로 한 줄 다짐\n\n대화 내역이 없으면 "AI 진로 로드맵 인터뷰를 먼저 진행해보세요!"라고 안내해.';
-
-    var userMsg = savedHist.length > 0
-      ? '다음은 학생의 대화 내역이야:\n\n' + savedHist.map(function(m){ return (m.role==='user'?'학생: ':'AI: ') + (typeof m.content==='string'?m.content:'[이미지]'); }).join('\n')
-      : '대화 내역 없음';
-
-    try {
-      var res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000, system:systemPrompt, messages:[{role:'user',content:userMsg}] })
-      });
-      var data = await res.json();
-      var rep = (data.content && data.content[0] && data.content[0].text) || '포트폴리오 생성에 실패했어요.';
-      _pfTexts[type] = rep;
-      loading.style.display = 'none';
-      content.textContent = rep;
-    } catch(e) {
-      loading.style.display = 'none';
-      content.textContent = '연결에 문제가 생겼어요. 잠시 후 다시 시도해주세요.';
+    if (!savedHist || savedHist.length === 0) {
+      var emptyMsg = type === 'dream' ? '드림 멘토와 대화를 먼저 나눠보세요!' : '학습 멘토링을 먼저 진행해보세요!';
+      content.textContent = emptyMsg;
+      _pfTexts[type] = emptyMsg;
+      return;
     }
+
+    // 대화 내역 그대로 텍스트로 변환
+    var lines = savedHist.map(function(m) {
+      var speaker = m.role === 'user' ? '나' : (type === 'dream' ? '드림 멘토' : '학습 멘토');
+      var text = typeof m.content === 'string' ? m.content : '';
+      return speaker + ': ' + text;
+    }).join('\n\n');
+
+    _pfTexts[type] = lines;
+    content.style.whiteSpace = 'pre-wrap';
+    content.textContent = lines;
   }
 
   function copyPfText(type) {
