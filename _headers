@@ -1,0 +1,16 @@
+# Netlify가 배포 시 자동으로 인식하는 캐시 규칙 파일입니다.
+# 저장소의 루트(퍼블리시 디렉토리)에 이 파일을 그대로 올려주세요.
+# HTML 파일들이 브라우저/CDN에 예전 버전으로 캐시되어
+# 새로 배포한 코드가 기기에 반영되지 않는 문제를 막기 위한 설정입니다.
+
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/manager.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/chat.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
