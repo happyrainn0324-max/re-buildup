@@ -1110,6 +1110,107 @@ async function syncFromSupabase(){
   } catch(e){ console.warn('syncFromSupabase error:', e); }
 }
 
+/* ── Supabase에서 활동 누적 기록 불러오기 ──
+   (학생 기기와 매니저 기기가 다르면 localStorage가 공유되지 않으므로,
+    실제 활동 내용은 반드시 이 함수를 통해 서버에서 받아와야 함) */
+async function syncActivitiesFromServer(){
+  try {
+    const res = await fetch('/.netlify/functions/getActivities');
+    if(!res.ok) return;
+    const rows = await res.json();
+    if(!Array.isArray(rows)) return;
+
+    rows.forEach(function(row){
+      const userkey = row.userkey || '';
+      if(!userkey) return;
+
+      let m = MEMBERS.find(x => x.email === userkey);
+      if(!m){
+        m = {
+          id: Date.now() + Math.random(),
+          name: row.name || userkey,
+          email: userkey,
+          school: '–', studentid: '–', phone: '–',
+          section: 'B', resilience: 50, career: 40,
+          lastDate: (row.updated_at || fmtDate(today())).slice(0,10),
+          joinDate: (row.updated_at || fmtDate(today())).slice(0,10),
+          avColor: AV_COLORS[MEMBERS.length % AV_COLORS.length],
+          responses: {}, checkin: [], bucket: [], passage: [], attendance: {}
+        };
+        MEMBERS.push(m);
+      }
+      if(row.name && (!m.name || m.name === m.email)) m.name = row.name;
+      if(!m.responses) m.responses = {};
+
+      const r = row.responses || {};
+      const respDate = (row.updated_at || m.lastDate || fmtDate(today())).slice(0,10);
+
+      function pushResp(sec, text){
+        if(!text) return;
+        if(!m.responses[sec]) m.responses[sec] = [];
+        if(!m.responses[sec].find(x => x.text === text)){
+          m.responses[sec].push({ date: respDate, text });
+        }
+      }
+
+      if(r.diary && (r.diary.d1 || r.diary.d2 || r.diary.d3)){
+        pushResp('B', [r.diary.d1, r.diary.d2, r.diary.d3].filter(Boolean).join(' / '));
+      }
+      if(r.story && (r.story.s1 || r.story.s2 || r.story.s3)){
+        pushResp('U', [r.story.s1, r.story.s2, r.story.s3].filter(Boolean).join(' / '));
+      }
+      if(r.actstory && (r.actstory.input || r.actstory.doneText)){
+        pushResp('U', '📝 필사: ' + (r.actstory.doneText || r.actstory.input || ''));
+      }
+      if(r.mission && (r.mission.note || r.mission.savedText)){
+        pushResp('L', '🎯 미션: ' + (r.mission.savedText || r.mission.note || ''));
+      }
+      if(r.cv && (r.cv.name || r.cv.exp || r.cv.recovery || r.cv.goal || r.cv.field)){
+        const text = [
+          r.cv.name     ? '이름: ' + r.cv.name     : '',
+          r.cv.exp      ? '경험: ' + r.cv.exp      : '',
+          r.cv.recovery ? '회복: ' + r.cv.recovery : '',
+          r.cv.goal     ? '목표: ' + r.cv.goal     : '',
+          r.cv.field    ? '분야: ' + r.cv.field    : ''
+        ].filter(Boolean).join(' / ');
+        pushResp('D', text);
+      }
+      if(r.strength && Array.isArray(r.strength) && r.strength.length > 0){
+        pushResp('I', '💪 강점: ' + r.strength.join(', '));
+      }
+
+      if(Array.isArray(row.checkin) && row.checkin.length > 0){
+        m.checkin = row.checkin;
+        const avgR = Math.round(row.checkin.reduce((s,l)=>s+(l.rScore||0),0)/row.checkin.length);
+        const avgC = Math.round(row.checkin.reduce((s,l)=>s+(l.cScore||0),0)/row.checkin.length);
+        if(avgR > 0) m.resilience = avgR;
+        if(avgC > 0) m.career = avgC;
+        const latestCi = row.checkin.reduce((mx,c)=>c.date>mx?c.date:mx, '');
+        if(latestCi > m.lastDate) m.lastDate = latestCi;
+      }
+
+      if(row.bucket && (row.bucket.b1 || row.bucket.b2 || row.bucket.b3)){
+        m.bucket = [{ date: m.lastDate, b1: row.bucket.b1||'', b2: row.bucket.b2||'', b3: row.bucket.b3||'' }];
+      }
+      if(Array.isArray(row.booklog) && row.booklog.length > 0) m.booklog = row.booklog;
+      if(Array.isArray(row.portfolio) && row.portfolio.length > 0) m.portfolio = row.portfolio;
+      if(row.hero_score) m.heroScore = row.hero_score;
+      if(row.hero_cards) m.heroCards = row.hero_cards;
+      if(row.stamp){
+        m.stampCount = row.stamp.count || 0;
+        m.stampDates = row.stamp.dates || [];
+      }
+
+      const secs = ['D','L','I','U','B'];
+      for(const s of secs){
+        if((m.responses[s]||[]).length > 0){ m.section = s; break; }
+      }
+    });
+
+    saveMembers();
+  } catch(e){ console.warn('syncActivitiesFromServer error:', e); }
+}
+
 /* index.html 가입자 데이터 읽기 */
 function syncFromIndex(){
   try {
@@ -1264,6 +1365,8 @@ if(!MEMBERS || MEMBERS.length === 0){
 }
 syncFromIndex();
 syncFromSupabase().then(function(){
+  return syncActivitiesFromServer();
+}).then(function(){
   populateMemberSel();
   populateMemoSels();
   populateBookFilterSel();
@@ -2406,6 +2509,7 @@ async function manualSync(){
   const before = MEMBERS.length;
   syncFromIndex();
   await syncFromSupabase();
+  await syncActivitiesFromServer();
   saveMembers();
   const after = MEMBERS.length;
   const added = after - before;

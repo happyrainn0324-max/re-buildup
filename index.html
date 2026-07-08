@@ -1232,6 +1232,7 @@ window.addEventListener('resize', function() {
     var b2 = (document.getElementById('bucket-2') || {}).value || '';
     var b3 = (document.getElementById('bucket-3') || {}).value || '';
     localStorage.setItem('rbu_bucket_' + email, JSON.stringify({ b1:b1, b2:b2, b3:b3 }));
+    if (typeof syncActivityToServer === 'function') syncActivityToServer();
   }
 
   window.saveBucket = saveBucket;
@@ -2577,7 +2578,10 @@ function getStampData() {
   return { count: 0, dates: [] };
 }
 function saveStampData(data) {
-  try { localStorage.setItem(stampKey(), JSON.stringify(data)); } catch(e) {}
+  try {
+    localStorage.setItem(stampKey(), JSON.stringify(data));
+    if (typeof syncActivityToServer === 'function') syncActivityToServer();
+  } catch(e) {}
 }
 function todayStr() {
   var d = new Date();
@@ -2666,6 +2670,8 @@ function saveAllSections() {
       if (btn.style.fontWeight === '700') selectedStrengths.push(btn.dataset.s);
     });
     localStorage.setItem(sectionKey('strength'), JSON.stringify(selectedStrengths));
+
+    if (typeof syncActivityToServer === 'function') syncActivityToServer();
 
   } catch(e) { console.warn('saveAllSections error:', e); }
 }
@@ -2765,6 +2771,58 @@ function loadAllSections() {
 
   } catch(e) { console.warn('loadAllSections error:', e); }
 }
+
+/* ══════════════════════════════════════════
+   활동 기록 서버(Supabase) 동기화
+   — 매니저 대시보드가 다른 기기에서도 학생의
+     활동 누적 기록을 볼 수 있도록 서버에 저장
+══════════════════════════════════════════ */
+var _activitySyncTimer = null;
+function syncActivityToServer() {
+  /* 여러 저장이 짧은 간격으로 연달아 발생해도 1번만 보내도록 디바운스 */
+  clearTimeout(_activitySyncTimer);
+  _activitySyncTimer = setTimeout(_doSyncActivityToServer, 800);
+}
+function _doSyncActivityToServer() {
+  try {
+    var userkey = localStorage.getItem('rbu_userkey') || localStorage.getItem('rbu_email');
+    if (!userkey || userkey === 'guest') return; /* 로그인 안 한 상태면 전송 안 함 */
+    var name = localStorage.getItem('rbu_name') || '';
+
+    function readJSON(key, fallback) {
+      try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
+    }
+
+    var responses = {
+      diary:    readJSON(sectionKey('diary'), null),
+      story:    readJSON(sectionKey('story'), null),
+      actstory: readJSON(sectionKey('actstory'), null),
+      mission:  readJSON(sectionKey('mission'), null),
+      cv:       readJSON(sectionKey('cv'), null),
+      strength: readJSON(sectionKey('strength'), null)
+    };
+
+    var payload = {
+      userkey:   userkey,
+      name:      name,
+      responses: responses,
+      checkin:   readJSON('rbu_checkin_log_' + userkey, []),
+      bucket:    readJSON('rbu_bucket_' + userkey, {}),
+      booklog:   readJSON('rbu_booklog_' + userkey, []),
+      portfolio: readJSON('rbu_pf_' + userkey, []),
+      stamp:     readJSON(stampKey(), {}),
+      hero_score: parseInt(localStorage.getItem('hero_score_' + userkey) || '0'),
+      hero_cards: parseInt(localStorage.getItem('hero_cards_' + userkey) || '0')
+    };
+
+    fetch('/.netlify/functions/saveActivity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(function(){});
+  } catch(e) { console.warn('syncActivityToServer error:', e); }
+}
+window.syncActivityToServer = syncActivityToServer;
 
 /* ── 로그아웃 시 UI 초기화 (localStorage는 보존) ── */
 function clearAllSectionsUI() {
@@ -3521,6 +3579,7 @@ function actBookLogSave(btn) {
     var logs = JSON.parse(localStorage.getItem(key) || '[]');
     logs.push({ title: title, date: new Date().toLocaleDateString('ko-KR'), time: new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'}), summary: summary, feeling: feeling, lesson: lesson });
     localStorage.setItem(key, JSON.stringify(logs));
+    if (typeof syncActivityToServer === 'function') syncActivityToServer();
   } catch(e) {}
   var savedEl = document.getElementById('act-book-log-saved-' + i);
   if (savedEl) savedEl.style.display = 'block';
@@ -4668,6 +4727,15 @@ function heroShowResult() {
   localStorage.setItem('hero_total_score', heroState.totalScore);
   localStorage.setItem('hero_total_cards',  heroState.totalCards);
   localStorage.setItem('hero_level',         heroState.level);
+  /* 유저별 키에도 저장 (매니저 대시보드가 학생별로 구분해서 볼 수 있도록) */
+  try {
+    var _heroUserkey = localStorage.getItem('rbu_userkey') || localStorage.getItem('rbu_email');
+    if (_heroUserkey && _heroUserkey !== 'guest') {
+      localStorage.setItem('hero_score_' + _heroUserkey, heroState.totalScore);
+      localStorage.setItem('hero_cards_' + _heroUserkey, heroState.totalCards);
+    }
+  } catch(e) {}
+  if (typeof syncActivityToServer === 'function') syncActivityToServer();
   heroUpdateScoreBar();
 }
 
@@ -6938,6 +7006,7 @@ function showStudyData(subject) {
   function savePfStories() {
     try {
       localStorage.setItem(pfKey(), JSON.stringify(pfStories));
+      if (typeof syncActivityToServer === 'function') syncActivityToServer();
     } catch(e) {}
   }
 
@@ -7611,6 +7680,7 @@ function showStudyData(subject) {
         msg: msg
       });
       localStorage.setItem(ciKey, JSON.stringify(ciLogs));
+      if (typeof syncActivityToServer === 'function') syncActivityToServer();
     } catch(e) {}
 
     /* ── CD's Comment 생성 (섹션 제거됨 — 호출 무시) ── */
@@ -7975,6 +8045,10 @@ function showStudyData(subject) {
 
     /* 모든 섹션 기록 복원 */
     try { loadAllSections(); } catch(e) {}
+
+    /* 로그인 시점에 현재 기기에 남아있는 활동 기록을 서버에 동기화
+       (기존 기기에서 이미 활동한 기록이 있다면 매니저 대시보드에 바로 반영되도록) */
+    try { if (typeof syncActivityToServer === 'function') syncActivityToServer(); } catch(e) {}
   }
 
   /* ── 로그아웃 ──────────────────────── */
