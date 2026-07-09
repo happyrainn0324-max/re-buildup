@@ -1202,6 +1202,19 @@ async function syncActivitiesFromServer(){
       if(row.stamp){
         m.stampCount = row.stamp.count || 0;
         m.stampDates = row.stamp.dates || [];
+        /* 출석 현황(renderAttendance)은 m.attendance 객체를 읽으므로,
+           스탬프 날짜를 'YYYY-MM-DD' 형식으로 맞춰서 채워줌
+           (index.html에서 스탬프 날짜가 0채움 없이 저장되는 경우가 있어 정규화 필요) */
+        m.attendance = m.attendance || {};
+        m.stampDates.forEach(function(ds){
+          const parts = String(ds).split('-');
+          if(parts.length === 3){
+            const y  = parts[0];
+            const mo = ('0'+parts[1]).slice(-2);
+            const da = ('0'+parts[2]).slice(-2);
+            m.attendance[y+'-'+mo+'-'+da] = true;
+          }
+        });
       }
 
       const secs = ['D','L','I','U','B'];
@@ -1360,10 +1373,13 @@ function generateSampleMembers(){
   });
 }
 
-/* ── MEMBERS 초기화 ── */
+/* ── MEMBERS 초기화 ──
+   예전에는 회원이 비어있으면 가짜 샘플 회원(김지은)을 자동 생성했지만,
+   이제 Supabase 서버 동기화로 실제 회원 데이터를 받아오므로
+   더 이상 샘플 데이터를 만들지 않습니다. */
 let MEMBERS = loadMembers();
-if(!MEMBERS || MEMBERS.length === 0){
-  MEMBERS = generateSampleMembers();
+if(!MEMBERS){
+  MEMBERS = [];
   saveMembers();
 }
 syncFromIndex();
@@ -1469,8 +1485,8 @@ function renderOverview(){
   try {
     let bookTotal = 0, bookMemberSet = new Set();
     MEMBERS.forEach(m=>{
-      const bl = (()=>{try{return JSON.parse(localStorage.getItem('rbu_booklog_'+m.email)||'[]');}catch(e){return[];}})();
-      const pf = (()=>{try{return JSON.parse(localStorage.getItem('rbu_pf_'+m.email)||'[]');}catch(e){return[];}})();
+      const bl = m.booklog || [];
+      const pf = m.portfolio || [];
       const cnt = bl.length + pf.length;
       bookTotal += cnt;
       if(cnt>0) bookMemberSet.add(m.id);
@@ -1484,7 +1500,7 @@ function renderOverview(){
     const todayStr = fmtDate(today());
     let ciTodayCnt=0, allCi=[];
     MEMBERS.forEach(m=>{
-      const logs=(()=>{try{return JSON.parse(localStorage.getItem('rbu_checkin_log_'+m.email)||'[]');}catch(e){return[];}})();
+      const logs = m.checkin || [];
       allCi=allCi.concat(logs);
       if(logs.some(l=>l.date===todayStr)) ciTodayCnt++;
     });
@@ -1499,7 +1515,7 @@ function renderOverview(){
 
   /* ── 히어로 게임 요약 ── */
   try {
-    const heroTotal = parseInt(localStorage.getItem('hero_total_score')||'0');
+    const heroTotal = MEMBERS.reduce((s,m)=>s+(m.heroScore||0), 0);
     const heroLv = getHeroLevel(heroTotal);
     document.getElementById('ov-hero-score').textContent = heroTotal+'점';
     document.getElementById('ov-hero-level').textContent = '현재 레벨: '+heroLv.label;
@@ -1635,12 +1651,21 @@ function renderByDate(){
 /* ══════════════════════════════════════════
    활동 기반 피드백 생성
 ══════════════════════════════════════════ */
+/* 실제 서버 동기화 데이터에는 응답별 점수(score)가 없으므로,
+   없을 때는 답변 길이 기반으로 대략적인 완성도 점수를 계산해서
+   NaN/undefined가 화면에 노출되지 않도록 함 */
+function respScore(r){
+  if (typeof r.score === 'number' && !isNaN(r.score)) return r.score;
+  var len = (r.text||'').length;
+  return Math.max(40, Math.min(95, 40 + Math.floor(len/3)));
+}
+
 function generateFeedback(m){
   const allResp = SECTIONS.flatMap(s=>(m.responses[s]||[]).map(r=>({s,r})));
   const total = allResp.length;
   if(total===0) return '아직 활동 기록이 없습니다. 첫 섹션 응답을 완료하면 맞춤 피드백이 제공됩니다.';
 
-  const avgScore = Math.round(allResp.reduce((s,e)=>s+e.r.score,0)/total);
+  const avgScore = Math.round(allResp.reduce((s,e)=>s+respScore(e.r),0)/total);
   const secs = SECTIONS.filter(s=>(m.responses[s]||[]).length>0);
   const lastText = allResp.sort((a,b)=>b.r.date.localeCompare(a.r.date))[0].r.text;
   const hasCheckin = m.checkin && m.checkin.length > 0;
@@ -1799,7 +1824,7 @@ function renderMemberDetail(idx){
 
   const allResp = SECTIONS.flatMap(s=>(m.responses[s]||[]).map(r=>({s,r})));
   const totalResp = allResp.length;
-  const avgScore = totalResp? Math.round(allResp.reduce((s,e)=>s+e.r.score,0)/totalResp):0;
+  const avgScore = totalResp? Math.round(allResp.reduce((s,e)=>s+respScore(e.r),0)/totalResp):0;
   const feedback = generateFeedback(m);
 
   /* ── 기타 활동 참여 뱃지 ── */
@@ -1825,7 +1850,7 @@ function renderMemberDetail(idx){
     const done = rs.length>0;
     const col  = SEC_COLOR[s];
     const bg   = SEC_BG[s];
-    const avgS = done ? Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length) : null;
+    const avgS = done ? Math.round(rs.reduce((a,r)=>a+respScore(r),0)/rs.length) : null;
     const cardId = 'sec-detail-'+s;
     return `
       <div style="border-radius:16px;border:2px solid ${done?col:'var(--border)'};overflow:hidden;margin-bottom:10px">
@@ -1855,7 +1880,7 @@ function renderMemberDetail(idx){
                   <div class="tl-dot" style="background:${col}"></div>
                   <div class="tl-date">${r.date}</div>
                   <div class="tl-text">${r.text}</div>
-                  <div class="tl-score">${scorePill(r.score)}</div>
+                  <div class="tl-score">${scorePill(respScore(r))}</div>
                 </div>`).join('')}
             </div>` : `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">아직 응답이 없습니다</div>`}
         </div>
@@ -2011,22 +2036,19 @@ function getHeroLevel(score){
   for(const l of HERO_LEVELS_MGR) if(score>=l.min) return l;
   return HERO_LEVELS_MGR[HERO_LEVELS_MGR.length-1];
 }
-function getHeroData(email){
-  // index.html의 hero localStorage 키: hero_total_score, hero_total_cards, hero_level
-  // 다중 회원 지원: hero_score_{email}, hero_cards_{email}
-  const score = parseInt(localStorage.getItem('hero_score_'+email)||localStorage.getItem('hero_total_score')||'0');
-  const cards = parseInt(localStorage.getItem('hero_cards_'+email)||localStorage.getItem('hero_total_cards')||'0');
+function getHeroData(m){
+  const score = (m && m.heroScore) || 0;
+  const cards = (m && m.heroCards) || 0;
   return {score, cards, level: getHeroLevel(score)};
 }
 function renderHeroStats(){
-  // 각 회원의 히어로 데이터 수집
-  const data = MEMBERS.map(m=>({m, ...getHeroData(m.email)}));
+  // 각 회원의 히어로 데이터 수집 (서버 동기화된 m.heroScore/m.heroCards 기준)
+  const data = MEMBERS.map(m=>({m, ...getHeroData(m)}));
   const totalScore = data.reduce((s,d)=>s+d.score,0);
   const totalCards = data.reduce((s,d)=>s+d.cards,0);
   const players = data.filter(d=>d.score>0).length;
-  // 현재 로그인 사용자 기준 레벨
-  const myScore = parseInt(localStorage.getItem('hero_total_score')||'0');
-  const myLevel = getHeroLevel(myScore);
+  // 전체 누적 점수 기준 레벨
+  const myLevel = getHeroLevel(totalScore);
 
   document.getElementById('hero-ov-score').textContent = totalScore+'점';
   document.getElementById('hero-ov-cards').textContent = totalCards+'장';
@@ -2261,10 +2283,12 @@ function showToast(msg){
    📚 독서 포트폴리오 현황
 ══════════════════════════════════════════ */
 function getBookLogs(email){
-  try { return JSON.parse(localStorage.getItem('rbu_booklog_' + email) || '[]'); } catch(e){ return []; }
+  const m = MEMBERS.find(x=>x.email===email);
+  return (m && m.booklog) || [];
 }
 function getPfStories(email){
-  try { return JSON.parse(localStorage.getItem('rbu_pf_' + email) || '[]'); } catch(e){ return []; }
+  const m = MEMBERS.find(x=>x.email===email);
+  return (m && m.portfolio) || [];
 }
 
 function populateBookFilterSel(){
@@ -2373,7 +2397,8 @@ function renderBookStats(){
    📔 체크인 현황
 ══════════════════════════════════════════ */
 function getCheckinLogs(email){
-  try { return JSON.parse(localStorage.getItem('rbu_checkin_log_' + email) || '[]'); } catch(e){ return []; }
+  const m = MEMBERS.find(x=>x.email===email);
+  return (m && m.checkin) || [];
 }
 
 function populateCiFilterSel(){
