@@ -2854,7 +2854,10 @@ function _doSyncActivityToServer() {
       portfolio: readJSON('rbu_pf_' + userkey, []),
       stamp:     readJSON(stampKey(), {}),
       hero_score: parseInt(localStorage.getItem('hero_score_' + userkey) || '0'),
-      hero_cards: parseInt(localStorage.getItem('hero_cards_' + userkey) || '0')
+      hero_cards: parseInt(localStorage.getItem('hero_cards_' + userkey) || '0'),
+      storylog:    readJSON('rbu_storylog_' + userkey, []),
+      pf_strength: readJSON('rbu_portfolio_strength_' + userkey, []),
+      pf_mission:  readJSON('rbu_portfolio_mission_' + userkey, [])
     };
 
     fetch('/.netlify/functions/saveActivity', {
@@ -7932,11 +7935,16 @@ function showStudyData(subject) {
     var savedName  = localStorage.getItem('rbu_name');
     var savedSchool = localStorage.getItem('rbu_school');
     if (savedName && savedSchool) {
-      showLoggedIn(savedName, savedSchool);
-      // 서버에서 별 데이터 동기화
-      setTimeout(function() {
+      (async function() {
+        // 서버에 저장된 활동 기록을 먼저 로컬로 복원한 뒤 화면을 그림
+        // (순서가 바뀌면 새 기기의 빈 로컬 데이터가 서버 데이터를 덮어씀)
+        try {
+          if (typeof restoreActivityFromServer === 'function') await restoreActivityFromServer();
+        } catch(e) {}
+        showLoggedIn(savedName, savedSchool);
+        // 서버에서 별 데이터 동기화
         if (typeof loadStarsFromServer === 'function') loadStarsFromServer();
-      }, 500);
+      })();
     }
   });
 
@@ -8053,6 +8061,13 @@ function showStudyData(subject) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userkey: userKey, school: school, studentid: studentid, name: name })
       });
+    } catch(e) {}
+
+    // 서버에 저장된 기존 활동 기록을 먼저 복원 (다른 브라우저/기기에서 로그인한 경우 대비)
+    // 순서 중요: showLoggedIn()이 내부에서 syncActivityToServer()를 호출하므로,
+    // 그 전에 서버 데이터를 로컬로 가져와야 빈 데이터로 덮어쓰이지 않음
+    try {
+      if (typeof restoreActivityFromServer === 'function') await restoreActivityFromServer();
     } catch(e) {}
 
     showLoggedIn(name, school);
@@ -8258,6 +8273,70 @@ async function loadStarsFromServer() {
     updateStarDisplay();
   } catch(e) {}
 }
+
+/* ══════════════════════════════════════════
+   서버(Supabase)에서 활동 누적 기록 전체 복원
+   — 다른 브라우저/기기에서 같은 아이디로 로그인해도
+     일기·스토리·체크인·버킷리스트·독서기록·포트폴리오·
+     출석스탬프·히어로 점수가 그대로 이어지도록 함
+   ※ 로그인 직후, syncActivityToServer가 호출되기 전에
+     반드시 먼저 실행되어야 함 (안 그러면 새 기기의 빈
+     로컬 데이터가 서버 데이터를 덮어씀)
+══════════════════════════════════════════ */
+async function restoreActivityFromServer() {
+  var userkey = localStorage.getItem('rbu_userkey') || localStorage.getItem('rbu_email');
+  if (!userkey || userkey === 'guest') return;
+
+  try {
+    var res = await fetch('/.netlify/functions/loadActivity?userkey=' + encodeURIComponent(userkey));
+    if (!res.ok) return;
+    var data = await res.json();
+    if (!data) return;
+
+    function put(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+    }
+    function hasContent(v) {
+      if (!v) return false;
+      if (Array.isArray(v)) return v.length > 0;
+      if (typeof v === 'object') return Object.keys(v).length > 0;
+      return true;
+    }
+
+    var r = data.responses || {};
+    if (hasContent(r.diary))    put(sectionKey('diary'), r.diary);
+    if (hasContent(r.story))    put(sectionKey('story'), r.story);
+    if (hasContent(r.actstory)) put(sectionKey('actstory'), r.actstory);
+    if (hasContent(r.mission))  put(sectionKey('mission'), r.mission);
+    if (hasContent(r.cv))       put(sectionKey('cv'), r.cv);
+    if (hasContent(r.strength)) put(sectionKey('strength'), r.strength);
+
+    if (hasContent(data.checkin))     put('rbu_checkin_log_' + userkey, data.checkin);
+    if (hasContent(data.bucket))      put('rbu_bucket_' + userkey, data.bucket);
+    if (hasContent(data.booklog))     put('rbu_booklog_' + userkey, data.booklog);
+    if (hasContent(data.portfolio))   put('rbu_pf_' + userkey, data.portfolio);
+    if (hasContent(data.stamp))       put('rbu_stamp_' + userkey, data.stamp);
+    if (hasContent(data.storylog))    put('rbu_storylog_' + userkey, data.storylog);
+    if (hasContent(data.pf_strength)) put('rbu_portfolio_strength_' + userkey, data.pf_strength);
+    if (hasContent(data.pf_mission))  put('rbu_portfolio_mission_' + userkey, data.pf_mission);
+
+    var heroScore = parseInt(data.hero_score || 0);
+    var heroCards = parseInt(data.hero_cards || 0);
+    if (heroScore > 0 || heroCards > 0) {
+      localStorage.setItem('hero_score_' + userkey, heroScore);
+      localStorage.setItem('hero_cards_' + userkey, heroCards);
+      var localTotal = parseInt(localStorage.getItem('hero_total_score') || '0');
+      if (heroScore >= localTotal) {
+        localStorage.setItem('hero_total_score', heroScore);
+        localStorage.setItem('hero_total_cards', heroCards);
+        if (typeof heroGetLevel === 'function') {
+          localStorage.setItem('hero_level', heroGetLevel(heroScore).label);
+        }
+      }
+    }
+  } catch(e) { console.warn('restoreActivityFromServer error:', e); }
+}
+window.restoreActivityFromServer = restoreActivityFromServer;
 
 
 /* ── 별 추가 (핵심 함수) ── */
