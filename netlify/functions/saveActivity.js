@@ -8,7 +8,8 @@ exports.handler = async (event) => {
   try {
     const {
       userkey, name, responses, checkin, bucket,
-      booklog, portfolio, stamp, hero_score, hero_cards
+      booklog, portfolio, stamp, hero_score, hero_cards,
+      storylog, pf_strength, pf_mission
     } = JSON.parse(event.body || '{}');
 
     if (!userkey) return { statusCode: 400, body: 'userkey required' };
@@ -35,6 +36,9 @@ exports.handler = async (event) => {
         stamp: stamp || {},
         hero_score: hero_score || 0,
         hero_cards: hero_cards || 0,
+        storylog: storylog || [],
+        pf_strength: pf_strength || [],
+        pf_mission: pf_mission || [],
         updated_at: new Date().toISOString()
       })
     });
